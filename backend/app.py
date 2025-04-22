@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from config import Config
 from flask_cors import CORS
 from extensions import db, jwt, mail, migrate
@@ -7,9 +7,12 @@ from routes.vacants import vacants_bp
 from routes.application import app_bp
 from routes.profile import profile_bp
 
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    
 
     db.init_app(app)
     jwt.init_app(app)
@@ -23,7 +26,7 @@ def create_app():
 
     @app.route("/")
     def home():
-        return {"msg": "NextStep API funcionando 👌"}
+        return jsonify({"msg": "NextStep API funcionando 👌"})
     
     CORS(app, supports_credentials=True, origins=["http://localhost:4200"])
 
