@@ -11,3 +11,4 @@ class Config:
     MAIL_USERNAME = 'c6cd4bf2bd27a0'
     MAIL_PASSWORD = 'dc1b8cb5351ced'
     MAIL_DEFAULT_SENDER = 'noreply@nextstep.com'
+
