@@ -1,6 +1,9 @@
 import os
+import token
 
 class Config:
+    BASE_URL = os.getenv("BASE_URL", "http://localhost:5000")
+    confirm_url = f"{BASE_URL}/confirm/{token}"
     SECRET_KEY = os.getenv("SECRET_KEY", "supersecret")
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///nextstep.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False

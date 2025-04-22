@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify
 from extensions import db
 from models.user import User, Role
 from models.student_profile import StudentProfile
@@ -13,6 +13,7 @@ auth_bp = Blueprint("auth", __name__)
 
 # Pruebas
 @auth_bp.route("/testemail", methods=["GET"])
+
 def testemail():
     msg = Message(
         subject="Prueba de correo",
@@ -88,7 +89,9 @@ def register():
 
     confirm_token = create_access_token(identity=email, expires_delta=timedelta(days=1), additional_claims={"confirm": True})
 
-    confirm_url = f"http://localhost:5000/confirm/{confirm_token}"
+    BASE_URL = current_app.config["BASE_URL"]
+    confirm_url = f"{BASE_URL}/confirm/{confirm_token}"
+
     msg = Message(subject="Confirma tu correo",
                 sender="noreply@nextstep.com",
                 recipients=[email])
