@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+venv/
+.env
+*.env
+
+# Flask-related
+instance/
+.mypy_cache/
+.pytest_cache/
+*.sqlite3
+*.db
+
+# VSCode
+.vscode/
+
+# Migration files (optional, si los quieres regenerar)
+migrations/

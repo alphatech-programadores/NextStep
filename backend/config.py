@@ -1,0 +1,13 @@
+import os
+
+class Config:
+    SECRET_KEY = os.getenv("SECRET_KEY", "supersecret")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///nextstep.db")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAIL_SERVER = 'sandbox.smtp.mailtrap.io'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = 'c6cd4bf2bd27a0'
+    MAIL_PASSWORD = 'dc1b8cb5351ced'
+    MAIL_DEFAULT_SENDER = 'noreply@nextstep.com'
+
