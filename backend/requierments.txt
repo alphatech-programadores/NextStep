@@ -7,3 +7,4 @@ Flask-Migrate
 flask-cors
 flask_mail 
 gunicorn
+psycopg2-binary
