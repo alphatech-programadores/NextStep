@@ -1,14 +1,8 @@
 from app import create_app
 from extensions import db, migrate
-from flask_migrate import upgrade
-
-from sqlalchemy import text
-
+from models import user, student_profile, institution_profile, application, vacant
 
 app = create_app()
 
-# Aplica migraciones automáticamente al arrancar (solo mientras no tienes shell)
-
-with app.app_context():
-    db.engine.execute(text("DROP TABLE IF EXISTS alembic_version"))
-    upgrade()
+# Si quieres que Migrate esté disponible para CLI
+migrate.init_app(app, db)

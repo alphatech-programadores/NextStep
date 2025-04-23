@@ -9,7 +9,6 @@ venv/
 *.env
 
 # Flask-related
-instance/
 .mypy_cache/
 .pytest_cache/
 *.sqlite3
@@ -18,5 +17,3 @@ instance/
 # VSCode
 .vscode/
 
-# Migration files (optional, si los quieres regenerar)
-migrations/
