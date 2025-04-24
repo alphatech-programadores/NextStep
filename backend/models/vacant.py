@@ -1,18 +1,23 @@
 from extensions import db
-# models/vacant.py
-from datetime import date
+from datetime import datetime
 
 class Vacant(db.Model):
     __tablename__ = 'vacants'
 
     id = db.Column(db.Integer, primary_key=True)
-    area = db.Column(db.String(50), nullable=False)
-    hours = db.Column(db.Integer, nullable=False)
-    modality = db.Column(db.String(30))  # remota, presencial, híbrida
-    start_date = db.Column(db.Date, default=date.today)
-    end_date = db.Column(db.Date)
-    description = db.Column(db.Text, nullable=False)
-    requirements = db.Column(db.Text)  # texto libre o JSON
-    status = db.Column(db.String(20), default="abierta")  # abierta, cerrada
+    area = db.Column(db.String, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    hours = db.Column(db.String, nullable=True)
+    modality = db.Column(db.String, nullable=True)  # presencial, híbrido, remoto
+    requirements = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String, default='activa')  # activa / inactiva
+    start_date = db.Column(db.Date, nullable=True)
+    end_date = db.Column(db.Date, nullable=True)
 
-    institution_email = db.Column(db.String, db.ForeignKey('users.email'), nullable=False)
+    # Campos nuevos:
+    location = db.Column(db.String, nullable=True)  # ej. "CDMX", "Querétaro"
+    tags = db.Column(db.String, default="")  # Coma-separados: "Python,Full-time,Remoto"
+    is_draft = db.Column(db.Boolean, default=False)
+    last_modified = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    institution_email = db.Column(db.String, db.ForeignKey("institution_profiles.email"), nullable=False)

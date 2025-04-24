@@ -6,6 +6,7 @@ from routes.auth import auth_bp
 from routes.vacants import vacants_bp
 from routes.application import app_bp
 from routes.profile import profile_bp
+import triggers.user_trigger
 
 
 
