@@ -1,18 +1,23 @@
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 from extensions import db
+from models.student_profile import StudentProfile
 from models.vacant import Vacant
 from models.application import Application
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.user import User
+#from sklearn.feature_extraction.text import TfidfVectorizer
+#from sklearn.metrics.pairwise import cosine_similarity
 from utils import session_validated
+#import nltk
+#nltk.download('punkt')
+
 
 vacants_bp = Blueprint("vacants", __name__)
 
 # Crear vacante
 @vacants_bp.route("/", methods=["POST"])
 @jwt_required()
-@session_validated
 def create_vacant():
     current_user = User.query.get(get_jwt_identity())
 
@@ -49,29 +54,22 @@ def create_vacant():
     db.session.commit()
     return jsonify({"message": "Vacante creada exitosamente."}), 201
 
-
-# Listar vacantes
+# ...
 @vacants_bp.route("/", methods=["GET"])
 @jwt_required(optional=True)
-@session_validated
 def list_vacants():
     identity = get_jwt_identity()
     user = User.query.get(identity) if identity else None
 
-    # Estudiantes con vacante ya aceptada no pueden ver más
+    query = Vacant.query.filter_by(status="activa", is_draft=False)
+
+    # Si es estudiante y ya fue aceptado en una vacante, no mostrarle más
     if user and user.role.name == "student":
         accepted = Application.query.filter_by(student_email=user.email, status="aceptado").first()
         if accepted:
             return jsonify([])
 
-    # Solo vacantes activas y no borrador
-    vacants = Vacant.query.filter_by(status="activa", is_draft=False).all()
-    filtered = []
-
-    for v in vacants:
-        accepted = Application.query.filter_by(vacant_id=v.id, status="aceptado").first()
-        if not accepted:
-            filtered.append(v)
+    vacants = query.all()
 
     return jsonify([
         {
@@ -84,13 +82,58 @@ def list_vacants():
             "tags": v.tags,
             "institution_email": v.institution_email
         }
-        for v in filtered
+        for v in vacants
     ])
+
+
+# Listar vacantes de la institución consultante.
+@vacants_bp.route("/my", methods=["GET"])
+@jwt_required()
+def list_my_vacants():
+    current_user = User.query.get(get_jwt_identity())
+
+    if current_user.role.name != "institution":
+        return jsonify({"error": "Solo las instituciones pueden ver sus vacantes."}), 403
+
+    vacants = Vacant.query.filter_by(institution_email=current_user.email).all()
+
+    result = []
+
+    for v in vacants:
+        count = Application.query.filter_by(vacant_id=v.id).count()
+        accepted = Application.query.filter_by(vacant_id=v.id, status="aceptado").first()
+
+        if v.is_draft:
+            status_summary = "borrador"
+        elif accepted:
+            status_summary = "cerrada"
+        elif count > 0:
+            status_summary = "activa_con_postulaciones"
+        else:
+            status_summary = "activa_sin_postulaciones"
+
+        result.append({
+            "id": v.id,
+            "area": v.area,
+            "description": v.description,
+            "hours": v.hours,
+            "modality": v.modality,
+            "location": v.location,
+            "tags": v.tags,
+            "status": v.status,
+            "is_draft": v.is_draft,
+            "last_modified": v.last_modified.isoformat() if v.last_modified else None,
+            "applications_count": count,
+            "status_summary": status_summary
+        })
+
+    return jsonify(result)
+
+
 
 # Actualizar una vacante
 @vacants_bp.route("/<int:id>", methods=["PUT"])
 @jwt_required()
-@session_validated
 def update_vacant(id):
     vacant = Vacant.query.get_or_404(id)
     current_user = User.query.get(get_jwt_identity())
@@ -129,7 +172,6 @@ def update_vacant(id):
 # Eliminar vacante
 @vacants_bp.route("/<int:id>", methods=["DELETE"])
 @jwt_required()
-@session_validated
 def delete_vacant(id):
     vacant = Vacant.query.get_or_404(id)
     current_user = User.query.get(get_jwt_identity())
@@ -181,4 +223,125 @@ def search_vacants():
             "institution_email": v.institution_email
         }
         for v in results
+    ])
+
+
+
+# Activar o desactivar vacante
+@vacants_bp.route("/<int:id>/status", methods=["PATCH"])
+@jwt_required()
+def toggle_vacant_status(id):
+    vacant = Vacant.query.get_or_404(id)
+    current_user = User.query.get(get_jwt_identity())
+
+    if vacant.institution_email != current_user.email:
+        return jsonify({"error": "No tienes permiso para modificar esta vacante."}), 403
+
+    new_status = request.get_json().get("status")
+
+    if new_status not in ["activa", "inactiva"]:
+        return jsonify({"error": "Estado inválido (usa 'activa' o 'inactiva')"}), 400
+
+    vacant.status = new_status
+    db.session.commit()
+
+    return jsonify({"message": f"Vacante marcada como '{new_status}'."})
+
+# Publicar borrador
+@vacants_bp.route("/<int:id>/publish", methods=["PATCH"])
+@jwt_required()
+def publish_vacant(id):
+    vacant = Vacant.query.get_or_404(id)
+    current_user = User.query.get(get_jwt_identity())
+
+    if vacant.institution_email != current_user.email:
+        return jsonify({"error": "No tienes permiso para publicar esta vacante."}), 403
+
+    if not vacant.is_draft:
+        return jsonify({"message": "Esta vacante ya está publicada."}), 200
+
+    vacant.is_draft = False
+    db.session.commit()
+
+    return jsonify({"message": "Vacante publicada correctamente."})
+
+@vacants_bp.route("/<int:id>/applications/sorted", methods=["GET"])
+@jwt_required()
+def sorted_applications(id):
+    vacant = Vacant.query.get_or_404(id)
+    current_user = User.query.get(get_jwt_identity())
+
+    if current_user.role.name != "institution" or vacant.institution_email != current_user.email:
+        return jsonify({"error": "No tienes acceso a estas postulaciones."}), 403
+
+    sort_by = request.args.get("sort_by", "date")
+
+    query = Application.query.filter_by(vacant_id=id)
+
+    if sort_by == "average":
+        query = query.join(StudentProfile, StudentProfile.email == Application.student_email)\
+                     .order_by(StudentProfile.average.desc().nullslast())
+    elif sort_by == "career":
+        query = query.join(StudentProfile, StudentProfile.email == Application.student_email)\
+                     .order_by(StudentProfile.career.asc())
+    else:  # default: by submission date (assumes Application has `created_at`)
+        query = query.order_by(Application.created_at.desc())
+
+    applications = query.all()
+
+    return jsonify([
+        {
+            "student_email": app.student_email,
+            "status": app.status,
+            "submitted": app.created_at.isoformat() if app.created_at else None
+        } for app in applications
+    ])
+
+@vacants_bp.route("/<int:application_id>/decision", methods=["PATCH"])
+@jwt_required()
+def decide_application(application_id):
+    current_user = User.query.get(get_jwt_identity())
+    app = Application.query.get_or_404(application_id)
+
+    vacant = Vacant.query.get_or_404(app.vacant_id)
+    if current_user.role.name != "institution" or vacant.institution_email != current_user.email:
+        return jsonify({"error": "No tienes permiso para tomar esta decisión."}), 403
+
+    data = request.get_json()
+    decision = data.get("decision")
+    feedback = data.get("feedback", "")
+
+    if decision not in ["aceptado", "rechazado"]:
+        return jsonify({"error": "La decisión debe ser 'aceptado' o 'rechazado'."}), 400
+
+    app.status = decision
+    if decision == "rechazado":
+        app.feedback = feedback  # nuevo campo opcional
+
+    db.session.commit()
+    return jsonify({"message": f"Postulación marcada como '{decision}' correctamente."})
+
+# en routes/vacants.py
+
+@vacants_bp.route("/map", methods=["GET"])
+@jwt_required(optional=True)
+def vacants_for_map():
+    vacants = Vacant.query.filter(
+        Vacant.status == "activa",
+        Vacant.is_draft == False,
+        Vacant.latitude.isnot(None),
+        Vacant.longitude.isnot(None)
+    ).all()
+
+    return jsonify([
+        {
+            "id": v.id,
+            "area": v.area,
+            "description": v.description,
+            "modality": v.modality,
+            "location": v.location,
+            "latitude": v.latitude,
+            "longitude": v.longitude
+        }
+        for v in vacants
     ])

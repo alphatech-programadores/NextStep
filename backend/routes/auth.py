@@ -17,8 +17,8 @@ auth_bp = Blueprint("auth", __name__)
 def testemail():
     msg = Message(
         subject="Prueba de correo",
-        sender="noreply@nextstep.com",
-        recipients=["juarez.botello.samuel@gmail.com"],
+        sender=current_app.config["MAIL_DEFAULT_SENDER"],
+        recipients=["sanchez.hernandez.luis.felipe12@gmail.com", "alejandrofuentes.glz@gmail.com", "juarez.botello.samuel@gmail.com"],
         body="Este es un mensaje de prueba desde Flask usando Mailtrap."
     )
     try:
@@ -90,10 +90,10 @@ def register():
     confirm_token = create_access_token(identity=email, expires_delta=timedelta(days=1), additional_claims={"confirm": True})
 
     BASE_URL = current_app.config["BASE_URL"]
-    confirm_url = f"{BASE_URL}/confirm/{confirm_token}"
+    confirm_url = f"{BASE_URL}/auth/confirm/{confirm_token}"
 
     msg = Message(subject="Confirma tu correo",
-                sender="noreply@nextstep.com",
+                sender=current_app.config["MAIL_DEFAULT_SENDER"],
                 recipients=[email])
     msg.body = f"Hola {name}, por favor confirma tu correo visitando este enlace: {confirm_url}"
 
@@ -147,8 +147,9 @@ def login():
 
     access_token = create_access_token(
         identity=user.email,
-        additional_claims={"role": user.role.name}
-    )
+        additional_claims={"role": user.role.name},
+        expires_delta=timedelta(hours=4)
+    ) 
 
     return jsonify({
         "message": "Inicio de sesión exitoso.",
@@ -160,6 +161,7 @@ def login():
         }
     }), 200
 
+#Olvidó su contraseña
 @auth_bp.route("/forgot-password", methods=["POST"])
 def forgot_password():
     data = request.get_json()
@@ -178,10 +180,13 @@ def forgot_password():
         additional_claims={"reset": True}
     )
 
-    reset_url = f"http://localhost:5000/reset-password/{reset_token}"
+    BASE_URL = current_app.config["BASE_URL"]  # http://localhost:3000 en frontend
+    # 👇 Este link ahora apunta al FRONTEND, no al backend
+    reset_url = f"{BASE_URL}/auth/reset-password/{reset_token}"
+
     msg = Message(
         subject="Restablece tu contraseña",
-        sender="noreply@nextstep.com",
+        sender=current_app.config["MAIL_DEFAULT_SENDER"],
         recipients=[email],
         body=f"Hola, puedes restablecer tu contraseña con este enlace:\n{reset_url}"
     )
@@ -189,8 +194,8 @@ def forgot_password():
     mail.send(msg)
     return jsonify({"message": "Si el correo está registrado, se enviará un enlace de recuperación."}), 200
 
-from flask_jwt_extended import decode_token
 
+#Resetar contraesña
 @auth_bp.route("/reset-password/<token>", methods=["POST"])
 def reset_password(token):
     data = request.get_json()
@@ -221,7 +226,6 @@ def reset_password(token):
 
 @auth_bp.route("/delete", methods=["DELETE"])
 @jwt_required()
-@session_validated
 def delete_account():
     current_email = get_jwt_identity()
     user = User.query.get(current_email)
@@ -259,7 +263,6 @@ def delete_account():
 
 @auth_bp.route("/logout", methods=["POST"])
 @jwt_required()
-@session_validated
 def logout():
     # Implementar revocación, aquí se agrega el JWT a una blacklist
     return jsonify({"message": "Sesión cerrada."}), 200

@@ -11,8 +11,7 @@ def session_validated(fn):
         user = User.query.get(identity)
         token_time = datetime.fromtimestamp(get_jwt()["iat"])
 
-        if token_time < user.last_password_reset:
+        if user.last_password_reset and token_time < user.last_password_reset:
             return jsonify({"error": "Sesión expirada. Inicia sesión de nuevo."}), 401
-
         return fn(*args, **kwargs)
     return wrapper

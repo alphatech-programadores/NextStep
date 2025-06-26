@@ -11,7 +11,6 @@ profile_bp = Blueprint("profile", __name__)
 # Obtener perfil del usuario autenticado
 @profile_bp.route("/me", methods=["GET"])
 @jwt_required()
-@session_validated
 def get_my_profile():
     user = User.query.get(get_jwt_identity())
 

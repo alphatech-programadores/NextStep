@@ -16,8 +16,8 @@ class User(db.Model):
     name = db.Column(db.String(50), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     is_confirmed = db.Column(db.Boolean, default=False)
-    last_password_reset = db.Column(db.DateTime, default=datetime.utcnow)
-
+    last_password_reset = db.Column(db.DateTime, nullable=True, default=None)
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     

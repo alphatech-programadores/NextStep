@@ -10,7 +10,7 @@ def backup_user_insert(mapper, connection, target):
             table='users',
             operation='INSERT',
             record_id=target.email,
-            user='system'  # Puedes poner aquí get_jwt_identity() si lo capturas
+            user='system' # Funciona de igual manera con JWT Identity por motivos de seguridad
         )
     )
 

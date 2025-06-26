@@ -8,3 +8,6 @@ flask-cors
 flask_mail 
 gunicorn
 psycopg2-binary
+sentence-transformers
+nltk
+
