@@ -1,0 +1,20 @@
+// Definición de tu paleta de colores
+$primary-color: #00796b; // Verde oscuro (tu "hero" background)
+$primary-light: #e0f2f1; // Verde claro (hover del botón CTA)
+$primary-lighter: #f0fdfc; // Verde muy claro (fondo de featureItem)
+
+$secondary-color: #00796b; // Azul (usado para el botón de login y enlaces)
+$secondary-hover: #03ecba; // Azul oscuro (hover del botón de login)
+
+$text-dark: #333; // Texto principal oscuro
+$text-medium: #666; // Texto secundario/pie de página
+$text-light: #ffffff; // Texto blanco (para fondos oscuros)
+
+$background-light: #f9f9f9; // Fondo general claro (tu .container)
+$background-medium: #eeeeee; // Fondo del footer
+$background-white: #ffffff; // Fondo de tarjeta (login, features)
+
+// Puedes añadir variables para sombras, bordes, espaciados, etc.
+$box-shadow-light: 0 2px 6px rgba(0, 0, 0, 0.1);
+$box-shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
+$border-color-light: #dcdcdc;

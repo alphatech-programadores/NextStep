@@ -1,0 +1,102 @@
+@import '../../../components/styles/_variables.scss'; // Importa tus variables de color (ajusta la ruta si es diferente)
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: $background-light; // Coherente con .container de landing
+    padding: 20px;
+    font-family: "Segoe UI", sans-serif;
+    /* Consistencia en la fuente */
+    color: $text-dark;
+    /* Consistencia en el color de texto general */
+}
+
+.card {
+    background-color: $background-white; // Coherente con features background
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: $box-shadow-medium; // Usando variable para sombra
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.title {
+    font-size: 2.2em;
+    color: $text-dark; // Coherente
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.inputGroup {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Puedes añadir estilos generales para input si FormInput no tiene los suyos,
+   o si quieres sobrescribir los de FormInput */
+.inputGroup input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid $border-color-light; // Usando variable
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.inputGroup input:focus {
+    outline: none;
+    border-color: $secondary-color; // Usando tu azul para el enfoque
+    box-shadow: 0 0 0 3px rgba($secondary-color, 0.25);
+}
+
+
+.submitButton {
+    background-color: $secondary-color; // Usando el azul para el botón de acción
+    color: $text-light;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.submitButton:hover {
+    background-color: $secondary-hover; // Usando el azul oscuro para hover
+}
+
+.submitButton:disabled {
+    background-color: #cccccc;
+    /* Un gris neutro para deshabilitado, o puedes definirlo como variable */
+    cursor: not-allowed;
+}
+
+.forgotPassword,
+.registerLink {
+    font-size: 0.9em;
+    margin-top: 20px;
+    color: $text-medium; // Consistente con footer text
+}
+
+.forgotPassword a,
+.registerLink a {
+    color: $secondary-color; // Enlaces también usan el azul de acción
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgotPassword a:hover,
+.registerLink a:hover {
+    text-decoration: underline;
+}

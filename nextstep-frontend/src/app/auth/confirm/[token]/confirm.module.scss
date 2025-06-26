@@ -1,0 +1,64 @@
+// src/app/auth/confirm/[token]/ConfirmEmail.module.css
+
+// Ruta correcta a _colors.scss
+// Desde src/app/auth/confirm/[token]/, necesitas subir tres niveles para llegar a src/ y luego bajar a styles/
+@import '../../../../components/styles/_variables.scss';
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: $background-light;
+    padding: 20px;
+    font-family: "Segoe UI", sans-serif;
+    color: $text-dark;
+}
+
+.card {
+    background-color: $background-white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: $box-shadow-medium;
+    width: 100%;
+    max-width: 500px;
+    /* Un poco más ancho para mensajes */
+    text-align: center;
+}
+
+.title {
+    font-size: 2em;
+    color: $text-dark;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.message {
+    font-size: 1.1em;
+    color: $text-dark;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.errorMessage {
+    color: #d9534f;
+    /* Un color rojo para errores */
+    font-weight: 600;
+}
+
+.actionButton {
+    background-color: $secondary-color;
+    color: $text-light;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+.actionButton:hover {
+    background-color: $secondary-hover;
+}

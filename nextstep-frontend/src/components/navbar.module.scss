@@ -1,0 +1,90 @@
+// src/components/Navbar/Navbar.module.css
+
+// Ruta a _colors.scss (sube dos niveles desde components/Navbar/)
+@import 'styles/_variables.scss';
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: $primary-color;
+    /* Un color principal consistente */
+    color: $text-light;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.brandLink {
+    color: $text-light;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    /* Espacio entre los enlaces */
+}
+
+.navLink {
+    color: $text-light;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+        opacity: 0.7;
+    }
+}
+
+.welcomeText {
+    font-size: 1em;
+    font-weight: 500;
+    color: $primary-light;
+    /* Un color ligeramente diferente para el texto de bienvenida */
+    margin-right: 0.5rem;
+}
+
+.logoutButton {
+    background-color: transparent;
+    color: $text-light;
+    border: 1px solid $text-light;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    &:hover {
+        background-color: $text-light;
+        color: $primary-color;
+    }
+}
+
+.registerButton {
+    background-color: $text-light;
+    /* Botón de registro con fondo blanco */
+    color: $primary-color;
+    /* Texto del botón con el color principal */
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    &:hover {
+        background-color: $primary-light;
+        color: $primary-color;
+    }
+}

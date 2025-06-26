@@ -1,0 +1,82 @@
+@import './_variables.scss'; // Importa tus variables de color
+
+.container {
+    font-family: "Segoe UI", sans-serif;
+    background-color: $background-light; // Usando variable
+    color: $text-dark; // Usando variable
+}
+
+.hero {
+    background-color: $primary-color; // Usando variable
+    color: $text-light; // Usando variable
+    padding: 4rem 2rem;
+    text-align: center;
+
+    h1 {
+        font-size: 3rem;
+        margin: 0.5rem 0;
+    }
+
+    p {
+        max-width: 600px;
+        margin: 0 auto 1.5rem;
+    }
+}
+
+.ctaButton {
+    display: inline-block;
+    background-color: $text-light; // Usando variable (blanco)
+    color: $primary-color; // Usando variable
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: $primary-light; // Usando variable
+    }
+}
+
+.features {
+    padding: 3rem 2rem;
+    background-color: $background-white; // Usando variable
+    text-align: center;
+
+    h2 {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+    }
+}
+
+.featuresGrid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.featureItem {
+    background: $primary-lighter; // Usando variable
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: $box-shadow-light; // Usando variable
+    text-align: left;
+
+    h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    p {
+        font-size: 0.95rem;
+    }
+}
+
+.footer {
+    background-color: $background-medium; // Usando variable
+    padding: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+    color: $text-medium; // Usando variable
+}
