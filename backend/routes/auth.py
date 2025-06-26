@@ -267,3 +267,19 @@ def logout():
     # Implementar revocación, aquí se agrega el JWT a una blacklist
     return jsonify({"message": "Sesión cerrada."}), 200
 
+# Parte de tu auth_bp en Flask
+@auth_bp.route("/me", methods=["GET"])
+@jwt_required()
+def get_current_user_info():
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    return jsonify({
+        "user": {
+            "email": user.email,
+            "name": user.name,
+            "role": user.role.name # Asegúrate de que el modelo User tiene relación con Role
+        }
+    }), 200
