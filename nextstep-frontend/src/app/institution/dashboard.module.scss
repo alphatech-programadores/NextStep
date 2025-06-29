@@ -1,0 +1,135 @@
+// src/app/institution/dashboard/dashboard.module.scss
+
+@use '../../components/styles/_variables' as v;
+
+.container {
+    padding: v.$spacing-large;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: v.$spacing-large * 1.5;
+    padding-bottom: v.$spacing-medium;
+    border-bottom: 1px solid #eef0f2;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: v.$text-primary;
+}
+
+.createButton {
+    background-color: v.$primary-color;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: v.$border-radius;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: darken(v.$primary-color, 10%);
+    }
+}
+
+.error {
+    color: v.$status-rejected;
+    background-color: lighten(v.$status-rejected, 35%);
+    padding: v.$spacing-medium;
+    border-radius: v.$border-radius;
+    text-align: center;
+}
+
+.vacanciesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: v.$spacing-large;
+}
+
+.vacancyCard {
+    background-color: #fff;
+    border: 1px solid #eef0f2;
+    border-radius: v.$border-radius;
+    padding: v.$spacing-large;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    box-shadow: v.$box-shadow;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.vacantTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: v.$spacing-medium 0;
+    flex-grow: 1; // Empuja la info hacia abajo
+}
+
+.vacantInfo {
+    display: flex;
+    gap: v.$spacing-medium;
+    border-top: 1px solid #eef0f2;
+    padding-top: v.$spacing-medium;
+    margin-top: v.$spacing-medium;
+}
+
+.infoTag {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-small;
+    font-size: 0.9rem;
+    color: v.$text-secondary;
+}
+
+.statusBadge {
+    position: absolute;
+    top: v.$spacing-medium;
+    right: v.$spacing-medium;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: capitalize;
+    color: #fff;
+
+    &.borrador {
+        background-color: #757575;
+    }
+
+    &.cerrada {
+        background-color: v.$status-rejected;
+    }
+
+    &.activa_con_postulaciones {
+        background-color: v.$status-interview;
+    }
+
+    &.activa_sin_postulaciones {
+        background-color: v.$status-accepted;
+    }
+}
+
+.noVacancies {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: #fff;
+    border-radius: v.$border-radius;
+
+    p {
+        font-size: 1.1rem;
+        color: v.$text-secondary;
+        margin: 0;
+    }
+}

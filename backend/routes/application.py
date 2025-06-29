@@ -1,94 +1,71 @@
-# routes/application.py
-from flask import Blueprint, request, jsonify
-from extensions import db
+# En backend/routes/application.py
+
+from flask import Blueprint, jsonify, request # Asegúrate de que request esté importado
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.orm import joinedload
+from collections import Counter # Usaremos Counter para contar fácilmente
+
 from models.application import Application
 from models.vacant import Vacant
 from models.user import User
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from models.institution_profile import InstitutionProfile
 
-app_bp = Blueprint("applications", __name__)
-
-@app_bp.route("/<int:vacant_id>", methods=["POST", "OPTIONS"])
-@jwt_required()
-def apply_to_vacant(vacant_id):
-    current_user = User.query.get(get_jwt_identity())
-
-    if current_user.role.name != "student":
-        return jsonify({"error": "Solo los estudiantes pueden postularse."}), 403
-
-    existing = Application.query.filter_by(student_email=current_user.email, vacant_id=vacant_id).first()
-    if existing:
-        return jsonify({"message": "Ya estás postulado a esta vacante."}), 409
-
-    accepted = Application.query.filter_by(student_email=current_user.email, status="aceptado").first()
-    if accepted:
-        return jsonify({"error": "Ya fuiste aceptado a una vacante. No puedes postularte a otra."}), 403
-
-    application = Application(
-        student_email=current_user.email,
-        vacant_id=vacant_id,
-        status="pendiente"
-    )
-    db.session.add(application)
-    db.session.commit()
-    return jsonify({"message": "Postulación enviada correctamente."}), 201
-
+app_bp = Blueprint("application", __name__, url_prefix="/api/apply")
 
 @app_bp.route("/me", methods=["GET"])
 @jwt_required()
 def get_my_applications():
-    current_user = User.query.get(get_jwt_identity())
-    apps = Application.query.filter_by(student_email=current_user.email).all()
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
 
-    return jsonify([
-        {
-            "id": app.id,
-            "vacant_id": app.vacant_id,
-            "status": app.status,
-            "fecha": app.created_at.isoformat()
-        }
-        for app in apps
-    ])
+    if not user or user.role.name != 'student':
+        return jsonify({"error": "Acceso denegado."}), 403
 
-@app_bp.route("/vacant/<int:vacant_id>", methods=["GET"])
-@jwt_required()
-def get_applications_for_vacant(vacant_id):
-    current_user = User.query.get(get_jwt_identity())
-    vacant = Vacant.query.get_or_404(vacant_id)
+    # --- LÓGICA DE ESTADÍSTICAS ---
+    # 1. Obtenemos TODAS las postulaciones del usuario sin paginar para poder contarlas.
+    all_user_applications = Application.query.filter_by(student_email=user.email).all()
+    
+    # 2. Contamos los estados usando Counter.
+    status_counts = Counter(app.status for app in all_user_applications)
+    
+    # 3. Preparamos el objeto de estadísticas.
+    stats = {
+        'total': len(all_user_applications),
+        'pending': status_counts.get('pendiente', 0), # Usa el nombre exacto de tus estados
+        'interview': status_counts.get('entrevista', 0),
+        'accepted': status_counts.get('aceptada', 0)
+    }
+    # --- FIN LÓGICA DE ESTADÍSTICAS ---
 
-    if vacant.institution_email != current_user.email:
-        return jsonify({"error": "No tienes permiso para ver estas postulaciones."}), 403
+    # --- LÓGICA DE PAGINACIÓN (para la lista) ---
+    # Ahora construimos la consulta paginada que se enviará al frontend.
+    query = Application.query.options(
+        joinedload(Application.vacant).joinedload(Vacant.institution_profile)
+    ).filter(Application.student_email == user.email)
 
-    apps = Application.query.filter_by(vacant_id=vacant_id).all()
+    status_filter = request.args.get("status", "").strip()
+    if status_filter:
+        query = query.filter(Application.status == status_filter)
 
-    return jsonify([
-        {
-            "id": app.id,
-            "student_email": app.student_email,
-            "status": app.status,
-            "fecha": app.created_at.isoformat()
-        }
-        for app in apps
-    ])
+    query = query.order_by(Application.created_at.desc())
 
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+    paginated_applications = query.paginate(page=page, per_page=per_page, error_out=False)
 
-@app_bp.route("/<int:application_id>", methods=["PUT"])
-@jwt_required()
-def update_application_status(application_id):
-    current_user = User.query.get(get_jwt_identity())
-    app = Application.query.get_or_404(application_id)
-    vacant = Vacant.query.get(app.vacant_id)
+    applications_list = [{
+        "id": app.id,
+        "vacant_id": app.vacant.id,
+        "vacant_title": app.vacant.area,
+        "company_name": app.vacant.institution_profile.institution_name if app.vacant.institution_profile else "Desconocido",
+        "application_status": app.status,
+        "applied_at": app.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+    } for app in paginated_applications.items]
 
-    if vacant.institution_email != current_user.email:
-        return jsonify({"error": "No tienes permiso para actualizar esta postulación."}), 403
-
-    data = request.get_json()
-    new_status = data.get("status", "").lower()
-
-    if new_status not in ["pendiente", "aceptado", "rechazado"]:
-        return jsonify({"error": "Estado inválido."}), 400
-
-    app.status = new_status
-    db.session.commit()
-    return jsonify({"message": "Estado actualizado correctamente."}), 200
-
+    return jsonify({
+        "stats": stats, # <-- DEVOLVEMOS LAS ESTADÍSTICAS
+        "applications": applications_list,
+        "total_pages": paginated_applications.pages,
+        "current_page": paginated_applications.page,
+        "total_items": paginated_applications.total
+    }), 200

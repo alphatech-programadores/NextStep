@@ -1,0 +1,20 @@
+@use './styles/variables' as v;
+
+// Contenedor para la lista de etiquetas de habilidad
+.skillTagList {
+    display: flex;
+    flex-wrap: wrap; // Permite que las etiquetas pasen a la siguiente línea si no caben
+    gap: v.$spacing-small; // Espacio entre etiquetas
+    margin-top: v.$spacing-small;
+}
+
+// Estilo para cada etiqueta individual
+.skillTag {
+    background-color: lighten(v.$primary-color, 45%); // Un color de fondo suave
+    color: darken(v.$primary-color, 15%); // Texto oscuro para buen contraste
+    padding: 6px 12px;
+    border-radius: 16px; // Píldoras redondeadas
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap; // Evita que el texto de la etiqueta se parta
+}

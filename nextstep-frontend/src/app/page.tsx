@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import LandingFooter from "@/components/LandingFooter";
 
+
 export default function Home() {
   return (
     <main className={styles.containter}>

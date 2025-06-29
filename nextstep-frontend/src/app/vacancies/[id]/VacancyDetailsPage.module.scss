@@ -1,0 +1,245 @@
+// src/app/vacancies/[id]/VacancyDetailsPage.module.css
+
+@import '../../../components/styles/_variables.scss'; // Asegúrate de que la ruta sea correcta
+
+
+.container {
+    padding: 4rem 2rem; // Más padding general
+    max-width: 960px; // Un poco más ancho
+    margin: 0 auto;
+    font-family: "Segoe UI", sans-serif;
+    color: $text-dark;
+    min-height: 85vh; // Para que ocupe más si el contenido es corto
+}
+
+.loadingContainer,
+.errorContainer {
+    @include center-flex(column);
+    min-height: 70vh;
+    font-size: 1.6em; // Más grande
+    color: $text-medium;
+    text-align: center;
+}
+
+.errorContainer {
+    color: $error-color;
+}
+
+.vacancyDetailsCard {
+    background-color: $background-white;
+    padding: 3.5rem; // Más padding
+    border-radius: 16px; // Más redondeado
+    box-shadow: $box-shadow-strong; // Sombra más pronunciada
+    border: 1px solid $border-color-light;
+}
+
+.title {
+    font-size: 3em; // Título principal más grande
+    color: $primary-color;
+    margin-bottom: 0.8rem;
+    font-weight: 800; // Más negrita
+    line-height: 1.2;
+}
+
+.companyName {
+    font-size: 1.3em; // Más grande
+    color: $text-dark;
+    margin-bottom: 1.8rem; // Más espacio
+    font-weight: 600;
+}
+
+.metaInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem; // Más espacio entre elementos
+    font-size: 1.05em;
+    color: $text-medium;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid $border-color-light; // Separador sutil
+
+    span {
+        @include center-flex(row); // Centrar icono y texto
+        gap: 0.6rem;
+        font-weight: 500;
+        color: $text-dark; // El texto de meta info más oscuro
+
+        i {
+            // Si usas íconos con <i>
+            color: $secondary-color;
+            font-size: 1.2em;
+        }
+    }
+}
+
+.postedDate,
+.deadline {
+    font-size: 0.95em;
+    color: $text-medium;
+    margin-bottom: 0.6rem;
+}
+
+.deadline {
+    font-weight: 700;
+    color: $error-color; // Resaltar la fecha límite
+}
+
+.tagsContainer {
+    margin-top: 1.5rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+}
+
+.tag {
+    background-color: $primary-light;
+    color: $primary-color;
+    padding: 0.5em 1em; // Más padding
+    border-radius: 25px; // Más redondeado
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: lowercase;
+    @include transition(background-color, 0.2s);
+
+    &:hover {
+        background-color: darken($primary-light, 5%);
+    }
+}
+
+.sectionTitle {
+    font-size: 2em; // Más grande
+    color: $primary-color;
+    margin-top: 3.5rem; // Más espacio arriba
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    border-bottom: 2px solid $primary-light; // Línea más gruesa
+    padding-bottom: 0.8rem;
+}
+
+.content {
+    font-size: 1.1em; // Más grande para mejor legibilidad
+    color: $text-dark;
+    line-height: 1.7; // Más espacio entre líneas
+    margin-bottom: 2rem;
+    white-space: pre-wrap;
+}
+
+.applySection {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px dashed $border-color-medium; // Borde más visible
+    text-align: center;
+}
+
+.coverLetterTextarea {
+    width: 100%;
+    padding: 1.2rem; // Más padding
+    border: 1px solid $border-color-medium; // Borde más oscuro
+    border-radius: 10px; // Más redondeado
+    font-size: 1.05em;
+    min-height: 150px; // Más alto
+    margin-bottom: 1.8rem;
+    resize: vertical;
+    @include transition(border-color, 0.2s);
+
+    &:focus {
+        outline: none;
+        border-color: $secondary-color;
+        box-shadow: 0 0 0 4px rgba($secondary-color, 0.15);
+    }
+}
+
+.applyButton {
+    background-color: $secondary-color;
+    color: $text-light;
+    padding: 1rem 2.5rem; // Más padding
+    border: none;
+    border-radius: 35px; // Más redondeado (tipo píldora)
+    font-size: 1.2em; // Más grande
+    font-weight: 700; // Más negrita
+    cursor: pointer;
+    @include transition(background-color, 0.3s, transform 0.1s);
+
+    &:hover {
+        background-color: $secondary-hover;
+        box-shadow: $box-shadow-light;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    &:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+}
+
+.appliedMessage {
+    margin-top: 2.5rem;
+    padding: 1.8rem; // Más padding
+    background-color: lighten($success-color, 40%); // Fondo claro de éxito
+    border: 1px solid $success-color;
+    border-radius: 12px;
+    text-align: center;
+    color: $success-color;
+    font-weight: 600;
+    font-size: 1.2em;
+}
+
+.viewApplicationsLink {
+    display: inline-block;
+    margin-top: 1.2rem;
+    color: $secondary-color;
+    text-decoration: none;
+    font-weight: 600;
+    @include transition(text-decoration, 0.2s);
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.institutionMessage,
+.loginToApplyMessage {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    background-color: $background-light;
+    border-radius: 12px;
+    text-align: center;
+    color: $text-medium;
+    font-size: 1.1em;
+    border: 1px solid $border-color-light;
+}
+
+.loginLink {
+    color: $secondary-color;
+    text-decoration: none;
+    font-weight: 600;
+    @include transition(text-decoration, 0.2s);
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Media Queries para Responsividad (ejemplo)
+@media (max-width: 768px) {
+    .vacancyDetailsCard {
+        padding: 2rem;
+    }
+
+    .title {
+        font-size: 2.2em;
+    }
+
+    .sectionTitle {
+        font-size: 1.6em;
+    }
+
+    .metaInfo {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+}

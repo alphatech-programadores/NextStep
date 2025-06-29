@@ -1,0 +1,239 @@
+// src/app/vacancies/VacanciesPage.module.css
+
+@import '../../components/styles/_variables.scss';
+
+.container {
+    padding: 3rem 2rem;
+    max-width: 1280px; // Aumentamos un poco el ancho
+    margin: 0 auto;
+    font-family: "Segoe UI", sans-serif;
+    color: $text-dark;
+    min-height: 80vh; // Para que ocupe más espacio si hay pocas vacantes
+}
+
+.title {
+    font-size: 2.8em; // Un poco más grande
+    color: $primary-color;
+    text-align: center;
+    margin-bottom: 3rem; // Más espacio
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05); // Sombra sutil
+}
+
+.searchForm {
+    @include center-flex(row); // Usando mixin
+    flex-wrap: wrap;
+    gap: 1.2rem; // Espacio entre elementos del form
+    margin-bottom: 3.5rem; // Más espacio
+    padding: 2rem; // Más padding
+    background-color: $background-white;
+    border-radius: 16px; // Bordes más redondeados
+    box-shadow: $box-shadow-medium; // Sombra más definida
+    border: 1px solid $border-color-light; // Borde sutil
+}
+
+.searchInput,
+.filterSelect {
+    flex-grow: 1;
+    min-width: 180px; // Ajustado para ser más responsivo en línea
+    max-width: 300px; // Limitar ancho en pantallas grandes
+    padding: 0.9rem 1.2rem; // Más padding
+    border: 1px solid $border-color-light;
+    border-radius: 10px; // Bordes más redondeados
+    font-size: 1em;
+    background-color: $background-white;
+    color: $text-dark;
+    @include transition(border-color, 0.2s); // Transición suave
+
+    &:focus {
+        outline: none;
+        border-color: $secondary-color; // Borde secundario al enfocar
+        box-shadow: 0 0 0 3px rgba($secondary-color, 0.15); // Sombra de enfoque
+    }
+}
+
+.searchButton {
+    background-color: $secondary-color;
+    color: $text-light;
+    padding: 0.9rem 2rem; // Más padding
+    border: none;
+    border-radius: 10px; // Bordes más redondeados
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    @include transition(background-color, 0.3s);
+
+    &:hover {
+        background-color: $secondary-hover;
+        box-shadow: $box-shadow-light; // Sombra al pasar el ratón
+    }
+
+    &:active {
+        transform: translateY(1px); // Pequeño efecto de "click"
+    }
+}
+
+.loadingMessage,
+.errorMessage,
+.noResults {
+    text-align: center;
+    font-size: 1.3em; // Un poco más grande
+    color: $text-medium;
+    margin-top: 3rem;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background-color: $background-white;
+    box-shadow: $box-shadow-light;
+}
+
+.errorMessage {
+    color: $error-color;
+    background-color: lighten($error-color, 45%); // Fondo claro para errores
+    border: 1px solid $error-color;
+}
+
+.noResults {
+    color: $warning-color;
+    background-color: lighten($warning-color, 35%);
+    border: 1px solid $warning-color;
+}
+
+.vacanciesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); // Tarjetas un poco más anchas
+    gap: 2.5rem; // Más espacio entre tarjetas
+}
+
+.vacancyCard {
+    background-color: $background-white;
+    padding: 2.2rem; // Más padding
+    border-radius: 16px; // Bordes más redondeados
+    box-shadow: $box-shadow-medium; // Sombra más definida
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    @include transition(transform, 0.3s);
+    border: 1px solid $border-color-light; // Borde sutil
+
+    &:hover {
+        transform: translateY(-8px); // Efecto de elevación más pronunciado
+        box-shadow: $box-shadow-strong; // Sombra más fuerte al hover
+    }
+}
+
+.vacancyTitle {
+    font-size: 1.7em; // Más grande
+    color: $primary-color;
+    margin-bottom: 0.6rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.companyName {
+    font-size: 1.15em; // Ligeramente más grande
+    color: $text-dark;
+    margin-bottom: 1.2rem;
+    font-weight: 500;
+}
+
+.vacancyMeta {
+    font-size: 0.95em;
+    color: $text-medium;
+    margin-bottom: 1rem;
+
+    span {
+        display: inline-block;
+        margin-right: 0.8rem;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+.salaryRange {
+    font-size: 1.1em; // Más grande
+    color: $secondary-color;
+    font-weight: 700; // Más negrita
+    margin-bottom: 1.2rem;
+}
+
+.descriptionSnippet {
+    font-size: 0.95em;
+    color: $text-medium;
+    line-height: 1.6;
+    margin-bottom: 1.8rem; // Más espacio
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; // Limitar a 3 líneas
+    -webkit-box-orient: vertical;
+}
+
+.tagsContainer {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.tag {
+    background-color: $primary-light;
+    color: $primary-color;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: lowercase; // Minúsculas para las etiquetas
+}
+
+
+.detailsButton {
+    display: block; // Ocupa todo el ancho
+    background-color: $primary-color;
+    color: $text-light;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px; // Bordes redondeados
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    @include transition(background-color, 0.3s);
+    margin-top: 1.5rem; // Más espacio arriba
+
+    &:hover {
+        background-color: $primary-hover;
+        box-shadow: $box-shadow-light;
+    }
+}
+
+.pagination {
+    @include center-flex(row);
+    gap: 1.2rem; // Más espacio
+    margin-top: 4rem; // Más espacio
+    font-size: 1.1em;
+    color: $text-dark;
+}
+
+.paginationButton {
+    background-color: $primary-color;
+    color: $text-light;
+    padding: 0.7rem 1.4rem; // Más padding
+    border: none;
+    border-radius: 10px; // Bordes redondeados
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    @include transition(background-color, 0.3s);
+
+    &:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: $primary-hover;
+        box-shadow: $box-shadow-light;
+    }
+}

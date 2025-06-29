@@ -30,17 +30,21 @@ export default function LoginPage() {
             login(access_token, userData);
 
             toast.success("Inicio de sesión exitoso ✅");
-            router.push("/dashboard");
+
+            // --- Aquí decides a dónde redirigir ---
+            if (userData.role === "institution") {
+                router.push("/institution");
+            } else {
+                router.push("/dashboard");
+            }
+
         } catch (error: any) {
             console.error("Error de login:", error);
-
-            // --- ¡CAMBIO CLAVE AQUÍ! ---
-            // Intenta obtener el mensaje de error del backend
             const errorMessage = error.response && error.response.data && error.response.data.error
-                ? error.response.data.error // Mensaje específico del backend
-                : "Error al iniciar sesión. Por favor, inténtalo de nuevo."; // Mensaje genérico de fallback
+                ? error.response.data.error
+                : "Error al iniciar sesión. Por favor, inténtalo de nuevo.";
 
-            toast.error(errorMessage); // Muestra el mensaje específico o el genérico
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }

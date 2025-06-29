@@ -1,12 +1,12 @@
-import numpy as np
+import numpy as np # type: ignore
 import re
 from collections import Counter
 from math import log
 
 
 # recommender.py
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
+from sklearn.metrics.pairwise import cosine_similarity # type: ignore
 import re
 
 def preprocess_text(text):

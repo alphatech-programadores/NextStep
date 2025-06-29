@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+
 // Define la interfaz para el usuario (lo que esperarías de tu token/API)
 interface User {
     email: string;
@@ -74,7 +75,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = async () => {
         try {
-            // Opcional: Llamar a tu API de logout si tienes una para invalidar tokens en el backend
             const token = localStorage.getItem('access_token');
             if (token) {
                 await axios.post('http://localhost:5000/api/auth/logout', {}, {
@@ -84,13 +84,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
         } catch (error) {
             console.error("Error al cerrar sesión en el backend:", error);
-            toast.error("Error al cerrar sesión.");
+            toast.error("Hubo un problema al cerrar sesión completamente, pero tu sesión local ha sido terminada.");
         } finally {
             localStorage.removeItem('access_token');
             setUser(null);
-            router.push('/'); // Redirigir a la página principal o de login
+
+            // --- ¡CAMBIO CLAVE AQUÍ! ---
+            // Redirige directamente a la página de login usando un query parameter
+            router.push('/auth/login?fromLogout=true'); // Pasa 'fromLogout=true' como query param
         }
     };
+
 
     // Función para revalidar el usuario, útil si su información cambia (ej. actualización de perfil)
     const revalidateUser = useCallback(async () => {
@@ -104,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-// Hook personalizado para usar el contexto de autenticación
+
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
