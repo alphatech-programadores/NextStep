@@ -11,6 +11,14 @@ class StudentProfile(db.Model):
     email = db.Column(db.String(120), db.ForeignKey('users.email'), primary_key=True)
     career = db.Column(db.String(100), nullable=False, default="")
     semestre = db.Column(db.Integer, nullable=True)
+    average = db.Column(db.Float, nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    address = db.Column(db.String(120), nullable=True)
+    availability = db.Column(db.String(30), nullable=True)
+    skills = db.Column(db.String(255), nullable=True)
+    portfolio_url = db.Column(db.String(255), nullable=True)
+    cv_path = db.Column(db.String(255), nullable=True)
+    profile_picture_url = db.Column(db.String(255), nullable=True)
 
     # Relación inversa para conectar de vuelta con el User
     user = db.relationship('User', back_populates='student_profile')

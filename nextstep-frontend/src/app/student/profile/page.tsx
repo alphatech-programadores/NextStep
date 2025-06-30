@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute'; // Asegúrate de proteger esta ruta
 import FormInput from '@/components/Input'; // Tu componente de input
 import styles from './profile.module.scss'; // Módulo de estilos (necesario aunque sea básico)
+import axiosInstance from '@/services/axiosConfig';
 
 interface StudentProfileData {
     email: string;
@@ -52,7 +53,7 @@ export default function StudentProfilePage() {
             const token = localStorage.getItem('access_token');
             if (!token) throw new Error("No hay token de autenticación.");
 
-            const response = await axios.get('http://localhost:5000/api/profile/me', {
+            const response = await axiosInstance.get('http://localhost:5000/api/profile/me', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = response.data;
@@ -122,7 +123,7 @@ export default function StudentProfilePage() {
             const token = localStorage.getItem('access_token');
             if (!token) throw new Error("No hay token de autenticación.");
 
-            const response = await axios.put(
+            const response = await axiosInstance.put(
                 `http://localhost:5000/api/profile/me`,
                 formData, // <-- Aquí envías el FormData
                 {

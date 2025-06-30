@@ -10,6 +10,7 @@ import toast from 'react-hot-toast'; // Para notificaciones
 
 // Importa el módulo de estilos específico para esta página
 import styles from './reset-password.module.scss'; // Asegúrate de que esta ruta sea correcta
+import axiosInstance from '@/services/axiosConfig';
 
 export default function ResetPasswordPage() {
     const router = useRouter();
@@ -58,7 +59,7 @@ export default function ResetPasswordPage() {
         setLoading(true); // Activar estado de carga
 
         try {
-            const response = await axios.post(`http://localhost:5000/api/auth/reset-password/${token}`, {
+            const response = await axiosInstance.post(`http://localhost:5000/api/auth/reset-password/${token}`, {
                 password: newPassword, // Envía la nueva contraseña
             });
 

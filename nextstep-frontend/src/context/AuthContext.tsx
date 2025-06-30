@@ -6,6 +6,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import axiosInstance from '@/services/axiosConfig';
 
 
 // Define la interfaz para el usuario (lo que esperarías de tu token/API)
@@ -43,12 +44,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 // Aquí podrías hacer una llamada a tu API de backend
                 // para verificar la validez del token y obtener los detalles del usuario.
                 // Por ejemplo, una ruta /api/auth/me que devuelve la info del usuario.
-                const response = await axios.get('http://localhost:5000/api/auth/me', {
+                const response = await axiosInstance.get('http://localhost:5000/api/profile/me', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                setUser(response.data.user); // Asumiendo que tu API devuelve { user: { email, name, role } }
+                setUser(response.data); // Asumiendo que tu API devuelve { user: { email, name, role } }
             } else {
                 setUser(null);
             }
@@ -77,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const token = localStorage.getItem('access_token');
             if (token) {
-                await axios.post('http://localhost:5000/api/auth/logout', {}, {
+                await axiosInstance.post('http://localhost:5000/api/auth/logout', {}, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success("Has cerrado sesión exitosamente.");

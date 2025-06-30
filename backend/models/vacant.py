@@ -21,25 +21,29 @@ class Vacant(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
 
- 
     # Permite hacer `vacant.applications`
     applications = db.relationship("Application", back_populates="vacant", cascade="all, delete-orphan")
 
     # Permite hacer `vacant.institution_profile`
     institution_profile = db.relationship("InstitutionProfile", back_populates="vacants")
 
-def to_dict(self):
-    return {
-        "id": self.id,
-        "institution_email": self.institution_email,
-        "area": self.area,
-        "description": self.description,
-        "requirements": self.requirements,
-        "hours": self.hours,
-        "modality": self.modality,
-        "location": self.location,
-        "tags": self.tags,
-        "status": self.status,
-        "is_draft": self.is_draft,
-        "last_modified": self.last_modified.isoformat() if self.last_modified else None
-    }
+    # <--- ¡EL MÉTODO to_dict DEBE ESTAR INDENTADO DENTRO DE LA CLASE! ---
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "institution_email": self.institution_email,
+            "area": self.area,
+            "description": self.description,
+            "requirements": self.requirements,
+            "hours": self.hours,
+            "modality": self.modality,
+            "location": self.location,
+            "tags": self.tags.split(',') if self.tags else [],
+            "status": self.status,
+            "is_draft": self.is_draft,
+            "last_modified": self.last_modified.isoformat() if self.last_modified else None,
+            "start_date": self.start_date.isoformat() if self.start_date else None, # Añadir fechas
+            "end_date": self.end_date.isoformat() if self.end_date else None,       # Añadir fechas
+            "latitude": self.latitude,   # Añadir latitud
+            "longitude": self.longitude  # Añadir longitud
+        }

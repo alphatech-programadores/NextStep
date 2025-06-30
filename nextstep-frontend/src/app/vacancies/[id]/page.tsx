@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import styles from './VacancyDetailsPage.module.scss';
 import Link from 'next/link';
+import axiosInstance from '@/services/axiosConfig';
 
 interface VacancyDetails { // Ajustar nombres de propiedades
     id: number;
@@ -45,7 +46,7 @@ export default function VacancyDetailsPage() {
             setError(null);
             try {
                 // Llama al endpoint de detalles de vacante
-                const response = await axios.get(`http://localhost:5000/api/vacants/${id}`);
+                const response = await axiosInstance.get(`http://localhost:5000/api/vacants/${id}`);
                 setVacancy(response.data);
 
                 if (user && user.role === 'student') {
@@ -53,7 +54,7 @@ export default function VacancyDetailsPage() {
                     if (token) {
                         try {
                             // Llama al endpoint de check_status
-                            const checkResponse = await axios.get(`http://localhost:5000/api/vacants/check_status/${id}`, {
+                            const checkResponse = await axiosInstance.get(`http://localhost:5000/api/vacants/check_status/${id}`, {
                                 headers: { Authorization: `Bearer ${token}` }
                             });
                             setHasApplied(checkResponse.data.has_applied);
@@ -99,7 +100,7 @@ export default function VacancyDetailsPage() {
                 return;
             }
 
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 `http://localhost:5000/api/vacants/${vacancy?.id}/apply`,
                 {}, // Envía un objeto vacío si tu modelo Application no tiene cover_letter
                 {

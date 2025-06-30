@@ -10,6 +10,7 @@ import toast from 'react-hot-toast'; // Para notificaciones
 
 // ¡Importa tu módulo de estilos!
 import styles from './register.module.scss'; // Asegúrate de que esta ruta sea correcta
+import axiosInstance from '@/services/axiosConfig';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -30,7 +31,7 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            const response = await axios.post("http://localhost:5000/api/auth/register", {
+            const response = await axiosInstance.post("http://localhost:5000/api/auth/register", {
                 name,
                 email,
                 password,

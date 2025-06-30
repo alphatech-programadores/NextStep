@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'; // Para notificaciones al usuario
 
 // Importa tu módulo de estilos para esta página
 import styles from './confirm.module.scss'; // Asegúrate de que esta ruta sea correcta
+import axiosInstance from '@/services/axiosConfig';
 
 export default function ConfirmEmailPage() {
     const router = useRouter();
@@ -28,7 +29,7 @@ export default function ConfirmEmailPage() {
             }
 
             try {
-                const response = await axios.get(`http://localhost:5000/api/auth/confirm/${token}`);
+                const response = await axiosInstance.get(`http://localhost:5000/api/auth/confirm/${token}`);
                 setStatus('success');
                 setMessage(response.data.message || 'Tu correo ha sido confirmado exitosamente. Redirigiendo al login...');
                 toast.success(response.data.message || '¡Correo confirmado! ✅');

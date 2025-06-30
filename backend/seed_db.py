@@ -2,28 +2,38 @@
 from app import create_app 
 from extensions import db   
 from models.application import Application
-from models.user import Role, User
+from models.user import User
+from models.role import Role
 from models.student_profile import StudentProfile 
 from models.vacant import Vacant
 from models.institution_profile import InstitutionProfile
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 import random
+import os # Necesario para la ruta de CVs/Imágenes
 
 app = create_app()
+
+# Asegúrate de que las carpetas de carga existan para los paths de CVs/Imágenes
+# Esto es vital para que las rutas relativas en la DB sean válidas
+upload_folder_base = app.config['UPLOAD_FOLDER'] # Obtener la ruta base de cargas desde la configuración de la app
+os.makedirs(os.path.join(upload_folder_base, 'cvs'), exist_ok=True)
+os.makedirs(os.path.join(upload_folder_base, 'profile_pics'), exist_ok=True)
+os.makedirs(os.path.join(upload_folder_base, 'logos'), exist_ok=True)
 
 # Datos de prueba
 # Asegúrate de que los emails y nombres/company_names sean únicos si los usas como PK/FK
 STUDENT_USERS_DATA = [
-    {"email": "estudiante1@example.com", "name": "Ana García", "password": "password123", "career": "Ingeniería en Software", "semestre": 5, "average": 9.2, "phone": "5512345678", "address": "Calle Falsa 123", "availability": "Tiempo Completo", "skills": "React, JavaScript, Node.js, SQL", "portfolio_url": "https://anagarcia.dev", "cv_path": "/cvs/ana_garcia_cv.pdf"},
-    {"email": "estudiante2@example.com", "name": "Luis Pérez", "password": "password123", "career": "Ciencias de Datos", "semestre": 7, "average": 8.8, "phone": "5587654321", "address": "Av. Siempreviva 742", "availability": "Medio Tiempo", "skills": "Python, Pandas, Machine Learning, SQL", "portfolio_url": "https://luisperez.com", "cv_path": "/cvs/luis_perez_cv.pdf"},
-    {"email": "estudiante3@example.com", "name": "Sofía Rodríguez", "password": "password123", "career": "Diseño Gráfico", "semestre": 3, "average": 9.5, "phone": "5511223344", "address": "Blvd. del Sol 50", "availability": "Presencial", "skills": "Figma, Photoshop, Illustrator, UI/UX", "portfolio_url": "https://sofiar.art", "cv_path": "/cvs/sofia_rodriguez_cv.pdf"},
+    # CAMBIADO: estudiante1 a estudiante4
+    {"email": "estudiante4@example.com", "name": "Ana García", "password": "password123", "career": "Ingeniería en Software", "semestre": 5, "average": 9.2, "phone": "5512345678", "address": "Calle Falsa 123", "availability": "Tiempo Completo", "skills": "React, JavaScript, Node.js, SQL", "portfolio_url": "https://anagarcia.dev", "cv_path": "cvs/ana_garcia_cv.pdf", "profile_picture_url": "profile_pics/ana_garcia.jpg"}, # Añadido profile_picture_url
+    {"email": "estudiante2@example.com", "name": "Luis Pérez", "password": "password123", "career": "Ciencias de Datos", "semestre": 7, "average": 8.8, "phone": "5587654321", "address": "Av. Siempreviva 742", "availability": "Medio Tiempo", "skills": "Python, Pandas, Machine Learning, SQL", "portfolio_url": "https://luisperez.com", "cv_path": "cvs/luis_perez_cv.pdf", "profile_picture_url": "profile_pics/luis_perez.jpg"},
+    {"email": "estudiante3@example.com", "name": "Sofía Rodríguez", "password": "password123", "career": "Diseño Gráfico", "semestre": 3, "average": 9.5, "phone": "5511223344", "address": "Blvd. del Sol 50", "availability": "Presencial", "skills": "Figma, Photoshop, Illustrator, UI/UX", "portfolio_url": "https://sofiar.art", "cv_path": "cvs/sofia_rodriguez_cv.pdf", "profile_picture_url": "profile_pics/sofia_rodriguez.jpg"},
 ]
 
 INSTITUTION_USERS_DATA = [
-    {"email": "institucion1@example.com", "institution_name": "Tech Solutions S.A.", "contact_person": "Carlos Gomez", "contact_phone": "5510002000", "sector": "Tecnología", "address": "Vasco de Quiroga 2000", "description": "Líderes en desarrollo de software y soluciones IT.", "password": "password123"},
-    {"email": "institucion2@example.com", "institution_name": "Data Insights Corp.", "contact_person": "Maria Lopez", "contact_phone": "5530004000", "sector": "Consultoría", "address": "Av. Insurgentes Sur 1500", "description": "Consultoría especializada en Big Data y analítica avanzada.", "password": "password123"},
-    {"email": "institucion3@example.com", "institution_name": "Creative Agency", "contact_person": "Roberto Sanchez", "contact_phone": "5550006000", "sector": "Publicidad", "address": "Roma Norte 10", "description": "Agencia de publicidad innovadora con enfoque en branding digital.", "password": "password123"},
+    {"email": "institucion1@example.com", "institution_name": "Tech Solutions S.A.", "contact_person": "Carlos Gomez", "contact_phone": "5510002000", "sector": "Tecnología", "address": "Vasco de Quiroga 2000", "description": "Líderes en desarrollo de software y soluciones IT.", "password": "password123", "website": "https://techsolutions.com", "logo_url": "logos/tech_solutions.png"},
+    {"email": "institucion2@example.com", "institution_name": "Data Insights Corp.", "contact_person": "Maria Lopez", "contact_phone": "5530004000", "sector": "Consultoría", "address": "Av. Insurgentes Sur 1500", "description": "Consultoría especializada en Big Data y analítica avanzada.", "password": "password123", "website": "https://datainsights.com", "logo_url": "logos/data_insights.png"},
+    {"email": "institucion3@example.com", "institution_name": "Creative Agency", "contact_person": "Roberto Sanchez", "contact_phone": "5550006000", "sector": "Publicidad", "address": "Roma Norte 10", "description": "Agencia de publicidad innovadora con enfoque en branding digital.", "password": "password123", "website": "https://creativeagency.com", "logo_url": "logos/creative_agency.png"},
 ]
 
 VACANTS_DATA = [
@@ -37,7 +47,9 @@ VACANTS_DATA = [
         "tags": "React,JavaScript,Frontend,Web,Híbrido",
         "start_date_days": -10, # Empezó hace 10 días
         "end_date_days": 30, # Termina en 30 días
-        "institution_email": "institucion1@example.com"
+        "institution_email": "institucion1@example.com",
+        "latitude": 19.4326,
+        "longitude": -99.1332 # Coordenadas para CDMX
     },
     {
         "area": "Análisis de Datos",
@@ -49,7 +61,9 @@ VACANTS_DATA = [
         "tags": "Python,SQL,Data Analysis,BI,Presencial",
         "start_date_days": -5,
         "end_date_days": 45,
-        "institution_email": "institucion2@example.com"
+        "institution_email": "institucion2@example.com",
+        "latitude": 19.4326,
+        "longitude": -99.1332
     },
     {
         "area": "Diseño UI/UX",
@@ -61,7 +75,9 @@ VACANTS_DATA = [
         "tags": "UI/UX,Figma,Design,Remoto,Part-time",
         "start_date_days": -20,
         "end_date_days": 20,
-        "institution_email": "institucion3@example.com"
+        "institution_email": "institucion3@example.com",
+        "latitude": None, # Remoto no tiene lat/lon
+        "longitude": None
     },
     {
         "area": "Marketing Digital",
@@ -73,7 +89,9 @@ VACANTS_DATA = [
         "tags": "Marketing,Digital,SEO,SEM,Híbrido",
         "start_date_days": -7,
         "end_date_days": 25,
-        "institution_email": "institucion1@example.com"
+        "institution_email": "institucion1@example.com",
+        "latitude": 20.6597, # Coordenadas para Guadalajara
+        "longitude": -103.3496
     },
     {
         "area": "Desarrollo Backend",
@@ -85,7 +103,9 @@ VACANTS_DATA = [
         "tags": "Python,Backend,API,Flask,Remoto",
         "start_date_days": -15,
         "end_date_days": 60,
-        "institution_email": "institucion2@example.com"
+        "institution_email": "institucion2@example.com",
+        "latitude": None,
+        "longitude": None
     },
 ]
 
@@ -121,7 +141,6 @@ def seed_data():
                 password_hash=hashed_password,
                 name=s_data["name"],
                 role=student_role, # Asigna el objeto Role
-                is_confirmed=True # Confirmados por defecto para pruebas
             )
             db.session.add(user)
             users[s_data["email"]] = user # Guardar en diccionario para referencia
@@ -136,7 +155,8 @@ def seed_data():
                 availability=s_data["availability"],
                 skills=s_data["skills"],
                 portfolio_url=s_data["portfolio_url"],
-                cv_path=s_data["cv_path"]
+                cv_path=s_data["cv_path"],
+                profile_picture_url=s_data["profile_picture_url"] # Añadido profile_picture_url
             )
             db.session.add(student_profile)
         print(f"Creados {len(STUDENT_USERS_DATA)} usuarios estudiantes y sus perfiles.")
@@ -161,7 +181,9 @@ def seed_data():
                 contact_phone=i_data["contact_phone"],
                 sector=i_data["sector"],
                 address=i_data["address"],
-                description=i_data["description"]
+                description=i_data["description"],
+                website=i_data["website"], # Añadido website
+                logo_url=i_data["logo_url"] # Añadido logo_url
             )
             db.session.add(institution_profile)
         print(f"Creados {len(INSTITUTION_USERS_DATA)} usuarios instituciones y sus perfiles.")
@@ -173,8 +195,10 @@ def seed_data():
         for v_data in VACANTS_DATA:
             institution_user = users.get(v_data["institution_email"])
             if institution_user and institution_user.role.name == "institution":
-                start_date = datetime.utcnow() + timedelta(days=v_data["start_date_days"])
-                end_date = datetime.utcnow() + timedelta(days=v_data["end_date_days"])
+                # Uso datetime.utcnow() para asegurarme de que las fechas estén en UTC,
+                # lo cual es una buena práctica para bases de datos.
+                start_date = (datetime.utcnow() + timedelta(days=v_data["start_date_days"])).date() 
+                end_date = (datetime.utcnow() + timedelta(days=v_data["end_date_days"])).date()
                 
                 vacant = Vacant(
                     area=v_data["area"],
@@ -183,13 +207,15 @@ def seed_data():
                     modality=v_data["modality"],
                     requirements=v_data["requirements"],
                     status="activa", # Por defecto activa
-                    start_date=start_date.date(), # Solo la fecha
-                    end_date=end_date.date(), # Solo la fecha
+                    start_date=start_date,
+                    end_date=end_date,
                     location=v_data["location"],
                     tags=v_data["tags"],
                     is_draft=False,
                     last_modified=datetime.utcnow(),
-                    institution_email=v_data["institution_email"]
+                    institution_email=v_data["institution_email"],
+                    latitude=v_data["latitude"], # Añadido latitude
+                    longitude=v_data["longitude"] # Añadido longitude
                 )
                 db.session.add(vacant)
                 vacants.append(vacant)
@@ -201,18 +227,18 @@ def seed_data():
 
         # Crear algunas postulaciones de ejemplo (opcional)
         # Asegúrate de que los emails de estudiantes y IDs de vacantes existan
-        student1_email = STUDENT_USERS_DATA[0]["email"]
+        student4_email = STUDENT_USERS_DATA[0]["email"] # Ahora es estudiante4
         student2_email = STUDENT_USERS_DATA[1]["email"]
         
-        if student1_email in users and vacants:
+        if student4_email in users and vacants:
             app1 = Application(
-                student_email=student1_email,
+                student_email=student4_email,
                 vacant_id=vacants[0].id, # Postular a la primera vacante creada
                 status="pendiente",
                 created_at=datetime.utcnow() - timedelta(days=5)
             )
             db.session.add(app1)
-            print("Creada postulación de estudiante1 a vacante1.")
+            print("Creada postulación de estudiante4 a vacante1.") # Actualizado mensaje
 
         if student2_email in users and len(vacants) > 1:
             app2 = Application(

@@ -1,202 +1,68 @@
-// src/app/dashboard/Dashboard.module.css
+// src/app/dashboard/dashboard.module.scss
 
-@import '../../components/styles/_variables.scss'; // Ruta a _colors.scss (sube dos niveles)
-
+@use '@/styles/variables' as v;
 
 .dashboardContainer {
-    min-height: 100vh;
-    background-color: $background-light;
-    padding: 3rem 2rem;
-    font-family: "Segoe UI", sans-serif;
-    color: $text-dark;
+    padding: v.$spacing-large;
 }
 
-.loadingContainer,
-.unauthorizedContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 80vh;
-    font-size: 1.5em;
-    color: $text-medium;
-}
-
+/* Estilos para la nueva cabecera de bienvenida */
 .welcomeHeader {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem;
-    background-color: $primary-color;
-    /* Usando tu color principal */
-    color: $text-light;
-    border-radius: 12px;
-    box-shadow: $box-shadow-medium;
+    background-color: #fff;
+    padding: v.$spacing-large v.$spacing-large * 1.5;
+    border-radius: v.$border-radius;
+    box-shadow: v.$box-shadow;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: v.$spacing-large * 1.5;
 }
 
 .welcomeTitle {
-    font-size: 2.8em;
-    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
+    margin: 0 0 4px 0;
+    color: v.$text-primary;
 }
 
 .welcomeMessage {
-    font-size: 1.2em;
-    max-width: 700px;
-    margin: 0 auto 1.5rem;
+    font-size: 1rem;
+    color: v.$text-secondary;
+    margin: 0;
 }
 
 .mainCtaButton {
-    display: inline-block;
-    background-color: $secondary-color;
-    /* Tu azul de acción */
-    color: $text-light;
-    padding: 0.8rem 2rem;
-    border-radius: 30px;
-    font-weight: 600;
+    background-color: v.$primary-color;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: v.$border-radius;
     text-decoration: none;
-    transition: background-color 0.3s ease;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
 
     &:hover {
-        background-color: $secondary-hover;
+        background-color: darken(v.$primary-color, 10%);
     }
 }
 
+/* Estilos para la nueva rejilla de tarjetas */
 .dashboardGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    // Crea columnas que se ajustan automáticamente. Cada una tiene un mínimo de 320px.
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: v.$spacing-large;
 }
 
-.card {
-    background-color: $background-white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: $box-shadow-light;
-    display: flex;
-    flex-direction: column;
-}
-
-.cardTitle {
-    font-size: 1.5em;
-    color: $text-dark;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    border-bottom: 1px solid $border-color-light;
-    padding-bottom: 1rem;
-}
-
-.applicationList,
-.recommendedVacanciesList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-grow: 1;
-    /* Para que ocupe el espacio disponible en la tarjeta */
-}
-
-.applicationItem,
-.recommendedVacancyItem {
-    padding: 0.75rem 0;
-    border-bottom: 1px dashed $border-color-light;
-    font-size: 0.95em;
-
-    &:last-child {
-        border-bottom: none;
+/* Media query para hacer la cabecera vertical en móviles */
+@media (max-width: 768px) {
+    .welcomeHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: v.$spacing-medium;
     }
-}
 
-.appTitle {
-    font-weight: 600;
-}
-
-.appCompany {
-    color: $text-medium;
-}
-
-.appStatus {
-    display: inline-block;
-    padding: 0.2em 0.6em;
-    border-radius: 4px;
-    font-size: 0.8em;
-    font-weight: 600;
-    margin-left: 0.5rem;
-    text-transform: capitalize;
-}
-
-/* Estilos específicos para el estado de las postulaciones */
-.pendiente {
-    background-color: #ffe0b2;
-    /* Naranja claro */
-    color: #e65100;
-    /* Naranja oscuro */
-}
-
-.entrevista {
-    background-color: #bbdefb;
-    /* Azul claro */
-    color: #1976d2;
-    /* Azul oscuro */
-}
-
-.rechazada {
-    background-color: #ffcdd2;
-    /* Rojo claro */
-    color: #d32f2f;
-    /* Rojo oscuro */
-}
-
-.aceptada {
-    background-color: #c8e6c9;
-    /* Verde claro */
-    color: #388e3c;
-    /* Verde oscuro */
-}
-
-.noData {
-    color: $text-medium;
-    font-style: italic;
-    text-align: center;
-    margin-top: 1rem;
-}
-
-.cardLink {
-    display: block;
-    text-align: center;
-    margin-top: 1.5rem;
-    color: $secondary-color;
-    text-decoration: none;
-    font-weight: 600;
-    transition: text-decoration 0.3s ease;
-
-    &:hover {
-        text-decoration: underline;
+    .dashboardGrid {
+        grid-template-columns: 1fr; // Una sola columna en móviles
     }
-}
-
-.profileProgressText {
-    font-size: 1.1em;
-    margin-bottom: 0.8rem;
-}
-
-.progressBarContainer {
-    background-color: $border-color-light;
-    border-radius: 5px;
-    height: 10px;
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-}
-
-.progressBar {
-    height: 100%;
-    background-color: $primary-color;
-    /* Usa tu color principal para la barra */
-    border-radius: 5px;
-    transition: width 0.5s ease-in-out;
-}
-
-.profileAdvice {
-    font-size: 0.9em;
-    color: $text-medium;
-    margin-bottom: 1rem;
 }

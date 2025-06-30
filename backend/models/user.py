@@ -11,6 +11,7 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
+    is_confirmed = db.Column(db.Boolean, default=False)
 
     # La relación se define aquí y se vincula a 'users' en el modelo Role.
     role = db.relationship('Role', back_populates='users')
@@ -18,9 +19,7 @@ class User(db.Model):
     applications = db.relationship("Application", back_populates="student", lazy="dynamic", cascade="all, delete-orphan")
     student_profile = db.relationship('StudentProfile', back_populates='user', uselist=False, cascade="all, delete-orphan")
     institution_profile = db.relationship('InstitutionProfile', back_populates='user', uselist=False, cascade="all, delete-orphan")
-
-
-
+    notifications = db.relationship('Notification', back_populates='recipient', lazy='dynamic', cascade="all, delete-orphan")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

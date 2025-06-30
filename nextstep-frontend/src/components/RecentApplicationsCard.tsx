@@ -7,10 +7,10 @@ import styles from './Card.module.scss'; // Crearemos este archivo de estilos en
 
 // Define la interfaz para una sola aplicación dentro del componente
 interface Application {
+    status: string;
     id: number;
     vacant_title: string;
     company_name: string;
-    application_status: string;
 }
 
 export default function RecentApplicationsCard() {
@@ -54,7 +54,7 @@ export default function RecentApplicationsCard() {
                         <li key={app.id} className={styles.applicationItem}>
                             <span className={styles.appTitle}>{app.vacant_title}</span>
                             <span className={styles.appCompany}> - {app.company_name}</span>
-                            <span className={`${styles.appStatus} ${styles[app.application_status.toLowerCase()]}`}>{app.application_status}</span>
+                            <span className={`${styles.appStatus} ${styles[app.status.toLowerCase()]}`}>{app.status}</span>
                         </li>
                     ))
                 ) : (

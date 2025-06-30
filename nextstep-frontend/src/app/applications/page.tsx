@@ -2,15 +2,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import styles from './ApplicationsPage.module.scss'; // Módulo de estilos
+import axiosInstance from '@/services/axiosConfig';
 
 interface ApplicationData {
     id: number;
+    status: string;
     vacant_id: number;
     vacant_title: string;
     company_name: string;
@@ -45,8 +46,7 @@ export default function ApplicationsPage() {
                 per_page: 10,
             };
 
-            const response = await axios.get('http://localhost:5000/api/apply/me', {
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await axiosInstance.get('/apply/me', {
                 params,
             });
             setApplications(response.data.applications);
@@ -134,8 +134,8 @@ export default function ApplicationsPage() {
                                 </p>
                                 <p className={styles.hoursInfo}>Horas/Salario: {app.vacant_hours}</p>
                                 <div className={styles.statusBadgeContainer}>
-                                    <span className={`${styles.statusBadge} ${styles[app.application_status.toLowerCase()]}`}>
-                                        {app.application_status.charAt(0).toUpperCase() + app.application_status.slice(1)}
+                                    <span className={`${styles.statusBadge} ${styles[app.status.toLowerCase()]}`}>
+                                        {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                                     </span>
                                     <span className={styles.appliedAt}>Postulado el: {app.applied_at}</span>
                                 </div>

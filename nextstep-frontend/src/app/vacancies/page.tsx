@@ -7,6 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import styles from './VacanciesPage.module.scss';
 import FormInput from '@/components/Input';
+import axiosInstance from '@/services/axiosConfig';
 
 interface Vacancy {
     id: number;
@@ -57,7 +58,7 @@ export default function VacanciesPage() {
                 page: page,
                 per_page: 10,
             };
-            const response = await axios.get('http://localhost:5000/api/vacants/', { params });
+            const response = await axiosInstance.get('http://localhost:5000/api/vacants/', { params });
             setVacancies(response.data.vacancies);
             setTotalPages(response.data.total_pages);
             setCurrentPage(response.data.current_page);
@@ -74,10 +75,10 @@ export default function VacanciesPage() {
     const fetchFilterOptions = useCallback(async () => {
         try {
             const [areasRes, modalitiesRes, locationsRes, tagsRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/vacants/filters/areas'),
-                axios.get('http://localhost:5000/api/vacants/filters/modalities'),
-                axios.get('http://localhost:5000/api/vacants/filters/locations'),
-                axios.get('http://localhost:5000/api/vacants/filters/tags'),
+                axiosInstance.get('http://localhost:5000/api/vacants/filters/areas'),
+                axiosInstance.get('http://localhost:5000/api/vacants/filters/modalities'),
+                axiosInstance.get('http://localhost:5000/api/vacants/filters/locations'),
+                axiosInstance.get('http://localhost:5000/api/vacants/filters/tags'),
             ]);
             setUniqueAreas(areasRes.data);
             setUniqueModalities(modalitiesRes.data);

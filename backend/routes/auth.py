@@ -1,285 +1,144 @@
-from flask import Blueprint, current_app, request, jsonify
-from extensions import db
-from models.user import User, Role
-from models.student_profile import StudentProfile
-from models.institution_profile import InstitutionProfile
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, decode_token
-from datetime import timedelta, datetime
+from flask import Blueprint, request, jsonify, current_app
 from flask_mail import Message
 from extensions import mail
-from utils import session_validated  
+from flask_jwt_extended import jwt_required, get_jwt_identity, decode_token #
+from services.auth_service import AuthService
+
 
 auth_bp = Blueprint("auth", __name__)
 
-# Pruebas
-@auth_bp.route("/testemail", methods=["GET"])
+# Instancia del servicio
+auth_service = AuthService()
 
+# Pruebas (dejar fuera del servicio si es solo para testing de infraestructura)
+@auth_bp.route("/testemail", methods=["GET"])
 def testemail():
-    msg = Message(
-        subject="Prueba de correo",
-        sender=current_app.config["MAIL_DEFAULT_SENDER"],
-        recipients=["sanchez.hernandez.luis.felipe12@gmail.com", "alejandrofuentes.glz@gmail.com", "juarez.botello.samuel@gmail.com"],
-        body="Este es un mensaje de prueba desde Flask usando Mailtrap."
-    )
     try:
-        mail.send(msg)
+        msg = Message(
+            subject="Prueba de correo",
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
+            recipients=["sanchez.hernandez.luis.felipe12@gmail.com", "alejandrofuentes.glz@gmail.com", "juarez.botello.samuel@gmail.com"],
+            body="Este es un mensaje de prueba desde Flask usando Mailtrap."
+        )
+        mail.send(msg) #
         return jsonify({"message": "Correo enviado correctamente (verifica Mailtrap)."}), 200
     except Exception as e:
-        print(str(e))  # o loggear como quieras
+        print(str(e))
         return jsonify({"error": str(e)}), 500
-
 
 # Registro de usuario
 @auth_bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
-
     email = data.get("email")
     password = data.get("password")
     name = data.get("name")
-    role_name = data.get("role", "student")  # default: student
+    role_name = data.get("role", "student")
 
-    if not email or not password or not name:
-        return jsonify({"error": "Todos los campos son obligatorios."}), 400
-
-    if User.query.filter_by(email=email).first():
-        return jsonify({"error": "El usuario ya existe."}), 409
-
-    if role_name not in ["student", "institution"]:
-        return jsonify({"error": "Rol inválido."}), 400
-    
-    # Buscar o crear el rol
-    role = Role.query.filter_by(name=role_name).first()
-    if not role:
-        role = Role(name=role_name)
-        db.session.add(role)
-        db.session.commit()    
-
-    user = User(email=email, name=name, role_id=role.id)
-    user.set_password(password)
-
-    db.session.add(user)
-
-    if role_name == "student":
-        student_profile = StudentProfile(
-        email=email,
-        career="",
-        semestre=None,
-        average=None,
-        phone="",
-        address="",
-        availability="",
-        skills="",
-        portfolio_url="",
-        cv_url=""
-    )
-
-        db.session.add(student_profile)
-        
-    elif role_name == "institution":
-        institution_profile = InstitutionProfile(
-        email=email,
-        website="",
-        sector="",
-        descripcion=""
-    )   
-        db.session.add(institution_profile)
-        
-    db.session.commit()
-
-    confirm_token = create_access_token(identity=email, expires_delta=timedelta(days=1), additional_claims={"confirm": True})
-
-    BASE_URL = current_app.config["BASE_URL"]
-    confirm_url = f"{BASE_URL}/auth/confirm/{confirm_token}"
-
-    msg = Message(subject="Confirma tu correo",
-                sender=current_app.config["MAIL_DEFAULT_SENDER"],
-                recipients=[email])
-    msg.body = f"Hola {name}, por favor confirma tu correo visitando este enlace: {confirm_url}"
-
-    mail.send(msg)
-
-    return jsonify({"message": "Usuario registrado correctamente."}), 201
+    try:
+        result = auth_service.register_user(email, password, name, role_name)
+        return jsonify(result), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Ocurrió un error inesperado durante el registro."}), 500
 
 # Confirmación de correo
 @auth_bp.route("/confirm/<token>", methods=["GET"])
 def confirm_email(token):
     try:
-        decoded = decode_token(token)
-        email = decoded["sub"]
-        claims = decoded.get("confirm", False)
-
-        if not claims:
-            return jsonify({"error": "Token inválido para confirmación"}), 400
-
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            return jsonify({"error": "Usuario no encontrado"}), 404
-
-        if user.is_confirmed:
-            return jsonify({"message": "Correo ya confirmado"}), 200
-
-        user.is_confirmed = True
-        db.session.commit()
-        return jsonify({"message": "Correo confirmado exitosamente"}), 200
-
+        result = auth_service.confirm_email(token)
+        return jsonify(result), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
     except Exception as e:
-        return jsonify({"error": "Token inválido o expirado"}), 400
-
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Ocurrió un error inesperado al confirmar el correo."}), 500
 
 # Login de usuario
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-
     email = data.get("email")
     password = data.get("password")
 
-    if not email or not password:
-        return jsonify({"error": "Email y contraseña requeridos."}), 400
+    try:
+        result = auth_service.login_user(email, password)
+        return jsonify(result), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 401
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Ocurrió un error inesperado durante el login."}), 500
 
-    user = User.query.filter_by(email=email).first()
-    if not user or not user.check_password(password):
-        return jsonify({"error": "Credenciales inválidas."}), 401
-
-    if not user.is_confirmed:
-        return jsonify({"error": "Confirma tu correo para iniciar sesión."}), 403
-
-    access_token = create_access_token(
-        identity=user.email,
-        additional_claims={"role": user.role.name},
-        expires_delta=timedelta(hours=4)
-    ) 
-
-    return jsonify({
-        "message": "Inicio de sesión exitoso.",
-        "access_token": access_token,
-        "user": {
-            "email": user.email,
-            "name": user.name,
-            "role": user.role.name
-        }
-    }), 200
-
-#Olvidó su contraseña
+# Olvidó su contraseña
 @auth_bp.route("/forgot-password", methods=["POST"])
 def forgot_password():
     data = request.get_json()
     email = data.get("email")
 
-    if not email:
-        return jsonify({"error": "Email requerido"}), 400
+    try:
+        result = auth_service.forgot_password(email)
+        return jsonify(result), 200
+    except ValueError as e: # Esto no debería ocurrir si el servicio maneja el mensaje "si existe"
+        return jsonify({"error": str(e)}), 400
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Ocurrió un error inesperado al solicitar restablecimiento de contraseña."}), 500
 
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"message": "Si el correo está registrado, se enviará un enlace de recuperación."}), 200
-
-    reset_token = create_access_token(
-        identity=user.email,
-        expires_delta=timedelta(hours=1),
-        additional_claims={"reset": True}
-    )
-
-    BASE_URL = current_app.config["BASE_URL"]  # http://localhost:3000 en frontend
-    # 👇 Este link ahora apunta al FRONTEND, no al backend
-    reset_url = f"{BASE_URL}/auth/reset-password/{reset_token}"
-
-    msg = Message(
-        subject="Restablece tu contraseña",
-        sender=current_app.config["MAIL_DEFAULT_SENDER"],
-        recipients=[email],
-        body=f"Hola, puedes restablecer tu contraseña con este enlace:\n{reset_url}"
-    )
-
-    mail.send(msg)
-    return jsonify({"message": "Si el correo está registrado, se enviará un enlace de recuperación."}), 200
-
-
-#Resetar contraesña
+# Resetear contraseña
 @auth_bp.route("/reset-password/<token>", methods=["POST"])
 def reset_password(token):
     data = request.get_json()
     new_password = data.get("password")
 
-    if not new_password:
-        return jsonify({"error": "Contraseña nueva requerida"}), 400
-
     try:
-        decoded = decode_token(token)
-        if not decoded.get("reset", False):
-            return jsonify({"error": "Token inválido para restablecimiento"}), 400
-
-        email = decoded["sub"]
-        user = User.query.filter_by(email=email).first()
-
-        if not user:
-            return jsonify({"error": "Usuario no encontrado"}), 404
-
-        user.set_password(new_password)
-        user.last_password_reset = datetime.utcnow()
-        db.session.commit()
-        return jsonify({"message": "Contraseña actualizada exitosamente."}), 200
-
+        result = auth_service.reset_password(token, new_password)
+        return jsonify(result), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
     except Exception as e:
-        return jsonify({"error": "Token inválido o expirado"}), 400
-
-
-@auth_bp.route("/delete", methods=["DELETE"])
-@jwt_required()
-def delete_account():
-    current_email = get_jwt_identity()
-    user = User.query.get(current_email)
-
-    if not user:
-        return jsonify({"error": "Usuario no encontrado"}), 404
-
-    # Borrar perfil asociado
-    if user.role.name == "student":
-        profile = StudentProfile.query.get(current_email)
-        if profile:
-            db.session.delete(profile)
-
-        # Borrar postulaciones
-        from models.application import Application
-        Application.query.filter_by(student_email=current_email).delete()
-
-    elif user.role.name == "institution":
-        profile = InstitutionProfile.query.get(current_email)
-        if profile:
-            db.session.delete(profile)
-
-        # Borrar vacantes y postulaciones a esas vacantes
-        from models.vacant import Vacant
-        from models.application import Application
-        vacants = Vacant.query.filter_by(institution_email=current_email).all()
-        for v in vacants:
-            Application.query.filter_by(vacant_id=v.id).delete()
-            db.session.delete(v)
-
-    db.session.delete(user)
-    db.session.commit()
-
-    return jsonify({"message": "Cuenta eliminada correctamente."}), 200
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Ocurrió un error inesperado al restablecer la contraseña."}), 500
 
 @auth_bp.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
-    # Implementar revocación, aquí se agrega el JWT a una blacklist
-    return jsonify({"message": "Sesión cerrada."}), 200
+    try:
+        result = auth_service.logout_user()
+        return jsonify(result), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Ocurrió un error inesperado durante el cierre de sesión."}), 500
+    
+@auth_bp.route("/resend-confirmation", methods=["POST"])
+def resend_confirmation():
+    data = request.get_json()
+    email = data.get("email")
 
-# Parte de tu auth_bp en Flask
-@auth_bp.route("/me", methods=["GET"])
-@jwt_required()
-def get_current_user_info():
-    current_user_email = get_jwt_identity()
-    user = User.query.filter_by(email=current_user_email).first()
-    if not user:
-        return jsonify({"error": "Usuario no encontrado"}), 404
-
-    return jsonify({
-        "user": {
-            "email": user.email,
-            "name": user.name,
-            "role": user.role.name # Asegúrate de que el modelo User tiene relación con Role
-        }
-    }), 200
+    try:
+        result = auth_service.resend_confirmation_email(email)
+        return jsonify(result), 200
+    except ValueError as e: # Para validación de 'email requerido'
+        return jsonify({"error": str(e)}), 400
+    except RuntimeError as e: # Para errores como el rate limiting o fallos de envío
+        return jsonify({"error": str(e)}), 429 if "espera" in str(e) else 500 # 429 Too Many Requests para rate limiting
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Ocurrió un error inesperado al reenviar el correo de confirmación: {e}"}), 500

@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'; // Para posible redirección
 
 // Importa el módulo de estilos específico para esta página
 import styles from './forgot-password.module.scss'; // Asegúrate de que esta ruta sea correcta
+import axiosInstance from '@/services/axiosConfig';
 
 export default function ForgotPasswordPage() {
     const router = useRouter(); // Lo añadimos por si queremos añadir una redirección
@@ -21,7 +22,7 @@ export default function ForgotPasswordPage() {
         setLoading(true); // Activar estado de carga
 
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+            const response = await axiosInstance.post('http://localhost:5000/api/auth/forgot-password', { email });
 
             // El backend ya devuelve un mensaje genérico por seguridad, lo cual es bueno.
             // Lo mostramos directamente.
