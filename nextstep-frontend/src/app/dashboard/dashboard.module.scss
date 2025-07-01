@@ -1,6 +1,6 @@
 // src/app/dashboard/dashboard.module.scss
 
-@use '@/styles/variables' as v;
+@use '../../components/styles/variables' as v;
 
 .dashboardContainer {
     padding: v.$spacing-large;

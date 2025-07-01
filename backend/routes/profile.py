@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from services.profile_service import ProfileService # Importa tu nuevo servicio
-from app import current_app, db
+from flask import current_app
+from extensions import db
 
 # Creamos el Blueprint
 profile_bp = Blueprint("profile", __name__, url_prefix="/api/profile")

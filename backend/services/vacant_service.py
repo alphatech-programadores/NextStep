@@ -1,6 +1,5 @@
 # services/vacant_service.py
 from datetime import datetime, date
-import app
 from models import vacant
 from sqlalchemy.orm import joinedload
 from collections import Counter
