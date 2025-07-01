@@ -2,34 +2,63 @@
 
 'use client'; // Necesario para usar hooks y la interacción del cliente
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react'; // Importar useEffect y useCallback
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext'; // ¡Importa el hook de autenticación!
-import styles from './navbar.module.scss'; // Módulo de estilos para el Navbar
-import { useOnClickOutside } from '@/hooks/useOnClickOutside'; // Importa el nuevo hook
+import { useAuth } from '@/context/AuthContext';
+import styles from './navbar.module.scss';
+import { useOnClickOutside } from '@/hooks/useOnClickOutside';
+import axiosInstance from '@/services/axiosConfig'; // Importa axiosInstance
 
 export default function Navbar() {
     const { user, loadingUser, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0); // Inicializar en 0
 
-    // --- CORRECCIÓN 1 ---
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    // No es necesario un toggle para el dropdown si usamos el hook, pero lo dejamos por si acaso
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // --- CORRECIÓN 2 ---
     useOnClickOutside(dropdownRef as React.RefObject<HTMLElement>, () => setIsDropdownOpen(false));
 
+    // NUEVA FUNCIÓN PARA OBTENER EL CONTEO DE NOTIFICACIONES NO LEÍDAS
+    const fetchUnreadNotificationsCount = useCallback(async () => {
+        if (!user || user.role !== 'student') { // Solo estudiantes tienen notificaciones
+            setUnreadNotificationsCount(0);
+            return;
+        }
+        try {
+            const response = await axiosInstance.get('/notifications/unread_count'); // Llama al endpoint de backend
+            setUnreadNotificationsCount(response.data.unread_count);
+        } catch (error) {
+            console.error("Error fetching unread notifications count:", error);
+            // Manejar error, quizás resetear el contador si el token es inválido
+            // Si el error es 401, el interceptor de axiosInstance y AuthContext ya deberían manejar el logout
+        }
+    }, [user]);
+
+    useEffect(() => {
+        // Cargar el conteo inicial cuando el usuario se carga o cambia
+        if (user && user.role === 'student') {
+            fetchUnreadNotificationsCount();
+
+            // Configurar polling para actualizar el conteo periódicamente (ej. cada 30 segundos)
+            const intervalId = setInterval(fetchUnreadNotificationsCount, 30000); // 30 segundos
+
+            // Limpiar el intervalo cuando el componente se desmonte o el usuario cambie
+            return () => clearInterval(intervalId);
+        } else {
+            setUnreadNotificationsCount(0); // Resetear si no hay usuario o no es estudiante
+        }
+    }, [user, fetchUnreadNotificationsCount]);
+
+
     if (loadingUser) {
-        // Puedes mostrar un skeleton o nada mientras se carga la sesión del usuario
         return (
             <nav className={styles.navbar}>
                 <div className={styles.brand}>NextStep</div>
-                {/* Opcional: Un spinner de carga aquí */}
                 <div className={styles.navLinks}>Cargando...</div>
             </nav>
         );
@@ -43,10 +72,7 @@ export default function Navbar() {
                 </Link>
             </div>
 
-            {/* --- PASO 2.1: BOTÓN HAMBURGUESA --- */}
-            {/* Este botón solo será visible en móviles gracias al SCSS */}
             <button className={styles.hamburger} onClick={toggleMenu} aria-label="Toggle menu">
-                {/* Un ícono simple de hamburguesa/cierre. Puedes usar una librería de íconos si prefieres. */}
                 {isMenuOpen ? (
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 ) : (
@@ -54,26 +80,28 @@ export default function Navbar() {
                 )}
             </button>
 
-            {/* --- PASO 2.2: ENLACES CON CLASE CONDICIONAL --- */}
-            {/* Añadimos la clase 'menuOpen' cuando el estado es true */}
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.menuOpen : ''}`}>
                 {user ? (
-                    // Navbar para usuario AUTENTICADO
                     <>
                         <Link href="/dashboard" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
-                        {/* El link a Vacantes puede quedar fuera si es una acción principal */}
                         <Link href="/vacancies" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Explorar Prácticas</Link>
 
-                        {/* --- PASO 2: CONTENEDOR DEL MENÚ DE USUARIO --- */}
+                        {/* Ícono de Notificaciones para Estudiantes (con conteo real) */}
+                        {user.role === 'student' && (
+                            <Link href="/notifications" className={styles.notificationsLink} onClick={() => setIsMenuOpen(false)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                {unreadNotificationsCount > 0 && (
+                                    <span className={styles.notificationsBadge}>{unreadNotificationsCount}</span>
+                                )}
+                            </Link>
+                        )}
+
                         <div className={styles.userMenu} ref={dropdownRef}>
-                            {/* El botón que abre/cierra el dropdown */}
                             <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className={styles.userMenuButton}>
                                 <span>Hola, {user.name}</span>
-                                {/* Ícono de flecha hacia abajo */}
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                             </button>
 
-                            {/* El menú desplegable, se muestra solo si isDropdownOpen es true */}
                             {isDropdownOpen && (
                                 <div className={styles.dropdownMenu}>
                                     {user.role === 'student' && (
@@ -86,7 +114,6 @@ export default function Navbar() {
                                         <Link href="/institution/vacancies" className={styles.dropdownLink} onClick={() => setIsDropdownOpen(false)}>Gestionar Vacantes</Link>
                                     )}
 
-                                    {/* Separador visual */}
                                     <div className={styles.dropdownDivider} />
 
                                     <button onClick={() => { logout(); setIsDropdownOpen(false); }} className={styles.dropdownLink}>
@@ -108,5 +135,3 @@ export default function Navbar() {
         </nav>
     );
 }
-
-

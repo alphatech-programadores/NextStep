@@ -21,6 +21,10 @@ class User(db.Model):
     institution_profile = db.relationship('InstitutionProfile', back_populates='user', uselist=False, cascade="all, delete-orphan")
     notifications = db.relationship('Notification', back_populates='recipient', lazy='dynamic', cascade="all, delete-orphan")
 
+    # Codigos de confirmacion
+    confirmation_code = db.Column(db.String(6), nullable=True) # Código corto, ej. "123XYZ"
+    confirmation_code_expires_at = db.Column(db.DateTime, nullable=True)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     

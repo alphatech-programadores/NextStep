@@ -1,446 +1,280 @@
-// src/app/student/profile/StudentProfilePage.module.css
-@use '../../../components/styles/_variables.scss' as v;
-@import '../../../components/styles/_variables.scss';
+/* src/app/student/profile/profile.module.scss */
+@use '../../../components/styles/_variables' as var;
+@use '../../../components/styles/mixins' as mixin; // Asegúrate de tener un archivo de mixins si usas uno
 
-
-// Ajustamos el min-height si tienes un Navbar fijo para que el contenido no quede oculto
-.container {
-    @include center-flex(column);
-    min-height: calc(100vh - 80px);
-    /* Ejemplo: 80px si tu Navbar tiene esa altura */
-    background-color: $background-light;
-    padding: 3.5rem 2rem;
-    font-family: "Segoe UI", sans-serif;
-    color: $text-dark;
-    box-sizing: border-box;
-}
-
-.loadingContainer,
-.unauthorizedContainer,
-.errorContainer {
-    @include center-flex(column);
-    min-height: 70vh;
-    font-size: 1.6em;
-    color: $text-medium;
-    text-align: center;
-    padding: 2rem;
-    background-color: $background-white;
-    border-radius: 18px;
-    box-shadow: $box-shadow-medium;
-    max-width: 600px;
-    margin: auto;
-}
-
-.errorContainer {
-    color: $error-color;
-    border: 1px solid $error-color;
-    background-color: lighten($error-color, 45%);
-}
-
-.profileCard {
-    background-color: $background-white;
-    padding: 50px 60px;
-    border-radius: 20px;
-    box-shadow: $box-shadow-strong;
-    width: 100%;
-    max-width: 760px;
-    text-align: center;
-    border: 1px solid $border-color-light;
-    @include transition(transform, 0.2s);
-
-    &:hover {
-        transform: translateY(-5px);
-        box-shadow: $box-shadow-strong;
-    }
-}
-
-.title {
-    font-size: 3.2em;
-    color: $primary-color;
-    margin-bottom: 2.8rem;
-    font-weight: 800;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* --- Estilos para la Foto de Perfil (MEJORADOS) --- */
-.profilePictureSection {
-    position: relative; // Ancla para el overlay
-    width: 150px;
-    height: 150px;
-    margin: 0 auto v.$spacing-large; // Centrado
-    border-radius: 50%; // Círculo perfecto
-    overflow: hidden; // Asegura que la imagen no se salga del círculo
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    cursor: pointer; // Indica que se puede hacer clic
-    background-color: v.$secondary-color; // Fondo para el placeholder
-}
-
-.profilePicture {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; // Asegura que la imagen cubra el círculo sin deformarse
-}
-
-.profilePicturePlaceholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
+.profilePage {
+    @include mixin.flex-column;
     align-items: center;
-    color: #bdc3c7; // Un gris suave para el ícono
-}
+    padding: 2rem;
+    background-color: var.$background-color-light;
+    min-height: calc(100vh - var.$navbar-height);
 
-// El input real, lo ocultamos completamente
-.fileInput {
-    display: none;
-}
+    .title {
+        color: var.$primary-color;
+        margin-bottom: 2.5rem;
+        font-size: 2.5rem;
+        text-align: center;
 
-// Contenedor para el nombre del archivo seleccionado
-.fileName {
-    text-align: center;
-    font-size: 0.9rem;
-    color: v.$text-secondary;
-    margin-top: v.$spacing-small;
-}
+        @include mixin.breakpoint-down(md) {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+    }
 
-// Label genérico para los inputs de archivo
-.fileInputLabel {
+    .loadingContainer,
+    .errorContainer {
+        @include mixin.center-flex;
+        height: 300px;
+        font-size: 1.2rem;
+        color: var.$text-color-light;
+    }
 
-    // Para la foto de perfil, lo convertimos en un overlay
-    &.profileOverlay {
-        position: absolute;
-        top: 0;
-        left: 0;
+    .profileForm {
+        background-color: var.$light-color;
+        padding: 2.5rem;
+        border-radius: var.$border-radius-lg;
+        box-shadow: var.$box-shadow-medium;
         width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #fff;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-weight: 600;
-        opacity: 0; // Oculto por defecto
-        transition: opacity 0.2s ease-in-out;
-
-        // Se muestra al hacer hover sobre la sección
-        .profilePictureSection:hover & {
-            opacity: 1;
-        }
-
-        // Un pequeño ícono de cámara (SVG en línea)
-        &::before {
-            content: '';
-            display: block;
-            width: 24px;
-            height: 24px;
-            margin-bottom: 8px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'%3E%3C/path%3E%3Ccircle cx='12' cy='13' r='4'%3E%3C/circle%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-    }
-
-    // Para el CV, lo estilizamos como un botón normal
-    &.cvButton {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: v.$primary-color;
-        color: v.$text-on-primary;
-        border: none;
-        border-radius: v.$border-radius;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-
-        &:hover {
-            background-color: darken(v.$primary-color, 10%);
-        }
-    }
-}
-
-/* --- Estilos para la sección del CV (MEJORADOS) --- */
-.cvUploadSection {
-    margin-top: v.$spacing-large;
-    padding: v.$spacing-large;
-    border: 2px dashed #dfe4ea; // Borde punteado
-    border-radius: v.$border-radius;
-    text-align: center;
-    background-color: #f9fafb; // Un fondo muy sutil
-}
-
-.currentCv {
-    margin: 0 0 v.$spacing-medium 0;
-
-    a {
-        color: v.$primary-color;
-        font-weight: 600;
-    }
-}
-
-.noCv {
-    margin: 0 0 v.$spacing-medium 0;
-    color: v.$text-secondary;
-}
-
-
-
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    text-align: left;
-}
-
-.inputGroup {
-    margin-bottom: 0;
-}
-
-.inputGroup input,
-.selectInput,
-.textareaInput {
-    width: 100%;
-    padding: 14px 18px;
-    border: 1px solid $border-color-medium;
-    border-radius: 12px;
-    font-size: 1.1em;
-    box-sizing: border-box;
-    color: $text-dark;
-    background-color: $background-white;
-    transition: background-color 0.3s ease-in-out, transform 0.1s ease-in-out;
-
-    &:focus {
-        outline: none;
-        border-color: $secondary-color;
-        box-shadow: 0 0 0 5px rgba($secondary-color, 0.25);
-    }
-
-    /* Estilo para campos de solo lectura */
-    &[readonly] {
-        background-color: $background-light;
-        /* Fondo gris claro */
-        border-color: $border-color-light;
-        cursor: not-allowed;
-        color: $text-medium;
-        box-shadow: none;
-    }
-}
-
-.selectLabel,
-.textareaLabel {
-    display: block;
-    font-weight: 600;
-    color: $text-dark;
-    margin-bottom: 8px;
-    font-size: 1em;
-}
-
-.selectInput {
-    appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2C114.7L154.2%2C247.5c-3%2C3-7.6%2C3-10.6%2C0L5.4%2C114.7c-3-3-3-7.6%2C0-10.6l10.6-10.6c3-3%2C7.6-3%2C10.6%2C0l115.6%2C115.6L265.8%2C93.5c3-3%2C7.6-3%2C10.6%2C0l10.6%2C10.6C290%2C107.1%2C290%2C111.7%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    background-size: 0.8em;
-    padding-right: 35px;
-}
-
-.textareaInput {
-    min-height: 120px;
-    line-height: 1.6;
-
-    /* Custom scrollbar para Webkit (Chrome, Safari) */
-    &::-webkit-scrollbar {
-        width: 8px;
-        border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: $background-light;
-        border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: $primary-light;
-        border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-        background: darken($primary-light, 10%);
-    }
-}
-
-.readOnlyHelp {
-    font-size: 0.85em;
-    color: $text-medium;
-    margin-top: 5px;
-    font-style: italic;
-}
-
-.submitButton {
-    background-color: $secondary-color;
-    color: $text-light;
-    padding: 16px 30px;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.25em;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out, transform 0.1s ease-in-out;
-    margin-top: 40px;
-
-    &:hover {
-        background-color: $secondary-hover;
-        box-shadow: $box-shadow-medium;
-    }
-
-    &:active {
-        transform: translateY(2px);
-    }
-
-    &:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-}
-
-/* Estilos para la subida de archivos (CV) */
-.cvUploadSection {
-    margin-top: 30px;
-    /* Más espacio arriba */
-    padding-top: 30px;
-    border-top: 1px dashed $border-color-medium;
-    /* Borde más visible */
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.cvUploadLabel {
-    font-weight: 600;
-    color: $primary-color;
-    font-size: 1.1em;
-    display: block;
-    /* Para que ocupe toda la línea */
-}
-
-.currentCv,
-.noCv {
-    font-size: 0.95em;
-    color: $text-medium;
-    margin-top: 5px;
-    line-height: 1.4;
-}
-
-.currentCv a {
-    color: $secondary-color;
-    text-decoration: none;
-    font-weight: 500;
-    word-break: break-all;
-
-    /* Para evitar desbordamiento en nombres largos */
-    &:hover {
-        text-decoration: underline;
-    }
-}
-
-/* Estilo para los botones de "Subir CV" / "Cambiar CV" */
-.fileInputLabel {
-    background-color: $primary-light;
-    color: $primary-color;
-    padding: 12px 18px;
-    border-radius: 10px;
-    text-align: center;
-    transition: background-color 0.3s ease-in-out, transform 0.1s ease-in-out;
-    display: inline-block;
-    /* Actúa como botón */
-    max-width: 250px;
-    /* Limitar el ancho del botón */
-    cursor: pointer;
-    margin-top: 5px;
-    /* Espacio debajo del "Subir CV (PDF, DOCX)" */
-
-    &:hover {
-        background-color: darken($primary-light, 5%);
-    }
-}
-
-/* Esconder el input de tipo file por defecto */
-.fileInput {
-    display: none;
-}
-
-.fileName {
-    font-size: 0.85em;
-    color: $text-medium;
-    font-style: italic;
-    margin-top: 5px;
-}
-
-// Media Queries para Responsividad
-@media (max-width: 768px) {
-    .profileCard {
-        padding: 35px 30px;
-        margin: 0 15px;
-    }
-
-    .title {
-        font-size: 2.5em;
+        max-width: 900px;
+        display: grid;
+        gap: 2rem; // Espacio entre las secciones completas del formulario
         margin-bottom: 2rem;
+
+        @include mixin.breakpoint-down(md) {
+            padding: 1.5rem;
+        }
+
+        .formSection {
+            background-color: var.$background-color-light;
+            padding: 1.5rem;
+            border-radius: var.$border-radius;
+            border: 1px solid var.$border-color;
+
+            h2 {
+                color: var.$secondary-color;
+                margin-bottom: 1.5rem;
+                font-size: 1.8rem;
+                border-bottom: 2px solid var.$primary-color-light;
+                padding-bottom: 0.5rem;
+            }
+
+            .inputGroup {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.8rem; // AUMENTADO PARA MÁS SEPARACIÓN HORIZONTAL
+                margin-bottom: 1rem;
+
+                // ASEGURAR QUE NO SE SALGAN DEL CUADRO EN PANTALLAS PEQUEÑAS
+                @include mixin.breakpoint-down(sm) {
+                    // Ejemplo de breakpoint para móviles muy pequeños
+                    grid-template-columns: 1fr; // Siempre una sola columna
+                    gap: 1rem; // Reducir un poco el gap vertical en móviles
+                }
+            }
+
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: bold;
+                color: var.$text-color;
+                font-size: 0.95rem;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="url"],
+            input[type="date"],
+            textarea {
+                width: 100%;
+                padding: 0.8rem 1rem;
+                border: 1px solid var.$border-color;
+                border-radius: var.$border-radius-sm;
+                font-size: 1rem;
+                color: var.$text-color;
+                background-color: var.$light-color;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                outline: none;
+
+                &:focus {
+                    border-color: var.$accent-color;
+                    box-shadow: 0 0 0 3px rgba(var.$accent-color, 0.2);
+                }
+
+                &:disabled {
+                    background-color: var.$background-color-light;
+                    cursor: not-allowed;
+                }
+
+                &::placeholder {
+                    color: var.$text-color-light;
+                    opacity: 0.7;
+                }
+            }
+
+            textarea {
+                resize: vertical;
+                min-height: 100px;
+                line-height: 1.5;
+            }
+
+            // ESTILOS DE LA SECCIÓN DE FOTO DE PERFIL
+            .profilePictureSection {
+                @include mixin.flex-column;
+                align-items: center;
+                gap: 1.5rem;
+                margin-bottom: 1.5rem;
+
+                .profileImagePreview {
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 3px solid var.$primary-color;
+                    box-shadow: var.$box-shadow-medium;
+                }
+
+                .profileImagePlaceholder {
+                    @include mixin.center-flex;
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var.$border-color;
+                    color: var.$text-color-light;
+                    font-size: 0.9rem;
+                    text-align: center;
+                    border: 2px dashed var.$secondary-color;
+                }
+
+                .fileUploadGroup {
+                    @include mixin.flex-column;
+                    align-items: center;
+                    gap: 0.8rem;
+
+                    .hiddenFileInput {
+                        display: none;
+                    }
+
+                    .customFileUploadButton {
+                        // ESTILO PARA EL BOTÓN DE SUBIDA DE FOTO
+                        @include mixin.button-base;
+                        background-color: var.$accent-color;
+                        color: var.$light-color;
+                        border: none;
+                        padding: 0.7rem 1.2rem;
+                        cursor: pointer;
+                        font-size: 0.95rem;
+
+                        &:hover {
+                            background-color: darken(var.$accent-color, 10%);
+                        }
+                    }
+
+                    p {
+                        font-size: 0.85rem;
+                        color: var.$text-color-light;
+                        margin-top: -0.5rem;
+                    }
+                }
+            }
+
+            // FIN ESTILOS DE LA SECCIÓN DE FOTO DE PERFIL
+
+
+            .educationItem,
+            .experienceItem {
+                border: 1px solid var.$border-color-light;
+                padding: 1.5rem;
+                border-radius: var.$border-radius;
+                margin-bottom: 1.5rem;
+                background-color: var.$light-color;
+                position: relative;
+                box-shadow: var.$box-shadow-light;
+
+                .inputGroup {
+                    grid-template-columns: 1fr;
+                    gap: 1.2rem;
+                }
+            }
+
+            .addButton {
+                @include mixin.button-primary;
+                margin-top: 1rem;
+                width: fit-content;
+                padding: 0.8rem 1.5rem;
+            }
+
+            .removeButton {
+                @include mixin.button-danger;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+                width: fit-content;
+            }
+        }
+
+        .submitButton {
+            @include mixin.button-primary;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
     }
 
-    .profilePicture {
-        width: 100px;
-        height: 100px;
+    .deleteAccountSection {
+        margin-top: 2rem;
+        width: 100%;
+        max-width: 900px;
+        text-align: right;
+        padding: 1.5rem;
+        background-color: var.$light-color;
+        border-radius: var.$border-radius-lg;
+        box-shadow: var.$box-shadow-medium;
+        border: 1px solid var.$border-color;
+
+        .deleteButton {
+            @include mixin.button-danger;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
     }
 
-    .profilePicturePlaceholder {
-        width: 100px;
-        height: 100px;
-    }
+    // Estilos para los botones dentro del modal
+    .modalActions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
 
-    .form {
-        gap: 20px;
-    }
+        .cancelButton {
+            background-color: var.$secondary-color;
+            color: var.$light-color;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var.$border-radius;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
 
-    .inputGroup input,
-    .selectInput,
-    .textareaInput {
-        padding: 10px 14px;
-        font-size: 1em;
-    }
+            &:hover {
+                background-color: darken(var.$secondary-color, 10%);
+            }
+        }
 
-    .submitButton {
-        padding: 14px 20px;
-        font-size: 1.1em;
-    }
+        .confirmDeleteButton {
+            background-color: var.$danger-color;
+            color: var.$light-color;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var.$border-radius;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
 
-    .cvUploadLabel,
-    .fileInputLabel {
-        padding: 10px 15px;
-        font-size: 1em;
-        max-width: 100%;
-    }
-
-    .profilePictureSection label[for="profilePicUpload"] {
-        transform: translate(20%, 20%);
-        /* Ajustar posición del botón en móviles */
-    }
-}
-
-@media (max-width: 480px) {
-    .profileCard {
-        padding: 25px 20px;
-    }
-
-    .title {
-        font-size: 2em;
-    }
-
-    .profilePictureSection label[for="profilePicUpload"] {
-        width: 35px;
-        height: 35px;
-        font-size: 1.2em;
+            &:hover {
+                background-color: darken(var.$danger-color, 10%);
+            }
+        }
     }
 }

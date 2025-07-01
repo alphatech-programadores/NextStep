@@ -1,0 +1,175 @@
+// src/app/notifications/notifications.module.scss
+@use '@/components/styles/variables' as var;
+@use '@/components/styles/mixins' as mixin;
+
+.notificationsPage {
+    @include mixin.flex-column;
+    align-items: center;
+    padding: 2rem;
+    background-color: var.$background-color-light;
+    min-height: calc(100vh - var.$navbar-height);
+
+    .title {
+        color: var.$primary-color;
+        margin-bottom: 2.5rem;
+        font-size: 2.5rem;
+        text-align: center;
+
+        @include mixin.breakpoint-down(md) {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .loadingContainer {
+        @include mixin.center-flex;
+        height: 300px;
+        font-size: 1.2rem;
+        color: var.$text-color-light;
+    }
+
+    .emptyState {
+        text-align: center;
+        padding: 3rem;
+        background-color: var.$light-color;
+        border-radius: var.$border-radius;
+        box-shadow: var.$box-shadow-medium;
+        color: var.$text-secondary;
+        font-size: 1.1rem;
+        margin-top: 2rem;
+    }
+
+    .actionsBar {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 1.5rem;
+
+        .markAllReadButton {
+            @include mixin.button-primary;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.95rem;
+        }
+    }
+
+    .notificationsList {
+        @include mixin.flex-column;
+        gap: 1rem;
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .notificationItem {
+        background-color: var.$light-color;
+        padding: 1.5rem;
+        border-radius: var.$border-radius;
+        box-shadow: var.$box-shadow-light;
+        border: 1px solid var.$border-color;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+
+        &.read {
+            background-color: var.$background-color-light;
+            border-color: var.$border-color-light;
+            opacity: 0.8;
+        }
+
+        .notificationHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .notificationType {
+            font-weight: bold;
+            color: var.$primary-color;
+            text-transform: capitalize;
+        }
+
+        .notificationDate {
+            font-size: 0.85rem;
+            color: var.$text-color-light;
+        }
+
+        .notificationMessage {
+            color: var.$text-color;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .notificationLink {
+            color: var.$accent-color;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            display: inline-block; // Para que el padding y margin funcionen
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .notificationActions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            justify-content: flex-end; // Alinear botones a la derecha
+
+            .actionButton {
+                @include mixin.button-base;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+                border: 1px solid var.$secondary-color;
+                background-color: transparent;
+                color: var.$text-secondary;
+
+                &:hover {
+                    background-color: var.$secondary-color;
+                    color: var.$light-color;
+                }
+
+                &.deleteButton {
+                    border-color: var.$danger-color;
+                    color: var.$danger-color;
+
+                    &:hover {
+                        background-color: var.$danger-color;
+                        color: var.$light-color;
+                    }
+                }
+            }
+        }
+    }
+
+    .pagination {
+        @include mixin.center-flex;
+        gap: 1.5rem;
+        margin-top: 2rem;
+
+        .paginationButton {
+            @include mixin.button-base;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            border: 1px solid var.$primary-color;
+            background-color: var.$primary-color;
+            color: var.$light-color;
+
+            &:disabled {
+                background-color: var.$secondary-color;
+                border-color: var.$secondary-color;
+                cursor: not-allowed;
+            }
+
+            &:hover:not(:disabled) {
+                background-color: darken(var.$primary-color, 10%);
+                border-color: darken(var.$primary-color, 10%);
+            }
+        }
+
+        span {
+            color: var.$text-color-light;
+            font-size: 0.95rem;
+        }
+    }
+}

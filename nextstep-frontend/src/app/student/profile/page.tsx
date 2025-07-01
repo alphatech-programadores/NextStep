@@ -2,73 +2,86 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/services/axiosConfig';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute'; // Asegúrate de proteger esta ruta
-import FormInput from '@/components/Input'; // Tu componente de input
-import styles from './profile.module.scss'; // Módulo de estilos (necesario aunque sea básico)
-import axiosInstance from '@/services/axiosConfig';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import FormInput from '@/components/Input';
+import styles from './profile.module.scss';
+import Modal from '@/components/Modal';
 
-interface StudentProfileData {
+// Definir la interfaz para el perfil del estudiante basada en el modelo de backend
+interface StudentProfile {
     email: string;
-    name: string; // Del modelo User
-    role: string; // Del modelo User
-    career: string;
+    career: string | null;
     semestre: number | null;
     average: number | null;
-    phone: string;
-    address: string;
-    availability: string;
+    phone: string | null;
+    address: string | null; // ÚNICA CADENA PARA LA DIRECCIÓN
+    availability: string | null;
     skills: string;
-    portfolio_url: string;
-    cv_path: string | null; // Nombre del archivo CV o path relativo
-    cv_url: string | null; // URL completa para descargar/visualizar
-    profile_picture_url: string | null; // URL completa de la foto de perfil
+    portfolio_url: string | null;
+    cv_path: string | null;
+    profile_picture_url: string | null;
+    name: string;
 }
 
 export default function StudentProfilePage() {
-    const { user, loadingUser, revalidateUser } = useAuth();
-    const [profile, setProfile] = useState<StudentProfileData | null>(null);
+    const { user, logout } = useAuth();
+    const [profile, setProfile] = useState<StudentProfile | null>(null);
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [cvFile, setCvFile] = useState<File | null>(null);
-    const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
 
     // Estados para los campos del formulario
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [career, setCareer] = useState('');
     const [semestre, setSemestre] = useState<number | ''>('');
     const [average, setAverage] = useState<number | ''>('');
-    const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
+    // Campos de dirección ciudad, estado, cp, pais ELIMINADOS
+    const [addressLine, setAddressLine] = useState(''); // Solo conservamos la línea de dirección principal
+
     const [availability, setAvailability] = useState('');
     const [skills, setSkills] = useState('');
     const [portfolioUrl, setPortfolioUrl] = useState('');
 
+    const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
+    const [cvFile, setCvFile] = useState<File | null>(null);
+    const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+
     const fetchProfile = async () => {
-        if (!user) return; // Esperar a que el usuario esté cargado
+        if (!user) return;
 
         setLoadingProfile(true);
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) throw new Error("No hay token de autenticación.");
-
-            const response = await axiosInstance.get('http://localhost:5000/api/profile/me', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await axiosInstance.get('/profile/me');
             const data = response.data;
-            setProfile(data); // Guarda el perfil completo
+            setProfile(data);
 
-            // Cargar los datos en los estados del formulario
+            setName(user?.name || '');
+            setEmail(user?.email || '');
+
+            // Cargar campos del StudentProfile
             setCareer(data.career || '');
-            setSemestre(data.semestre || '');
-            setAverage(data.average || '');
+            setSemestre(data.semestre !== null ? data.semestre : '');
+            setAverage(data.average !== null ? data.average : '');
             setPhone(data.phone || '');
-            setAddress(data.address || '');
+
+            setAddressLine(data.address || ''); // Cargar la única línea de dirección
+
             setAvailability(data.availability || '');
-            // Si las habilidades vienen como texto plano y quieres un array, aquí podrías splitarlas
-            setSkills(data.skills || '');
+            setSkills(data.skills ? data.skills.split(', ').join(', ') : '');
             setPortfolioUrl(data.portfolio_url || '');
+
+            // Configurar previsualización de la foto de perfil actual
+            if (data.profile_picture_url) {
+                setProfilePicPreview(data.profile_picture_url);
+            }
 
         } catch (err: any) {
             console.error("Error fetching profile:", err);
@@ -78,66 +91,68 @@ export default function StudentProfilePage() {
         }
     };
 
-    // Recargar perfil si el usuario cambia o al montar
     useEffect(() => {
-        // Solo intenta cargar el perfil si el usuario es estudiante y ya está cargado
-        if (user && user.role === 'student') {
-            fetchProfile();
+        fetchProfile();
+    }, [user]);
+
+    const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setProfilePicFile(file);
+            setProfilePicPreview(URL.createObjectURL(file));
+        } else {
+            setProfilePicFile(null);
+            setProfilePicPreview(profile?.profile_picture_url || null);
         }
-    }, [user]); // Dependencia 'user' para recargar si el objeto user cambia
+    };
+
+    const handleCvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setCvFile(e.target.files[0]);
+        } else {
+            setCvFile(null);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        const formData = new FormData(); // Usaremos FormData para enviar archivos y texto
-
-        // Adjuntar campos de texto
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
         formData.append('career', career);
         formData.append('semestre', semestre !== '' ? String(semestre) : '');
         formData.append('average', average !== '' ? String(average) : '');
         formData.append('phone', phone);
-        formData.append('address', address);
+
+        formData.append('address', addressLine); // Solo enviamos la línea de dirección principal
+
         formData.append('availability', availability);
         formData.append('skills', skills);
         formData.append('portfolio_url', portfolioUrl);
 
-        // --- ¡EL PUNTO CLAVE AQUÍ! ---
-        // Adjuntar archivos si se seleccionaron
-        if (cvFile) {
-            console.log("DEBUG_FRONT: Adjuntando CV al FormData:", cvFile.name); // DEBUG FRONEND
-            formData.append('cv_file', cvFile); // Asegúrate de que el nombre aquí ('cv_file') coincide con backend request.files
-        } else {
-            console.log("DEBUG_FRONT: No se seleccionó CV o cvFile es null."); // DEBUG FRONEND
-        }
-
         if (profilePicFile) {
-            console.log("DEBUG_FRONT: Adjuntando Foto de Perfil al FormData:", profilePicFile.name); // DEBUG FRONEND
-            formData.append('profile_picture_file', profilePicFile); // Asegúrate de que el nombre aquí ('profile_picture_file') coincide con backend request.files
-        } else {
-            console.log("DEBUG_FRONT: No se seleccionó Foto de Perfil o profilePicFile es null."); // DEBUG FRONEND
+            formData.append('profile_picture_file', profilePicFile);
         }
-        // -----------------------------
+        if (cvFile) {
+            formData.append('cv_file', cvFile);
+        }
 
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) throw new Error("No hay token de autenticación.");
-
             const response = await axiosInstance.put(
-                `http://localhost:5000/api/profile/me`,
-                formData, // <-- Aquí envías el FormData
+                `/profile/me`,
+                formData,
                 {
                     headers: {
-                        'Content-Type': 'multipart/form-data', // Axios a veces lo maneja automáticamente con FormData, pero es bueno tenerlo
-                        Authorization: `Bearer ${token}`
+                        'Content-Type': 'multipart/form-data',
                     }
                 }
             );
 
             toast.success(response.data.message || "Perfil actualizado exitosamente. ✅");
-            fetchProfile(); // Vuelve a cargar el perfil para ver los cambios
+            fetchProfile();
             setCvFile(null);
-            setProfilePicFile(null);
 
         } catch (err: any) {
             console.error("Error updating profile:", err);
@@ -147,82 +162,101 @@ export default function StudentProfilePage() {
         }
     };
 
-    // Manejo del estado de carga y redirección por rol/autenticación
-    if (loadingUser || loadingProfile) {
-        return (
-            <ProtectedRoute allowedRoles={['student']}>
-                <div className={styles.loadingContainer}>Cargando perfil...</div>
-            </ProtectedRoute>
-        );
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            await axiosInstance.delete('/profile/me');
+            toast.success("Tu cuenta ha sido eliminada exitosamente. ¡Adiós! 👋");
+            logout();
+        } catch (err: any) {
+            console.error("Error deleting account:", err);
+            toast.error(err.response?.data?.error || "Error al eliminar la cuenta. Por favor, inténtalo de nuevo.");
+        } finally {
+            setIsDeleting(false);
+            setShowDeleteModal(false);
+        }
+    };
+
+    if (loadingProfile) {
+        return <ProtectedRoute><div className={styles.loadingContainer}>Cargando perfil...</div></ProtectedRoute>;
     }
 
-    // Asegurarse de que solo estudiantes puedan ver esta página
-    if (!user || user.role !== 'student') {
-        // ProtectedRoute ya debería manejar esto, pero es un buen fallback visual
-        return (
-            <ProtectedRoute allowedRoles={['student']}>
-                <div className={styles.unauthorizedContainer}>Acceso denegado.</div>
-            </ProtectedRoute>
-        );
-    }
-
-    // Si el perfil aún es nulo y no está cargando (raro, pero como fallback)
     if (!profile) {
-        return (
-            <ProtectedRoute allowedRoles={['student']}>
-                <div className={styles.errorContainer}>No se pudo cargar la información del perfil.</div>
-            </ProtectedRoute>
-        );
+        return <ProtectedRoute><div className={styles.errorContainer}>No se pudo cargar el perfil.</div></ProtectedRoute>;
     }
 
     return (
         <ProtectedRoute allowedRoles={['student']}>
-            <div className={styles.container}>
-                <div className={styles.profileCard}>
-                    <h1 className={styles.title}>Mi Perfil de Estudiante</h1>
+            <div className={styles.profilePage}>
+                <h1 className={styles.title}>Mi Perfil de Estudiante</h1>
 
-                    <div className={styles.profilePictureSection}>
-                        {/* La imagen o el placeholder van primero como fondo */}
-                        {profile.profile_picture_url ? (
-                            <img src={profile.profile_picture_url} alt="Foto de perfil" className={styles.profilePicture} />
-                        ) : (
-                            <div className={styles.profilePicturePlaceholder}>
-                                {/* Un ícono simple de usuario */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <form onSubmit={handleSubmit} className={styles.profileForm}>
+                    {/* Sección de Foto de Perfil */}
+                    <section className={styles.formSection}>
+                        <h2>Foto de Perfil</h2>
+                        <div className={styles.profilePictureSection}>
+                            {profilePicPreview ? (
+                                <img src={profilePicPreview} alt="Vista previa de perfil" className={styles.profileImagePreview} />
+                            ) : (
+                                <div className={styles.profileImagePlaceholder}>
+                                    <span>No hay foto</span>
+                                </div>
+                            )}
+                            <div className={styles.fileUploadGroup}>
+                                <label htmlFor="profilePic" className={styles.customFileUploadButton}>
+                                    {profilePicFile ? 'Cambiar Foto' : 'Subir Nueva Foto'}
+                                </label>
+                                <input
+                                    type="file"
+                                    id="profilePic"
+                                    accept="image/*"
+                                    onChange={handleProfilePicChange}
+                                    className={styles.hiddenFileInput}
+                                />
+                                {profilePicFile && <p>Archivo seleccionado: {profilePicFile.name}</p>}
+                                {profile?.profile_picture_url && !profilePicFile && (
+                                    <p>Foto actual: <a href={profile.profile_picture_url} target="_blank" rel="noopener noreferrer">Ver foto actual</a></p>
+                                )}
                             </div>
-                        )}
-
-                        {/* Input oculto, como ya lo tenías */}
-                        <input
-                            type="file"
-                            id="profilePicUpload"
-                            accept="image/*"
-                            onChange={(e) => setProfilePicFile(e.target.files ? e.target.files[0] : null)}
-                            className={styles.fileInput}
-                            name="profile_picture_file"
-                        />
-
-                        {/* Este label es el overlay que aparece al hacer hover */}
-                        <label htmlFor="profilePicUpload" className={`${styles.fileInputLabel} ${styles.profileOverlay}`}>
-                            Cambiar
-                        </label>
-                    </div>
-                    {/* Muestra el nombre del archivo nuevo si se ha seleccionado */}
-                    {profilePicFile && <p className={styles.fileName}>Nuevo archivo: {profilePicFile.name}</p>}
-
-
-                    <form onSubmit={handleSubmit} className={styles.form}>
-                        {/* Campos de texto de User model (solo lectura) */}
-                        <div className={styles.inputGroup}>
-                            <FormInput label="Nombre de Usuario" name="name" type="text" value={profile.name || user.name} onChange={() => { }} readOnly />
-                            <p className={styles.readOnlyHelp}>Tu nombre de usuario no se puede cambiar aquí.</p>
                         </div>
-                        <div className={styles.inputGroup}>
-                            <FormInput label="Email" name="email" type="email" value={profile.email || user.email} onChange={() => { }} readOnly />
-                            <p className={styles.readOnlyHelp}>Tu email no se puede cambiar aquí.</p>
-                        </div>
+                    </section>
 
-                        {/* Campos editables del StudentProfile */}
+
+                    {/* Sección de Información Personal */}
+                    <section className={styles.formSection}>
+                        <h2>Información Personal</h2>
+                        <div className={styles.inputGroup}>
+                            <FormInput
+                                label="Nombre Completo"
+                                name="name"
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                                disabled
+                            />
+                            <FormInput
+                                label="Correo Electrónico"
+                                name="email"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                disabled
+                            />
+                            <FormInput
+                                label="Número de Teléfono"
+                                name="phone"
+                                type="text"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                            />
+                        </div>
+                    </section>
+
+                    {/* Sección de Información Académica */}
+                    <section className={styles.formSection}>
+                        <h2>Información Académica</h2>
                         <div className={styles.inputGroup}>
                             <FormInput
                                 label="Carrera"
@@ -230,116 +264,133 @@ export default function StudentProfilePage() {
                                 type="text"
                                 value={career}
                                 onChange={(e) => setCareer(e.target.value)}
-                                placeholder="Ej. Ingeniería en Software"
                             />
-                        </div>
-                        <div className={styles.inputGroup}>
                             <FormInput
                                 label="Semestre"
                                 name="semestre"
                                 type="number"
                                 value={semestre}
-                                onChange={(e) => setSemestre(e.target.valueAsNumber || '')}
-                                placeholder="Ej. 5"
+                                onChange={(e) => setSemestre(e.target.value === '' ? '' : Number(e.target.value))}
                             />
-                        </div>
-                        <div className={styles.inputGroup}>
                             <FormInput
                                 label="Promedio"
                                 name="average"
                                 type="number"
-                                step="0.01" // Permite decimales
+                                step="0.01"
                                 value={average}
-                                onChange={(e) => setAverage(e.target.valueAsNumber || '')}
-                                placeholder="Ej. 8.5"
+                                onChange={(e) => setAverage(e.target.value === '' ? '' : Number(e.target.value))}
                             />
-                        </div>
-                        <div className={styles.inputGroup}>
                             <FormInput
-                                label="Teléfono"
-                                name="phone"
-                                type="tel"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder="Ej. +52 55 1234 5678"
-                            />
-                        </div>
-                        <div className={styles.inputGroup}>
-                            <FormInput
-                                label="Dirección"
-                                name="address"
-                                type="text"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                placeholder="Ej. Calle 123, Colonia, Ciudad"
-                            />
-                        </div>
-                        <div className={styles.inputGroup}>
-                            <label htmlFor="availability" className={styles.selectLabel}>Disponibilidad</label>
-                            <select
-                                id="availability"
+                                label="Disponibilidad"
                                 name="availability"
+                                type="text"
                                 value={availability}
                                 onChange={(e) => setAvailability(e.target.value)}
-                                className={styles.selectInput}
-                            >
-                                <option value="">Selecciona</option>
-                                <option value="Tiempo Completo">Tiempo Completo</option>
-                                <option value="Medio Tiempo">Medio Tiempo</option>
-                                <option value="Por Proyecto">Por Proyecto</option>
-                            </select>
+                                placeholder="Ej: Tiempo Completo, Medio Tiempo, Prácticas"
+                            />
                         </div>
+                    </section>
+
+                    {/* Sección de Dirección (Ahora solo con la línea principal de dirección) */}
+                    <section className={styles.formSection}>
+                        <h2>Dirección</h2>
                         <div className={styles.inputGroup}>
-                            <label htmlFor="skills" className={styles.textareaLabel}>Habilidades (separadas por coma)</label>
-                            <textarea
-                                id="skills"
+                            <FormInput
+                                label="Dirección Completa (Calle, Número, Ciudad, Estado, Código Postal, País)"
+                                name="addressLine"
+                                type="text"
+                                value={addressLine}
+                                onChange={(e) => setAddressLine(e.target.value)}
+                                placeholder="Ej: Calle Falsa 123, Ciudad de México, CDMX, 00000, México"
+                            />
+                        </div>
+                    </section>
+
+                    {/* Sección de Habilidades */}
+                    <section className={styles.formSection}>
+                        <h2>Habilidades y Portafolio</h2>
+                        <div className={styles.inputGroup}>
+                            <FormInput
+                                label="Habilidades (separadas por comas)"
                                 name="skills"
+                                type="text"
                                 value={skills}
                                 onChange={(e) => setSkills(e.target.value)}
-                                placeholder="Ej. Python, SQL, React, Análisis de Datos"
-                                rows={4}
-                                className={styles.textareaInput}
-                            ></textarea>
-                        </div>
-                        <div className={styles.inputGroup}>
+                                placeholder="Ej: React, Node.js, SQL, Diseño UI/UX"
+                            />
                             <FormInput
                                 label="URL de Portafolio"
                                 name="portfolioUrl"
                                 type="url"
                                 value={portfolioUrl}
                                 onChange={(e) => setPortfolioUrl(e.target.value)}
-                                placeholder="Ej. https://tu-portafolio.com"
+                                placeholder="Ej: https://tumiportafolio.com"
                             />
                         </div>
+                    </section>
 
-                        {/* Sección de Subida de CV */}
-                        <div className={styles.cvUploadSection}>
-                            {profile.cv_path && !cvFile ? (
-                                <p className={styles.currentCv}>CV actual: <a href={profile.cv_url || '#'} target="_blank" rel="noopener noreferrer">{profile.cv_path.split('/').pop()}</a></p>
-                            ) : (
-                                <p className={styles.noCv}>Sube tu CV en formato PDF o DOCX.</p>
-                            )}
-
+                    {/* Sección de CV */}
+                    <section className={styles.formSection}>
+                        <h2>Curriculum Vitae (CV)</h2>
+                        <div className={styles.fileUploadGroup}>
+                            <label htmlFor="cvFile" className={styles.customFileUploadButton}>
+                                {cvFile ? 'Cambiar CV' : 'Subir CV'}
+                            </label>
                             <input
                                 type="file"
-                                id="cvUpload"
+                                id="cvFile"
                                 accept=".pdf,.doc,.docx"
-                                onChange={(e) => setCvFile(e.target.files ? e.target.files[0] : null)}
-                                className={styles.fileInput}
+                                onChange={handleCvChange}
+                                className={styles.hiddenFileInput}
                             />
-
-                            <label htmlFor="cvUpload" className={`${styles.fileInputLabel} ${styles.cvButton}`}>
-                                {profile.cv_path ? 'Cambiar CV' : 'Seleccionar Archivo'}
-                            </label>
-
-                            {cvFile && <p className={styles.fileName}>Archivo seleccionado: {cvFile.name}</p>}
+                            {cvFile && <p>Archivo seleccionado: {cvFile.name}</p>}
+                            {profile?.cv_path && !cvFile && (
+                                <p>CV actual: <a href={profile.cv_path} target="_blank" rel="noopener noreferrer">Ver CV actual</a></p>
+                            )}
                         </div>
+                    </section>
 
-                        <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-                            {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
-                        </button>
-                    </form>
+                    <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+                        {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+                    </button>
+                </form>
+
+                {/* Sección de Eliminar Cuenta */}
+                <div className={styles.deleteAccountSection}>
+                    <button
+                        className={styles.deleteButton}
+                        onClick={() => setShowDeleteModal(true)}
+                        disabled={isDeleting}
+                    >
+                        Eliminar Cuenta
+                    </button>
                 </div>
+
+                {/* Modal de Confirmación */}
+                {showDeleteModal && (
+                    <Modal
+                        title="Confirmar Eliminación de Cuenta"
+                        onClose={() => setShowDeleteModal(false)}
+                    >
+                        <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción es irreversible y se perderán todos tus datos.</p>
+                        <div className={styles.modalActions}>
+                            <button
+                                className={styles.cancelButton}
+                                onClick={() => setShowDeleteModal(false)}
+                                disabled={isDeleting}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className={styles.confirmDeleteButton}
+                                onClick={handleDeleteAccount}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? 'Eliminando...' : 'Sí, Eliminar Mi Cuenta'}
+                            </button>
+                        </div>
+                    </Modal>
+                )}
             </div>
         </ProtectedRoute>
     );

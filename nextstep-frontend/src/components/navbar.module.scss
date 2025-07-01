@@ -52,10 +52,10 @@
     }
 }
 
-/* --- ESTILOS PARA EL MENÚ DESPLEGABLE (AHORA EN EL LUGAR CORRECTO) --- */
+/* --- ESTILOS PARA EL MENÚ DESPLEGABLE --- */
 
 .userMenu {
-    position: relative; // El Ancla
+    position: relative;
 }
 
 .userMenuButton {
@@ -72,7 +72,7 @@
 }
 
 .dropdownMenu {
-    position: absolute; // El Flotador
+    position: absolute;
     z-index: 1001;
     top: calc(100% + 8px);
     right: 0;
@@ -81,7 +81,7 @@
     display: flex;
     flex-direction: column;
     animation: fadeIn 0.2s ease-out forwards;
-    border-radius: v.$border-radius; // <- Las esquinas redondeadas del padre
+    border-radius: v.$border-radius;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     min-width: 220px;
     overflow: hidden;
@@ -98,14 +98,13 @@
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.15s ease-in-out; // Añadimos la transición
+    transition: background-color 0.15s ease-in-out;
 
     &:hover {
         background-color: v.$secondary-color;
     }
 
 }
-
 
 .dropdownDivider {
     height: 1px;
@@ -125,11 +124,48 @@
     }
 }
 
+/* --- ESTILOS DE NOTIFICACIONES --- */
+.notificationsLink {
+    position: relative;
+    color: v.$text-secondary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-small;
+    border-radius: v.$border-radius;
+    transition: background-color 0.2s ease;
 
-/* --- LA MAGIA RESPONSIVA EMPIEZA AQUÍ (SOLO PARA MÓVILES) --- */
+    &:hover {
+        background-color: v.$background-color-light;
+        color: v.$primary-color;
+    }
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+.notificationsBadge {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: v.$danger-color; // Color rojo para notificaciones
+    color: v.$light-color;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    min-width: 20px; // Para números de 2 dígitos
+    text-align: center;
+    line-height: 1;
+    border: 1px solid v.$light-color; // Pequeño borde blanco
+}
+
+/* --- LA MAGIA RESPONSIVA EMPIEZA AQUÍ --- */
 
 .hamburger {
-    display: none; // Oculto por defecto
+    display: none;
     background: none;
     border: none;
     cursor: pointer;
@@ -139,16 +175,16 @@
 
 @media (max-width: v.$breakpoint-tablet) {
     .hamburger {
-        display: block; // Se muestra en móvil
+        display: block;
     }
 
-    // Ocultamos los enlaces del escritorio y el menú de usuario en la barra principal
     .navLinks .navLink,
-    .navLinks .userMenu {
+    .navLinks .userMenu,
+    .navLinks .notificationsLink {
+        // Ocultamos también el de notificaciones
         display: none;
     }
 
-    // Le damos estilo al contenedor principal para que sea el menú deslizable
     .navLinks {
         position: fixed;
         top: 0;
@@ -164,28 +200,27 @@
         box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
         transition: right 0.3s ease-in-out;
 
-        // Mostramos los enlaces de nuevo, pero ahora dentro del menú deslizable
         .navLink,
-        .userMenu {
+        .userMenu,
+        .notificationsLink {
+            // Mostramos estos enlaces de nuevo en el menú deslizable
             display: flex;
         }
 
-        // Hacemos que el dropdown se comporte bien dentro del menú móvil
         .userMenu {
             flex-direction: column;
         }
 
         .dropdownMenu {
-            position: static; // En móvil, no necesita flotar, es parte del menú
+            position: static;
             box-shadow: none;
             width: 100%;
-            animation: none; // Sin animación en móvil
+            animation: none;
             opacity: 1;
             transform: none;
         }
     }
 
-    // Cuando el menú está abierto
     .navLinks.menuOpen {
         right: 0;
     }

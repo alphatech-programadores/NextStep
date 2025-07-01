@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import styles from './VacancyDetailsPage.module.scss';
@@ -46,7 +45,7 @@ export default function VacancyDetailsPage() {
             setError(null);
             try {
                 // Llama al endpoint de detalles de vacante
-                const response = await axiosInstance.get(`http://localhost:5000/api/vacants/${id}`);
+                const response = await axiosInstance.get(`/vacants/${id}`);
                 setVacancy(response.data);
 
                 if (user && user.role === 'student') {
@@ -54,7 +53,7 @@ export default function VacancyDetailsPage() {
                     if (token) {
                         try {
                             // Llama al endpoint de check_status
-                            const checkResponse = await axiosInstance.get(`http://localhost:5000/api/vacants/check_status/${id}`, {
+                            const checkResponse = await axiosInstance.get(`/vacants/check_status/${id}`, {
                                 headers: { Authorization: `Bearer ${token}` }
                             });
                             setHasApplied(checkResponse.data.has_applied);
@@ -101,7 +100,7 @@ export default function VacancyDetailsPage() {
             }
 
             const response = await axiosInstance.post(
-                `http://localhost:5000/api/vacants/${vacancy?.id}/apply`,
+                `/vacants/${vacancy?.id}/apply`,
                 {}, // Envía un objeto vacío si tu modelo Application no tiene cover_letter
                 {
                     headers: { Authorization: `Bearer ${token}` }
@@ -190,7 +189,7 @@ export default function VacancyDetailsPage() {
                 {isStudent && hasApplied && (
                     <div className={styles.appliedMessage}>
                         <p>✅ ¡Ya te has postulado a esta vacante!</p>
-                        <Link href="/student/applications" className={styles.viewApplicationsLink}>
+                        <Link href="/applications" className={styles.viewApplicationsLink}>
                             Ver el estado de mis postulaciones
                         </Link>
                     </div>

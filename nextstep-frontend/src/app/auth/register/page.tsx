@@ -5,7 +5,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import FormInput from '@/components/Input'; // Asumiendo que Input.tsx es tu FormInput
-import axios from 'axios';
 import toast from 'react-hot-toast'; // Para notificaciones
 
 // ¡Importa tu módulo de estilos!
@@ -19,6 +18,7 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false); // Estado para manejar el loading del botón
+    const [role, setRole] = useState("student")
 
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -31,10 +31,11 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            const response = await axiosInstance.post("http://localhost:5000/api/auth/register", {
+            const response = await axiosInstance.post("auth/register", {
                 name,
                 email,
                 password,
+                role,
             });
 
             toast.success("Registro exitoso. ¡Bienvenido a NextStep! 🎉 Ahora puedes iniciar sesión.");

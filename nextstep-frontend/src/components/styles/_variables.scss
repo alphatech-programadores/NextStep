@@ -8,6 +8,31 @@ $secondary-color: #007bff; // Azul (botones de acción, enlaces)
 $secondary-hover: #0056b3; // Azul oscuro (hover del botón de login/acción)
 $secondary-light: #bbdefb; // Azul muy claro (para ciertos fondos o bordes)
 
+$primary-color-light: #106335; // Azul oscuro
+$secondary-color: #07bd44; // Gris
+$accent-color: #007bff; // Azul brillante
+$danger-color: #dc3545; // Rojo para acciones peligrosas
+
+$text-color: #333;
+$text-color-light: #666;
+$light-color: #ffffff;
+$background-color-light: #f8f9fa; // Un gris muy claro para fondos
+
+$border-color: #e0e0e0;
+$border-color-light: #f0f0f0;
+
+$box-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
+$box-shadow-large: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+$border-radius: 8px;
+$border-radius-sm: 4px;
+$border-radius-lg: 12px;
+
+$font-family-sans-serif: 'Arial', sans-serif;
+$font-family-serif: 'Georgia', serif;
+
+$navbar-height: 60px; // Ajusta según la altura real de tu navbar
+
 // --- Colores de Texto ---
 $text-primary: #212121; // Texto principal oscuro
 $text-secondary: #757575; // Texto secundario más claro

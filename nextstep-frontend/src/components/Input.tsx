@@ -4,23 +4,17 @@ import React from 'react';
 
 // Define la interfaz de las propiedades que tu componente FormInput puede recibir
 interface FormInputProps {
-    label?: string; // Hacemos el label opcional para campos sin label visual (ej. en búsquedas)
+    label?: string;
     name: string;
-    type: string;
+    type: string; // 'text', 'email', 'password', 'number', 'textarea', etc.
     value: string | number;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-
-    // ¡Añade esta línea para className!
-    className?: string; // Permite pasar clases CSS desde el componente padre
-
-    // Props que ya habíamos añadido o que son útiles:
-    required?: boolean; // Para el atributo 'required' de HTML
-    placeholder?: string; // Para el atributo 'placeholder' de HTML
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // Aceptar ambos tipos de eventos
+    className?: string;
+    required?: boolean;
+    placeholder?: string;
     readOnly?: boolean;
-    step?: string;
-    // Puedes añadir más props de HTML si las necesitas, por ejemplo:
-    // disabled?: boolean;
-    // readOnly?: boolean;
+    step?: string; // Útil para inputs tipo 'number'
+    disabled?: boolean; // Añadido para flexibilidad
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -29,30 +23,33 @@ const FormInput: React.FC<FormInputProps> = ({
     type,
     value,
     onChange,
-    className, // ¡Desestructura la prop 'className' aquí!
+    className,
     required,
     placeholder,
     readOnly,
     step,
-
-    // ...desestructura cualquier otra prop que añadas
+    disabled,
 }) => {
+    // Determinar qué elemento renderizar basado en el tipo
+    const InputElement = type === 'textarea' ? 'textarea' : 'input';
+
     return (
-        <div>
-            {/* Solo renderiza el label si se proporciona */}
+        <div className={`${className} ${type === 'textarea' ? 'textarea-container' : ''}`}>
             {label && <label htmlFor={name}>{label}</label>}
-            <input
+            <InputElement
                 id={name}
                 name={name}
-                type={type}
+                type={type !== 'textarea' ? type : undefined} // No pasar 'type' a textarea
                 value={value}
                 onChange={onChange}
-                className={className} // ¡Pasa la prop 'className' al elemento <input> HTML!
+                className={className} // Aplicaremos estilos comunes a todos los inputs
                 required={required}
                 placeholder={placeholder}
                 step={step}
                 readOnly={readOnly}
-            // ...pasa cualquier otra prop al <input>
+                disabled={disabled}
+                // Si es un textarea, puedes añadir props específicas como rows, cols
+                {...(type === 'textarea' && { rows: 5 })}
             />
         </div>
     );

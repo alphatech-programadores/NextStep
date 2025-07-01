@@ -37,8 +37,6 @@ export default function ApplicationsPage() {
         setLoadingApplications(true);
         setError(null);
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) throw new Error("No hay token de autenticación.");
 
             const params = {
                 status: statusFilter,

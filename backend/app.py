@@ -17,7 +17,7 @@ from routes.auth import auth_bp
 from routes.vacants import vacants_bp
 from routes.application import app_bp
 from routes.profile import profile_bp
-from routes.notifications import notifications_bp
+from routes.notifications import notification_bp
 # Por implementar
 # from routes.recommendation import recommend_bp 
 
@@ -52,7 +52,7 @@ def create_app():
     app.register_blueprint(app_bp, url_prefix="/api/apply")
     app.register_blueprint(profile_bp, url_prefix="/api/profile")
     app.register_blueprint(inst_profile_bp) 
-    app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
+    app.register_blueprint(notification_bp, url_prefix="/api/notifications")
     # Por implementar
     # app.register_blueprint(recommender, url_prefix="/api/recommendations")
     @app.route('/uploads/<path:filename>')
@@ -64,7 +64,7 @@ def create_app():
     def home():
         return jsonify({"msg": "NextStep API funcionando 👌"})
 
-    CORS(app, supports_credentials=True, origins=["*"])
+    CORS(app, supports_credentials=True, resources = {r"/api/*": { "origins": "*" } } )
 
     return app
 

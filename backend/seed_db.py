@@ -24,7 +24,6 @@ os.makedirs(os.path.join(upload_folder_base, 'logos'), exist_ok=True)
 # Datos de prueba
 # Asegúrate de que los emails y nombres/company_names sean únicos si los usas como PK/FK
 STUDENT_USERS_DATA = [
-    # CAMBIADO: estudiante1 a estudiante4
     {"email": "estudiante4@example.com", "name": "Ana García", "password": "password123", "career": "Ingeniería en Software", "semestre": 5, "average": 9.2, "phone": "5512345678", "address": "Calle Falsa 123", "availability": "Tiempo Completo", "skills": "React, JavaScript, Node.js, SQL", "portfolio_url": "https://anagarcia.dev", "cv_path": "cvs/ana_garcia_cv.pdf", "profile_picture_url": "profile_pics/ana_garcia.jpg"}, # Añadido profile_picture_url
     {"email": "estudiante2@example.com", "name": "Luis Pérez", "password": "password123", "career": "Ciencias de Datos", "semestre": 7, "average": 8.8, "phone": "5587654321", "address": "Av. Siempreviva 742", "availability": "Medio Tiempo", "skills": "Python, Pandas, Machine Learning, SQL", "portfolio_url": "https://luisperez.com", "cv_path": "cvs/luis_perez_cv.pdf", "profile_picture_url": "profile_pics/luis_perez.jpg"},
     {"email": "estudiante3@example.com", "name": "Sofía Rodríguez", "password": "password123", "career": "Diseño Gráfico", "semestre": 3, "average": 9.5, "phone": "5511223344", "address": "Blvd. del Sol 50", "availability": "Presencial", "skills": "Figma, Photoshop, Illustrator, UI/UX", "portfolio_url": "https://sofiar.art", "cv_path": "cvs/sofia_rodriguez_cv.pdf", "profile_picture_url": "profile_pics/sofia_rodriguez.jpg"},
@@ -141,6 +140,7 @@ def seed_data():
                 password_hash=hashed_password,
                 name=s_data["name"],
                 role=student_role, # Asigna el objeto Role
+                is_confirmed=True, # AÑADIDO: Usuarios estudiantes confirmados
             )
             db.session.add(user)
             users[s_data["email"]] = user # Guardar en diccionario para referencia
@@ -156,7 +156,7 @@ def seed_data():
                 skills=s_data["skills"],
                 portfolio_url=s_data["portfolio_url"],
                 cv_path=s_data["cv_path"],
-                profile_picture_url=s_data["profile_picture_url"] # Añadido profile_picture_url
+                profile_picture_url=s_data["profile_picture_url"]
             )
             db.session.add(student_profile)
         print(f"Creados {len(STUDENT_USERS_DATA)} usuarios estudiantes y sus perfiles.")
@@ -167,12 +167,12 @@ def seed_data():
             user = User(
                 email=i_data["email"],
                 password_hash=hashed_password,
-                name=i_data["institution_name"], # Usar institution_name como 'name' del User
-                role=institution_role, # Asigna el objeto Role
+                name=i_data["institution_name"],
+                role=institution_role,
                 is_confirmed=True # Confirmados por defecto para pruebas
             )
             db.session.add(user)
-            users[i_data["email"]] = user # Guardar en diccionario para referencia
+            users[i_data["email"]] = user
 
             institution_profile = InstitutionProfile(
                 email=i_data["email"],
@@ -182,21 +182,19 @@ def seed_data():
                 sector=i_data["sector"],
                 address=i_data["address"],
                 description=i_data["description"],
-                website=i_data["website"], # Añadido website
-                logo_url=i_data["logo_url"] # Añadido logo_url
+                website=i_data["website"],
+                logo_url=i_data["logo_url"]
             )
             db.session.add(institution_profile)
         print(f"Creados {len(INSTITUTION_USERS_DATA)} usuarios instituciones y sus perfiles.")
 
-        db.session.commit() # Guardar usuarios y perfiles para poder referenciarlos por email
+        db.session.commit()
 
         # Crear vacantes
         vacants = []
         for v_data in VACANTS_DATA:
             institution_user = users.get(v_data["institution_email"])
             if institution_user and institution_user.role.name == "institution":
-                # Uso datetime.utcnow() para asegurarme de que las fechas estén en UTC,
-                # lo cual es una buena práctica para bases de datos.
                 start_date = (datetime.utcnow() + timedelta(days=v_data["start_date_days"])).date() 
                 end_date = (datetime.utcnow() + timedelta(days=v_data["end_date_days"])).date()
                 
@@ -206,7 +204,7 @@ def seed_data():
                     hours=v_data["hours"],
                     modality=v_data["modality"],
                     requirements=v_data["requirements"],
-                    status="activa", # Por defecto activa
+                    status="activa",
                     start_date=start_date,
                     end_date=end_date,
                     location=v_data["location"],
@@ -214,8 +212,8 @@ def seed_data():
                     is_draft=False,
                     last_modified=datetime.utcnow(),
                     institution_email=v_data["institution_email"],
-                    latitude=v_data["latitude"], # Añadido latitude
-                    longitude=v_data["longitude"] # Añadido longitude
+                    latitude=v_data["latitude"],
+                    longitude=v_data["longitude"]
                 )
                 db.session.add(vacant)
                 vacants.append(vacant)
@@ -223,27 +221,26 @@ def seed_data():
                 print(f"Advertencia: Institución '{v_data['institution_email']}' no encontrada o no es una institución. Vacante '{v_data['area']}' no creada.")
         print(f"Creadas {len(vacants)} vacantes.")
 
-        db.session.commit() # Guardar vacantes
+        db.session.commit()
 
         # Crear algunas postulaciones de ejemplo (opcional)
-        # Asegúrate de que los emails de estudiantes y IDs de vacantes existan
-        student4_email = STUDENT_USERS_DATA[0]["email"] # Ahora es estudiante4
+        student4_email = STUDENT_USERS_DATA[0]["email"]
         student2_email = STUDENT_USERS_DATA[1]["email"]
         
         if student4_email in users and vacants:
             app1 = Application(
                 student_email=student4_email,
-                vacant_id=vacants[0].id, # Postular a la primera vacante creada
+                vacant_id=vacants[0].id,
                 status="pendiente",
                 created_at=datetime.utcnow() - timedelta(days=5)
             )
             db.session.add(app1)
-            print("Creada postulación de estudiante4 a vacante1.") # Actualizado mensaje
+            print("Creada postulación de estudiante4 a vacante1.")
 
         if student2_email in users and len(vacants) > 1:
             app2 = Application(
                 student_email=student2_email,
-                vacant_id=vacants[1].id, # Postular a la segunda vacante creada
+                vacant_id=vacants[1].id,
                 status="revisada",
                 created_at=datetime.utcnow() - timedelta(days=7)
             )
