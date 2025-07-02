@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import FormInput from '@/components/Input'; // Asumiendo que Input.tsx es tu FormInput
-import axios from 'axios';
 import toast from 'react-hot-toast';
 
 // ¡Importa tu módulo de estilos!

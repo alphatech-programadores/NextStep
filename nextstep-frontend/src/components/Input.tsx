@@ -1,5 +1,6 @@
 // src/components/Input.tsx
 
+import { kMaxLength } from 'buffer';
 import React from 'react';
 
 // Define la interfaz de las propiedades que tu componente FormInput puede recibir
@@ -14,7 +15,8 @@ interface FormInputProps {
     placeholder?: string;
     readOnly?: boolean;
     step?: string; // Útil para inputs tipo 'number'
-    disabled?: boolean; // Añadido para flexibilidad
+    disabled?: boolean; // Añadido para flexibilidad    
+    maxLength?: number;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -29,6 +31,7 @@ const FormInput: React.FC<FormInputProps> = ({
     readOnly,
     step,
     disabled,
+    maxLength,
 }) => {
     // Determinar qué elemento renderizar basado en el tipo
     const InputElement = type === 'textarea' ? 'textarea' : 'input';
@@ -48,6 +51,7 @@ const FormInput: React.FC<FormInputProps> = ({
                 step={step}
                 readOnly={readOnly}
                 disabled={disabled}
+                maxLength={kMaxLength}
                 // Si es un textarea, puedes añadir props específicas como rows, cols
                 {...(type === 'textarea' && { rows: 5 })}
             />

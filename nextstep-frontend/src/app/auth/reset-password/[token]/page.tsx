@@ -5,7 +5,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import FormInput from '@/components/Input'; // Asumiendo tu componente FormInput
-import axios from 'axios';
 import toast from 'react-hot-toast'; // Para notificaciones
 
 // Importa el módulo de estilos específico para esta página
@@ -59,7 +58,7 @@ export default function ResetPasswordPage() {
         setLoading(true); // Activar estado de carga
 
         try {
-            const response = await axiosInstance.post(`http://localhost:5000/api/auth/reset-password/${token}`, {
+            const response = await axiosInstance.post(`/reset-password/${token}`, {
                 password: newPassword, // Envía la nueva contraseña
             });
 

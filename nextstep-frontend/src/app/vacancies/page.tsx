@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import styles from './VacanciesPage.module.scss';

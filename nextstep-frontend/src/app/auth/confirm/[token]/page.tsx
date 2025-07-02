@@ -1,89 +1,160 @@
 // src/app/auth/confirm/[token]/page.tsx
+'use client';
 
-'use client'; // Necesario para usar hooks de React como useState, useRouter, useParams
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import axios from 'axios';
-import toast from 'react-hot-toast'; // Para notificaciones al usuario
-
-// Importa tu módulo de estilos para esta página
-import styles from './confirm.module.scss'; // Asegúrate de que esta ruta sea correcta
 import axiosInstance from '@/services/axiosConfig';
+import toast from 'react-hot-toast';
+import styles from './confirm.module.scss'; // Tu módulo SCSS
+import FormInput from '@/components/Input'; // Asegúrate de tener este componente
+import Link from "next/link"
 
 export default function ConfirmEmailPage() {
     const router = useRouter();
     const params = useParams();
-    const token = params.token as string; // El token viene de la URL dinámica
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-    const [message, setMessage] = useState('');
 
+    const token = params.token; // Obtener el token de la URL
+
+
+    // Estados para el flujo de confirmación automática por token
+    const [isConfirmingByToken, setIsConfirmingByToken] = useState(true);
+    const [tokenConfirmationStatus, setTokenConfirmationStatus] = useState<'loading' | 'success' | 'error' | null>(null);
+
+    // Estados para el flujo de confirmación manual por email y código
+    const [showManualForm, setShowManualForm] = useState(false);
+    const [manualEmail, setManualEmail] = useState('');
+    const [manualCode, setManualCode] = useState('');
+    const [isConfirmingManually, setIsConfirmingManually] = useState(false);
+    const [manualConfirmationMessage, setManualConfirmationMessage] = useState('');
+
+
+    // Efecto para intentar la confirmación automática por token
     useEffect(() => {
-        // Ejecuta la lógica de confirmación una vez que el componente se monta
-        const confirmEmail = async () => {
-            if (!token) {
-                setStatus('error');
-                setMessage('Error: El token de confirmación no fue encontrado en la URL.');
-                toast.error('Token de confirmación no encontrado. 🙁');
+        const confirmWithToken = async () => {
+            // No necesitas router.isReady aquí en el App Router
+            if (!token || typeof token !== 'string') {
+                // No hay token en la URL, mostrar el formulario manual
+                setIsConfirmingByToken(false);
+                setShowManualForm(true);
                 return;
             }
 
+            setTokenConfirmationStatus('loading');
             try {
-                const response = await axiosInstance.get(`http://localhost:5000/api/auth/confirm/${token}`);
-                setStatus('success');
-                setMessage(response.data.message || 'Tu correo ha sido confirmado exitosamente. Redirigiendo al login...');
-                toast.success(response.data.message || '¡Correo confirmado! ✅');
-
-                // Redirige al usuario a la página de login después de un breve retraso
-                setTimeout(() => router.push("/auth/login"), 3000);
-
+                const response = await axiosInstance.get(`/auth/confirm/${token}`);
+                setTokenConfirmationStatus('success');
+                setManualConfirmationMessage(response.data.message || 'Correo confirmado exitosamente.');
+                toast.success(response.data.message || '¡Tu correo ha sido confirmado! ✅');
+                // Redirigir a login después de un breve delay
+                setTimeout(() => {
+                    router.push('/auth/login?confirmed=true');
+                }, 3000);
             } catch (error: any) {
-                console.error("Error al confirmar correo:", error);
-                setStatus('error');
-                const errorMessage = error.response?.data?.error || "Error al confirmar tu correo. Por favor, intenta de nuevo o solicita un nuevo enlace.";
-                setMessage(errorMessage);
+                setTokenConfirmationStatus('error');
+                const errorMessage = error.response?.data?.error || "Error al confirmar tu correo.";
+                setManualConfirmationMessage(errorMessage); // Mostrar el error en la UI
                 toast.error(errorMessage);
-
-                // Opcional: Redirigir al usuario a una página para solicitar un nuevo enlace de confirmación si hay un error
-                // setTimeout(() => router.push("/auth/resend-confirmation"), 5000);
+                // Si falla la confirmación por token, mostrar el formulario manual
+                setShowManualForm(true);
+            } finally {
+                setIsConfirmingByToken(false);
             }
         };
 
-        confirmEmail();
-    }, [token, router]); // Dependencias: el token y el objeto router
+        // Simplemente llama a la función de confirmación sin la condición router.isReady
+        confirmWithToken();
+    }, [token, router]); // La dependencia `token` ya es suficiente para re-ejecutar cuando el token esté disponible.
+
+
+    // Manejador para el envío del formulario de confirmación manual
+    const handleManualConfirmationSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsConfirmingManually(true);
+        setManualConfirmationMessage(''); // Limpiar mensajes previos
+
+        try {
+            const response = await axiosInstance.post('/auth/confirm', { // Usar la ruta POST
+                email: manualEmail,
+                code: manualCode.toUpperCase(), // Convertir a mayúsculas para coincidir con el backend
+            });
+            setManualConfirmationMessage(response.data.message || 'Correo confirmado exitosamente.');
+            toast.success(response.data.message || '¡Tu correo ha sido confirmado! ✅');
+            // Redirigir a login después de un breve delay
+            setTimeout(() => {
+                router.push('/auth/login?confirmed=true');
+            }, 3000);
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.error || "Error al confirmar tu correo con el código.";
+            setManualConfirmationMessage(errorMessage);
+            toast.error(errorMessage);
+        } finally {
+            setIsConfirmingManually(false);
+        }
+    };
+
 
     return (
-        <div className={styles.container}>
+        <div className={styles.confirmPage}>
             <div className={styles.card}>
-                {status === 'loading' && (
-                    <>
-                        <h1 className={styles.title}>Confirmando tu correo...</h1>
-                        <p className={styles.message}>Por favor, espera un momento. Esto puede tardar unos segundos.</p>
-                        {/* Puedes añadir un spinner o animación de carga aquí */}
-                    </>
+                <h1 className={styles.title}>Confirmar Correo Electrónico</h1>
+
+                {/* Mensajes de estado para la confirmación automática por token */}
+                {isConfirmingByToken && tokenConfirmationStatus === 'loading' && (
+                    <p className={styles.statusMessage}>Confirmando tu correo... por favor espera. ✨</p>
                 )}
-                {status === 'success' && (
-                    <>
-                        <h1 className={styles.title}>¡Correo Confirmado!</h1>
-                        <p className={styles.message}>{message}</p>
-                        <button onClick={() => router.push('/auth/login')} className={styles.actionButton}>
-                            Ir a Iniciar Sesión
-                        </button>
-                    </>
+                {tokenConfirmationStatus === 'success' && (
+                    <p className={`${styles.statusMessage} ${styles.success}`}>
+                        ¡Correo confirmado exitosamente! Serás redirigido en breve.
+                        <br />{manualConfirmationMessage}
+                    </p>
                 )}
-                {status === 'error' && (
-                    <>
-                        <h1 className={styles.title}>Error de Confirmación</h1>
-                        <p className={`${styles.message} ${styles.errorMessage}`}>{message}</p>
-                        <button onClick={() => router.push('/auth/register')} className={styles.actionButton}>
-                            Regresar a Registrarme
-                        </button>
-                        {/* O un botón para solicitar reenviar el correo de confirmación */}
-                        {/* <button onClick={() => router.push('/auth/resend-confirmation')} className={styles.actionButton}>
-                            Solicitar nuevo enlace
-                        </button> */}
-                    </>
+                {tokenConfirmationStatus === 'error' && (
+                    <p className={`${styles.statusMessage} ${styles.error}`}>
+                        {manualConfirmationMessage}
+                    </p>
                 )}
+
+                {/* Formulario de confirmación manual (mostrado si no hay token o la confirmación automática falla) */}
+                {showManualForm && (
+                    <div className={styles.manualConfirmationSection}>
+                        <p className={styles.instructionText}>
+                            Si tu enlace expiró o no funciona, puedes confirmar tu cuenta ingresando tu email y el código recibido.
+                        </p>
+                        <form onSubmit={handleManualConfirmationSubmit} className={styles.manualForm}>
+                            <FormInput
+                                label="Correo Electrónico"
+                                name="email"
+                                type="email"
+                                value={manualEmail}
+                                onChange={(e) => setManualEmail(e.target.value)}
+                                required
+                                placeholder="tu@ejemplo.com"
+                            />
+                            <FormInput
+                                label="Código de Confirmación"
+                                name="code"
+                                type="text"
+                                value={manualCode}
+                                onChange={(e) => setManualCode(e.target.value)}
+                                required
+                                placeholder="EJ: ABC123"
+                                maxLength={6} SS
+                            />
+                            <button type="submit" className={styles.submitButton} disabled={isConfirmingManually}>
+                                {isConfirmingManually ? 'Confirmando...' : 'Confirmar Cuenta'}
+                            </button>
+                        </form>
+                        {manualConfirmationMessage && tokenConfirmationStatus !== 'success' && (
+                            <p className={`${styles.statusMessage} ${tokenConfirmationStatus === 'error' ? styles.error : ''}`}>
+                                {manualConfirmationMessage}
+                            </p>
+                        )}
+                    </div>
+                )}
+
+                <Link href="/auth/login" className={styles.loginLink}>
+                    Ir a Iniciar Sesión
+                </Link>
             </div>
         </div>
     );

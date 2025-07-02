@@ -3,7 +3,6 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast'; // Para notificaciones
 import FormInput from '@/components/Input'; // Asumiendo tu componente FormInput
 import { useRouter } from 'next/navigation'; // Para posible redirección
