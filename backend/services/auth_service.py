@@ -38,6 +38,7 @@ class AuthService:
         self.vacant_repo = VacantRepository(db.session)
         self.notification_service = NotificationService()
 
+
     # --- NUEVA FUNCIÓN AUXILIAR PARA GENERAR CÓDIGO DE CONFIRMACIÓN ---
     def _generate_confirmation_code(self, length=6):
         characters = string.ascii_uppercase + string.digits # Letras mayúsculas y números

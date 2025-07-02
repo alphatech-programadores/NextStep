@@ -18,6 +18,7 @@ from routes.vacants import vacants_bp
 from routes.application import app_bp
 from routes.profile import profile_bp
 from routes.notifications import notification_bp
+from routes.saved_vacancies_routes import saved_vacancies_bp 
 # Por implementar
 # from routes.recommendation import recommend_bp 
 
@@ -53,6 +54,7 @@ def create_app():
     app.register_blueprint(profile_bp, url_prefix="/api/profile")
     app.register_blueprint(inst_profile_bp) 
     app.register_blueprint(notification_bp, url_prefix="/api/notifications")
+    app.register_blueprint(saved_vacancies_bp)
     # Por implementar
     # app.register_blueprint(recommender, url_prefix="/api/recommendations")
     @app.route('/uploads/<path:filename>')
@@ -70,4 +72,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

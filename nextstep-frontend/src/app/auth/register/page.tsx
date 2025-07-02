@@ -15,10 +15,11 @@ export default function RegisterPage() {
     const router = useRouter();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [institution_name, setInstitutionName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false); // Estado para manejar el loading del botón
-    const [role, setRole] = useState("student")
+    const [role, setRole] = useState("institution")
 
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -32,7 +33,7 @@ export default function RegisterPage() {
 
         try {
             const response = await axiosInstance.post("auth/register", {
-                name,
+                institution_name,
                 email,
                 password,
                 role,
@@ -63,7 +64,7 @@ export default function RegisterPage() {
                     <div className={styles.inputGroup}>
                         <FormInput
                             label="Nombre Completo"
-                            name="name"
+                            name="institution_name"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}

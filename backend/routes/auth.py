@@ -128,3 +128,8 @@ def resend_confirmation_email_route():
         return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": f"Ocurrió un error inesperado al reenviar correo: {e}"}), 500
+    
+@auth_bp.route("/logout", methods=["GET"])
+def logout():    
+    result = auth_service.logout_user
+    return jsonify([result]), 200

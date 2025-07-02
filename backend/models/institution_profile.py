@@ -5,8 +5,8 @@ class InstitutionProfile(db.Model):
     __tablename__ = 'institution_profiles'
 
     email = db.Column(db.String(120), db.ForeignKey('users.email'), primary_key=True)
-    institution_name = db.Column(db.String(150), nullable=False)
-    sector = db.Column(db.String(100))
+    institution_name = db.Column(db.String(150), nullable=True)
+    sector = db.Column(db.String(100), nullable=True)
     contact_person = db.Column(db.String(255), nullable=True)
     contact_phone = db.Column(db.String(20), nullable=True)
     address = db.Column(db.String(255), nullable=True)
