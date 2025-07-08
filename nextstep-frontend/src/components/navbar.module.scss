@@ -1,0 +1,256 @@
+@use './styles/variables' as v;
+@use './styles/mixins.scss' as mixin;
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: v.$spacing-medium v.$spacing-large;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.brandLink {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: v.$primary-color;
+    text-decoration: none;
+}
+
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-large; // Espacio entre los enlaces principales
+}
+
+.navLink {
+    text-decoration: none;
+    color: v.$text-secondary;
+    font-weight: 500;
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: v.$primary-color;
+    }
+}
+
+.logoutButton,
+.registerButton {
+    padding: v.$spacing-small v.$spacing-medium;
+    border-radius: v.$border-radius;
+    border: 1px solid v.$primary-color;
+    cursor: pointer;
+    background-color: v.$primary-color;
+    color: v.$text-on-primary;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: darken(v.$primary-color, 10%);
+    }
+}
+
+/* --- ESTILOS PARA EL MENÚ DESPLEGABLE --- */
+
+.userMenu {
+    position: relative;
+}
+
+.userMenuButton {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-small;
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: v.$border-radius;
+    padding: v.$spacing-small v.$spacing-medium;
+    cursor: pointer;
+    font-size: 1rem;
+    color: v.$text-secondary;
+    transition: all 0.2s ease; // Transición para hover
+
+    &:hover {
+        border-color: v.$primary-color;
+        color: v.$primary-color;
+        background-color: v.$background-color-light;
+    }
+}
+
+// NUEVOS ESTILOS PARA FOTO DE PERFIL/INICIALES
+.profilePic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid v.$border-color;
+}
+
+.profileInitials {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: v.$primary-color; // Fondo para iniciales
+    color: v.$light-color; // Color de texto para iniciales
+    font-weight: bold;
+    font-size: 1.1rem;
+    @include mixin.center-flex; // Centrar las iniciales
+    flex-shrink: 0; // Evitar que se encoja
+}
+
+// ------------------------------------------
+
+.dropdownMenu {
+    position: absolute;
+    z-index: 1001;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: #fff;
+    padding: v.$spacing-small 0;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.2s ease-out forwards;
+    border-radius: v.$border-radius;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    min-width: 220px;
+    overflow: hidden;
+}
+
+.dropdownLink {
+    padding: 10px v.$spacing-medium;
+    color: v.$text-primary;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+        background-color: v.$secondary-color;
+    }
+
+}
+
+.dropdownDivider {
+    height: 1px;
+    background-color: #eee;
+    margin: v.$spacing-small 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- ESTILOS DE NOTIFICACIONES --- */
+.notificationsLink {
+    position: relative;
+    color: v.$text-secondary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-small;
+    border-radius: v.$border-radius;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: v.$background-color-light;
+        color: v.$primary-color;
+    }
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+.notificationsBadge {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: v.$danger-color;
+    color: v.$light-color;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+    border: 1px solid v.$light-color;
+}
+
+/* --- LA MAGIA RESPONSIVA EMPIEZA AQUÍ --- */
+
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    color: v.$text-primary;
+}
+
+@media (max-width: v.$breakpoint-tablet) {
+    .hamburger {
+        display: block;
+    }
+
+    .navLinks .navLink,
+    .navLinks .userMenu,
+    .navLinks .notificationsLink {
+        display: none;
+    }
+
+    .navLinks {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: #fff;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: v.$spacing-large * 1.5;
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease-in-out;
+
+        .navLink,
+        .userMenu,
+        .notificationsLink {
+            display: flex;
+        }
+
+        .userMenu {
+            flex-direction: column;
+        }
+
+        .dropdownMenu {
+            position: static;
+            box-shadow: none;
+            width: 100%;
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .navLinks.menuOpen {
+        right: 0;
+    }
+}

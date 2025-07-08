@@ -1,0 +1,22 @@
+# Desde la raíz de tu frontend (nextstep-frontend)
+
+mkdir src/app/pages
+mkdir src/app/pages/home
+mkdir src/app/pages/login
+mkdir src/app/pages/register
+mkdir src/app/pages/profile
+mkdir src/app/pages/institution
+mkdir src/app/pages/vacants
+mkdir src/app/pages/applications
+
+# Creamos los componentes básicos
+npx ng generate component pages/home
+npx ng generate component pages/login
+npx ng generate component pages/register
+npx ng generate component pages/profile
+npx ng generate component pages/institution
+npx ng generate component pages/vacants
+npx ng generate component pages/applications
+
+# Ahora creamos el archivo de rutas
+touch src/app/app-routing.module.ts

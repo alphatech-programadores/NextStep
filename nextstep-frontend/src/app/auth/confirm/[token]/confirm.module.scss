@@ -1,0 +1,124 @@
+@use '../../../../components/styles/mixins' as mixin;
+@use '../../../../components/styles/_variables.scss' as var;
+
+
+.confirmPage {
+    @include mixin.center-flex;
+    min-height: calc(100vh - var.$navbar-height); // Ajusta la altura si tienes un footer
+    background-color: var.$background-color-light;
+    padding: 2rem;
+}
+
+.card {
+    background-color: var.$light-color;
+    padding: 3rem;
+    border-radius: var.$border-radius-lg;
+    box-shadow: var.$box-shadow-medium;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    @include mixin.flex-column;
+    align-items: center;
+    gap: 1.5rem; // Espacio entre elementos dentro de la tarjeta
+
+    @include mixin.breakpoint-down(sm) {
+        padding: 2rem;
+    }
+}
+
+.title {
+    color: var.$primary-color;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.statusMessage {
+    padding: 1rem;
+    border-radius: var.$border-radius-sm;
+    font-size: 1rem;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+
+    &.success {
+        background-color: lighten(var.$success-color, 40%); // Un verde claro
+        color: var.$success-color;
+        border: 1px solid var.$success-color;
+    }
+
+    &.error {
+        background-color: lighten(var.$danger-color, 35%); // Un rojo claro
+        color: var.$danger-color;
+        border: 1px solid var.$danger-color;
+    }
+}
+
+.instructionText {
+    color: var.$text-secondary;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.manualConfirmationSection {
+    width: 100%;
+    @include mixin.flex-column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var.$border-color; // Separador visual
+}
+
+.manualForm {
+    @include mixin.flex-column;
+    gap: 1.2rem; // Espacio entre los campos del formulario manual
+    width: 100%;
+
+    // Estilos para los FormInput dentro del formulario manual
+    div {
+        // Cada div que envuelve un FormInput
+        width: 100%;
+
+        label {
+            font-size: 0.9rem;
+            color: var.$text-color;
+        }
+
+        input {
+            padding: 0.7rem 1rem;
+            border: 1px solid var.$border-color;
+            border-radius: var.$border-radius-sm;
+            width: 100%;
+            font-size: 1rem;
+
+            &:focus {
+                border-color: var.$accent-color;
+                box-shadow: 0 0 0 2px rgba(var.$accent-color, 0.2);
+                outline: none;
+            }
+        }
+    }
+}
+
+.submitButton {
+    @include mixin.button-primary; // Usar tu mixin de botón primario
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.loginLink {
+    color: var.$accent-color;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 1.5rem;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

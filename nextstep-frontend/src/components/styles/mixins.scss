@@ -1,0 +1,81 @@
+/* src/components/styles/_mixins.scss */
+@use 'variables' as var;
+@use 'sass:color'; // NUEVO: Importar el módulo color
+
+@mixin center-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+@mixin button-base {
+    padding: 0.8rem 1.5rem;
+    border-radius: var.$border-radius;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+@mixin button-primary {
+    @include button-base;
+    background-color: var.$primary-color;
+    color: var.$light-color;
+    border: 1px solid var.$primary-color;
+
+    &:hover:not(:disabled) {
+        background-color: color.adjust(var.$danger-color, $lightness: -10%);
+        border-color: color.adjust(var.$danger-color, $lightness: -10%);
+    }
+}
+
+@mixin button-danger {
+    @include button-base;
+    background-color: var.$danger-color;
+    color: var.$light-color;
+    border: 1px solid var.$danger-color;
+
+    &:hover:not(:disabled) {
+        background-color: darken(var.$danger-color, 10%);
+        border-color: darken(var.$danger-color, 10%);
+    }
+}
+
+// Mixin para breakpoints (ejemplo)
+@mixin breakpoint-up($breakpoint) {
+    @media (min-width: $breakpoint) {
+        @content;
+    }
+}
+
+@mixin breakpoint-down($breakpoint) {
+    @media (max-width: $breakpoint) {
+        @content;
+    }
+}
+
+// Definir algunos breakpoints comunes
+$breakpoints: (
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+);
+
+@mixin breakpoint($size) {
+    @media (max-width: map-get($breakpoints, $size)) {
+        @content;
+    }
+}
+
+// Uso: @include breakpoint(md) { ... }
+// O para min-width: @media (min-width: map-get($breakpoints, md)) { ... }

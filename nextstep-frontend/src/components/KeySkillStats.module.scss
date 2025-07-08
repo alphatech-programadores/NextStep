@@ -1,0 +1,37 @@
+// src/components/dashboard/KeyStatsCard.module.scss
+
+@use './styles/_variables' as v;
+
+.statsCard {
+    background: linear-gradient(45deg, v.$primary-color, darken(v.$primary-color, 15%));
+    color: #fff;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: v.$spacing-large;
+    margin-top: v.$spacing-medium;
+}
+
+.statItem {
+    text-align: center;
+    padding: v.$spacing-small;
+}
+
+.statIcon {
+    margin-bottom: v.$spacing-small;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.statValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+}

@@ -1,0 +1,280 @@
+/* src/app/student/profile/profile.module.scss */
+@use '../../../components/styles/_variables' as var;
+@use '../../../components/styles/mixins' as mixin; // Asegúrate de tener un archivo de mixins si usas uno
+
+.profilePage {
+    @include mixin.flex-column;
+    align-items: center;
+    padding: 2rem;
+    background-color: var.$background-color-light;
+    min-height: calc(100vh - var.$navbar-height);
+
+    .title {
+        color: var.$primary-color;
+        margin-bottom: 2.5rem;
+        font-size: 2.5rem;
+        text-align: center;
+
+        @include mixin.breakpoint-down(md) {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .loadingContainer,
+    .errorContainer {
+        @include mixin.center-flex;
+        height: 300px;
+        font-size: 1.2rem;
+        color: var.$text-color-light;
+    }
+
+    .profileForm {
+        background-color: var.$light-color;
+        padding: 2.5rem;
+        border-radius: var.$border-radius-lg;
+        box-shadow: var.$box-shadow-medium;
+        width: 100%;
+        max-width: 900px;
+        display: grid;
+        gap: 2rem; // Espacio entre las secciones completas del formulario
+        margin-bottom: 2rem;
+
+        @include mixin.breakpoint-down(md) {
+            padding: 1.5rem;
+        }
+
+        .formSection {
+            background-color: var.$background-color-light;
+            padding: 1.5rem;
+            border-radius: var.$border-radius;
+            border: 1px solid var.$border-color;
+
+            h2 {
+                color: var.$secondary-color;
+                margin-bottom: 1.5rem;
+                font-size: 1.8rem;
+                border-bottom: 2px solid var.$primary-color-light;
+                padding-bottom: 0.5rem;
+            }
+
+            .inputGroup {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.8rem; // AUMENTADO PARA MÁS SEPARACIÓN HORIZONTAL
+                margin-bottom: 1rem;
+
+                // ASEGURAR QUE NO SE SALGAN DEL CUADRO EN PANTALLAS PEQUEÑAS
+                @include mixin.breakpoint-down(sm) {
+                    // Ejemplo de breakpoint para móviles muy pequeños
+                    grid-template-columns: 1fr; // Siempre una sola columna
+                    gap: 1rem; // Reducir un poco el gap vertical en móviles
+                }
+            }
+
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: bold;
+                color: var.$text-color;
+                font-size: 0.95rem;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="url"],
+            input[type="date"],
+            textarea {
+                width: 100%;
+                padding: 0.8rem 1rem;
+                border: 1px solid var.$border-color;
+                border-radius: var.$border-radius-sm;
+                font-size: 1rem;
+                color: var.$text-color;
+                background-color: var.$light-color;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                outline: none;
+
+                &:focus {
+                    border-color: var.$accent-color;
+                    box-shadow: 0 0 0 3px rgba(var.$accent-color, 0.2);
+                }
+
+                &:disabled {
+                    background-color: var.$background-color-light;
+                    cursor: not-allowed;
+                }
+
+                &::placeholder {
+                    color: var.$text-color-light;
+                    opacity: 0.7;
+                }
+            }
+
+            textarea {
+                resize: vertical;
+                min-height: 100px;
+                line-height: 1.5;
+            }
+
+            // ESTILOS DE LA SECCIÓN DE FOTO DE PERFIL
+            .profilePictureSection {
+                @include mixin.flex-column;
+                align-items: center;
+                gap: 1.5rem;
+                margin-bottom: 1.5rem;
+
+                .profileImagePreview {
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 3px solid var.$primary-color;
+                    box-shadow: var.$box-shadow-medium;
+                }
+
+                .profileImagePlaceholder {
+                    @include mixin.center-flex;
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var.$border-color;
+                    color: var.$text-color-light;
+                    font-size: 0.9rem;
+                    text-align: center;
+                    border: 2px dashed var.$secondary-color;
+                }
+
+                .fileUploadGroup {
+                    @include mixin.flex-column;
+                    align-items: center;
+                    gap: 0.8rem;
+
+                    .hiddenFileInput {
+                        display: none;
+                    }
+
+                    .customFileUploadButton {
+                        // ESTILO PARA EL BOTÓN DE SUBIDA DE FOTO
+                        @include mixin.button-base;
+                        background-color: var.$accent-color;
+                        color: var.$light-color;
+                        border: none;
+                        padding: 0.7rem 1.2rem;
+                        cursor: pointer;
+                        font-size: 0.95rem;
+
+                        &:hover {
+                            background-color: darken(var.$accent-color, 10%);
+                        }
+                    }
+
+                    p {
+                        font-size: 0.85rem;
+                        color: var.$text-color-light;
+                        margin-top: -0.5rem;
+                    }
+                }
+            }
+
+            // FIN ESTILOS DE LA SECCIÓN DE FOTO DE PERFIL
+
+
+            .educationItem,
+            .experienceItem {
+                border: 1px solid var.$border-color-light;
+                padding: 1.5rem;
+                border-radius: var.$border-radius;
+                margin-bottom: 1.5rem;
+                background-color: var.$light-color;
+                position: relative;
+                box-shadow: var.$box-shadow-light;
+
+                .inputGroup {
+                    grid-template-columns: 1fr;
+                    gap: 1.2rem;
+                }
+            }
+
+            .addButton {
+                @include mixin.button-primary;
+                margin-top: 1rem;
+                width: fit-content;
+                padding: 0.8rem 1.5rem;
+            }
+
+            .removeButton {
+                @include mixin.button-danger;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+                width: fit-content;
+            }
+        }
+
+        .submitButton {
+            @include mixin.button-primary;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+    }
+
+    .deleteAccountSection {
+        margin-top: 2rem;
+        width: 100%;
+        max-width: 900px;
+        text-align: right;
+        padding: 1.5rem;
+        background-color: var.$light-color;
+        border-radius: var.$border-radius-lg;
+        box-shadow: var.$box-shadow-medium;
+        border: 1px solid var.$border-color;
+
+        .deleteButton {
+            @include mixin.button-danger;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+
+    // Estilos para los botones dentro del modal
+    .modalActions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+
+        .cancelButton {
+            background-color: var.$secondary-color;
+            color: var.$light-color;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var.$border-radius;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background-color: darken(var.$secondary-color, 10%);
+            }
+        }
+
+        .confirmDeleteButton {
+            background-color: var.$danger-color;
+            color: var.$light-color;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var.$border-radius;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background-color: darken(var.$danger-color, 10%);
+            }
+        }
+    }
+}

@@ -1,0 +1,169 @@
+// src/app/institution/vacancies/[id]/applications/applications.module.scss
+
+@use '../../../../../components/styles/_variables' as v;
+
+.container {
+    padding: v.$spacing-large;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: v.$spacing-large * 1.5;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: v.$text-primary;
+    text-align: center;
+}
+
+.error {
+    color: v.$status-rejected;
+    background-color: lighten(v.$status-rejected, 35%);
+    padding: v.$spacing-medium;
+    border-radius: v.$border-radius;
+    text-align: center;
+}
+
+.applicantsList {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-large;
+}
+
+.applicantCard {
+    background-color: #fff;
+    border: 1px solid #eef0f2;
+    border-radius: v.$border-radius;
+    padding: v.$spacing-large;
+    box-shadow: v.$box-shadow;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    }
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: v.$spacing-medium;
+    border-bottom: 1px solid #eef0f2;
+}
+
+.studentName {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.statusBadge {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 16px;
+    text-transform: capitalize;
+    color: #fff;
+
+    &.pendiente {
+        background-color: v.$status-pending;
+    }
+
+    &.aceptado {
+        background-color: v.$status-accepted;
+    }
+
+    &.rechazado {
+        background-color: v.$status-rejected;
+    }
+}
+
+.studentInfo {
+    padding: v.$spacing-medium 0;
+
+    p {
+        margin: 4px 0;
+    }
+}
+
+.skillsSection {
+    padding-top: v.$spacing-medium;
+    border-top: 1px solid #eef0f2;
+}
+
+.skillTagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: v.$spacing-small;
+    margin-top: v.$spacing-small;
+}
+
+.skillTag {
+    background-color: lighten(v.$primary-color, 45%);
+    color: darken(v.$primary-color, 15%);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: v.$spacing-medium;
+    margin-top: v.$spacing-large;
+    padding-top: v.$spacing-large;
+    border-top: 1px solid #eef0f2;
+}
+
+.actionButton {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: v.$border-radius;
+    background-color: #f9fafb;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    color: v.$text-primary;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #aaa;
+        background-color: #f0f2f5;
+    }
+
+    &.reject {
+        border-color: v.$status-rejected;
+        color: v.$status-rejected;
+
+        &:hover {
+            background-color: lighten(v.$status-rejected, 40%);
+        }
+    }
+
+    &.accept {
+        border-color: v.$status-accepted;
+        color: #fff;
+        background-color: v.$status-accepted;
+
+        &:hover {
+            background-color: darken(v.$status-accepted, 10%);
+        }
+    }
+}
+
+.noApplicants {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: #fff;
+    border-radius: v.$border-radius;
+
+    p {
+        font-size: 1.1rem;
+        color: v.$text-secondary;
+    }
+}

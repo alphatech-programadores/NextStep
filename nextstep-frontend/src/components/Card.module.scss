@@ -1,0 +1,91 @@
+// Importamos nuestras variables globales usando @use
+// La ruta es relativa desde este archivo hasta el archivo de variables.
+@use './styles/_variables' as v;
+
+.card {
+    background-color: #fff;
+    border-radius: v.$border-radius;
+    padding: v.$spacing-large;
+    box-shadow: v.$box-shadow;
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-medium;
+}
+
+.cardTitle {
+    margin-top: 0;
+    margin-bottom: 0; // El gap ya da espacio
+    font-size: 1.2rem;
+    color: v.$text-primary;
+}
+
+.cardLink {
+    margin-top: auto; // Empuja el link al final de la tarjeta
+    color: v.$primary-color;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Estilos específicos para la lista de aplicaciones
+.applicationList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.applicationItem {
+    padding: v.$spacing-small 0;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.appTitle {
+    font-weight: 500;
+    color: v.$text-primary;
+}
+
+.appCompany {
+    color: v.$text-secondary;
+}
+
+.appStatus {
+    float: right;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: #fff;
+
+    // Usamos las variables de estado
+    &.pendiente,
+    &.pending {
+        background-color: v.$status-pending;
+    }
+
+    &.entrevista,
+    &.interview {
+        background-color: v.$status-interview;
+    }
+
+    &.aceptada,
+    &.accepted {
+        background-color: v.$status-accepted;
+    }
+
+    &.rechazada,
+    &.rejected {
+        background-color: v.$status-rejected;
+    }
+}
+
+.noData {
+    color: v.$text-secondary;
+    font-style: italic;
+}

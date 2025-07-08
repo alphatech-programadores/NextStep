@@ -1,0 +1,68 @@
+// src/app/dashboard/dashboard.module.scss
+
+@use '../../components/styles/variables' as v;
+
+.dashboardContainer {
+    padding: v.$spacing-large;
+}
+
+/* Estilos para la nueva cabecera de bienvenida */
+.welcomeHeader {
+    background-color: #fff;
+    padding: v.$spacing-large v.$spacing-large * 1.5;
+    border-radius: v.$border-radius;
+    box-shadow: v.$box-shadow;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: v.$spacing-large * 1.5;
+}
+
+.welcomeTitle {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: v.$text-primary;
+}
+
+.welcomeMessage {
+    font-size: 1rem;
+    color: v.$text-secondary;
+    margin: 0;
+}
+
+.mainCtaButton {
+    background-color: v.$primary-color;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: v.$border-radius;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: darken(v.$primary-color, 10%);
+    }
+}
+
+/* Estilos para la nueva rejilla de tarjetas */
+.dashboardGrid {
+    display: grid;
+    // Crea columnas que se ajustan automáticamente. Cada una tiene un mínimo de 320px.
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: v.$spacing-large;
+}
+
+/* Media query para hacer la cabecera vertical en móviles */
+@media (max-width: 768px) {
+    .welcomeHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: v.$spacing-medium;
+    }
+
+    .dashboardGrid {
+        grid-template-columns: 1fr; // Una sola columna en móviles
+    }
+}

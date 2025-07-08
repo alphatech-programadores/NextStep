@@ -1,0 +1,86 @@
+// Definición de tu paleta de colores
+
+$primary-color: #00796b; // Verde oscuro (hero, navbar, botones principales)
+$primary-hover: #004c40; // Verde oscuro al pasar el ratón
+$primary-light: #e0f2f1; // Verde claro (hover del botón CTA, tags)
+$primary-lighter: #f0fdfc; // Verde muy claro (fondo de featureItem)
+
+$secondary-color: #007bff; // Azul (botones de acción, enlaces)
+$secondary-hover: #0056b3; // Azul oscuro (hover del botón de login/acción)
+$secondary-light: #bbdefb; // Azul muy claro (para ciertos fondos o bordes)
+
+$primary-color-light: #106335; // Azul oscuro
+$secondary-color: #07bd44; // Gris
+$accent-color: #007bff; // Azul brillante
+$danger-color: #dc3545; // Rojo para acciones peligrosas
+
+$text-color: #333;
+$text-color-light: #666;
+$light-color: #ffffff;
+$background-color-light: #f8f9fa; // Un gris muy claro para fondos
+
+$border-color: #e0e0e0;
+$border-color-light: #f0f0f0;
+
+$box-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
+$box-shadow-large: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+$border-radius: 8px;
+$border-radius-sm: 4px;
+$border-radius-lg: 12px;
+
+$font-family-sans-serif: 'Arial', sans-serif;
+$font-family-serif: 'Georgia', serif;
+
+$navbar-height: 60px; // Ajusta según la altura real de tu navbar
+
+// --- Colores de Texto ---
+$text-primary: #212121; // Texto principal oscuro
+$text-secondary: #757575; // Texto secundario más claro
+$text-on-primary: #ffffff; // Texto sobre fondos de color primario
+
+$text-dark: #333333; // Texto principal oscuro
+$text-medium: #666666; // Texto secundario/pie de página
+$text-light: #ffffff; // Texto blanco (para fondos oscuros)
+
+$background-light: #f9f9f9; // Fondo general claro (tu .container)
+$background-medium: #eeeeee; // Fondo del footer
+$background-white: #ffffff; // Fondo de tarjeta (login, features)
+
+$border-color-light: #dcdcdc; // Borde claro
+$border-color-medium: #b0b0b0; // Borde medio
+
+$box-shadow-light: 0 2px 6px rgba(0, 0, 0, 0.08); // Sombra ligera
+$box-shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.12); // Sombra media
+$box-shadow-strong: 0 8px 25px rgba(0, 0, 0, 0.15); // Sombra más pronunciada
+
+$error-color: #d32f2f; // Color para mensajes de error
+$success-color: #388e3c; // Color para mensajes de éxito
+$warning-color: #fbc02d; // Color para advertencias
+
+$status-pending: #ffb300; // Ámbar
+$status-interview: #09533b; // Azul
+$status-accepted: #388e3c; // Verde
+$status-rejected: #d32f2f; // Rojo
+
+// --- Espaciado ---
+$spacing-small: 8px;
+$spacing-medium: 16px;
+$spacing-large: 24px;
+
+$box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+
+// Mixin para transiciones suaves (opcional, pero útil)
+@mixin transition($property: all, $duration: 0.3s, $timing-function: ease-in-out) {
+    transition: $property $duration $timing-function;
+}
+
+// Mixin para centrar elementos (opcional)
+@mixin center-flex($direction: row) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: $direction;
+}
+
+$breakpoint-tablet: 768px;

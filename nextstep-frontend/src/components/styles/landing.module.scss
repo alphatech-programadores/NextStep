@@ -1,0 +1,258 @@
+/* landing.module.scss */
+
+$page-padding: 2rem;
+$primary-color: #3bf6a8; // azul vibrante
+$primary-color-hover: darken($primary-color, 10%);
+$secondary-color: #067c69;
+$text-color: #333;
+$background-color: #f9fafb;
+$accent-color: #ef4444; // rojo para errores o alertas
+$border-radius: 8px;
+$font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+.pageWrapper {
+    font-family: $font-family;
+    color: $text-color;
+    background-color: $background-color;
+    // Remove or set padding to 0 if you want the *wrapper itself* to have no padding
+    // padding: 0;
+    // Remove max-width to allow the wrapper to take full browser width
+    max-width: none; // Or simply remove this line
+    margin: 0 auto; // This will still work for centering if max-width is present, but is redundant if max-width is removed and padding is 0.
+}
+
+.hero {
+    position: relative;
+    background: linear-gradient(135deg, #60a5fa 0%, #25cdeb 100%);
+    color: white;
+    padding: 5rem 2rem;
+    border-radius: $border-radius;
+    text-align: center;
+    overflow: hidden;
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: url('/images/hero-background.svg') no-repeat center/cover;
+        opacity: 0.15;
+        z-index: 0;
+    }
+
+    .heroContent {
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+        margin: 0 auto;
+
+        h2 {
+            font-weight: 500;
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        p {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .ctaButton {
+            background-color: $primary-color;
+            color: white;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: $border-radius;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: $primary-color-hover;
+            }
+        }
+    }
+}
+
+.features {
+    margin: 4rem 0;
+    text-align: center;
+
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+    }
+
+    .featuresGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 2rem;
+    }
+
+    .featureItem {
+        background: white;
+        padding: 1.5rem;
+        border-radius: $border-radius;
+        box-shadow: 0 4px 8px rgb(0 0 0 / 0.05);
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgb(0 0 0 / 0.1);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            font-size: 1rem;
+            color: darken($text-color, 20%);
+        }
+    }
+}
+
+.institutionSection {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: $border-radius;
+    text-align: center;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+    margin-bottom: 4rem;
+
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        font-size: 1.15rem;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .ctaButtonSecondary {
+        display: inline-block;
+        background-color: $secondary-color;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: $border-radius;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: darken($secondary-color, 10%);
+        }
+    }
+}
+
+.whySection {
+    margin-bottom: 4rem;
+
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .whyList {
+        max-width: 700px;
+        margin: 0 auto;
+        list-style: none;
+        padding: 0;
+
+        li {
+            background-color: white;
+            border-radius: $border-radius;
+            box-shadow: 0 4px 8px rgb(0 0 0 / 0.05);
+            margin-bottom: 1rem;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    }
+}
+
+.faqSection {
+    margin-bottom: 6rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .faqItem {
+        background: white;
+        border-radius: $border-radius;
+        box-shadow: 0 3px 8px rgb(0 0 0 / 0.06);
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+
+        h3 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: $primary-color;
+        }
+
+        p {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: $text-color;
+        }
+    }
+}
+
+.footer {
+    background-color: $secondary-color;
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    font-size: 0.9rem;
+
+    .footerContent {
+        max-width: 900px;
+        margin: 0 auto;
+
+        p {
+            margin: 0.25rem 0;
+        }
+    }
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .features .featuresGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: 3rem 1rem;
+
+        .heroContent {
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    }
+}

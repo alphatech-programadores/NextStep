@@ -1,0 +1,112 @@
+/* src/components/Modal.module.scss */
+@use './styles/_variables' as var;
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background-color: var.$light-color;
+    padding: 2rem;
+    border-radius: var.$border-radius;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+        margin: 0;
+        color: var.$primary-color;
+        font-size: 1.5rem;
+    }
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var.$text-color;
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: var.$accent-color;
+    }
+}
+
+.modalBody {
+    margin-bottom: 1.5rem;
+
+    p {
+        color: var.$text-color;
+        line-height: 1.6;
+    }
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+
+    button {
+        padding: 0.8rem 1.5rem;
+        border-radius: var.$border-radius;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    .cancelButton {
+        background-color: var.$secondary-color;
+        color: var.$light-color;
+        border: none;
+
+        &:hover:not(:disabled) {
+            background-color: darken(var.$secondary-color, 10%);
+        }
+    }
+
+    .confirmDeleteButton {
+        background-color: var.$danger-color;
+        color: var.$light-color;
+        border: none;
+
+        &:hover:not(:disabled) {
+            background-color: darken(var.$danger-color, 10%);
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
