@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi perfil | NextStep</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand text-success fw-bold" href="#">NextStep</a>
+            <div class="ms-auto">
+                <a href="dashboard_student.html" class="btn btn-outline-secondary me-2">Volver al panel</a>
+                <a href="login.html" class="btn btn-danger">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PERFIL -->
+    <div class="container my-5">
+        <h2 class="mb-4 text-success">Mi perfil</h2>
+
+        <!-- ESTADO GENERAL -->
+        <div class="alert alert-primary">
+            <p class="mb-1"><strong>Estado actual:</strong> Tienes 2 postulaciones pendientes</p>
+            <p class="mb-1"><strong>Vacante asignada:</strong> <span class="text-success">Análisis de Datos</span></p>
+        </div>
+
+        <!-- DATOS DEL PERFIL -->
+        <div class="card p-4 shadow-sm">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Carrera</label>
+                    <input class="form-control" type="text" value="Ingeniería en Sistemas" disabled>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Semestre</label>
+                    <input class="form-control" type="number" value="6" disabled>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Promedio</label>
+                    <input class="form-control" type="number" value="8.9" disabled>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Teléfono</label>
+                    <input class="form-control" type="text" value="555-123-4567" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Dirección</label>
+                    <input class="form-control" type="text" value="CDMX" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Disponibilidad</label>
+                    <input class="form-control" type="text" value="Lunes a Viernes, mañana" disabled>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Habilidades</label>
+                <textarea class="form-control" rows="3" disabled>Python, SQL, análisis de datos, comunicación</textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Portafolio</label>
+                    <input class="form-control" type="url" value="https://miportafolio.com" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">CV (PDF)</label>
+                    <input class="form-control" type="url" value="https://drive.com/mi_cv.pdf" disabled>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button class="btn btn-outline-primary">Editar perfil</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
