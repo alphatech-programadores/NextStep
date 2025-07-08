@@ -111,20 +111,35 @@ class VacantService:
             raise ValueError("Vacante no encontrada o inactiva.")
 
         existing_application = self.application_repo.get_application_by_student_and_vacant(student_email, vacant_id)
-        if existing_application:
-            raise ValueError("Ya has postulado a esta vacante.")
+        # Allow re-application if the previous application was cancelled or rejected
+        if existing_application and existing_application.status not in ["cancelada", "rechazado"]:
+            raise ValueError("Ya tienes una postulación activa o aceptada para esta vacante.")
+        
+        # If an application exists and is cancelled/rejected, update it instead of creating a new one
+        if existing_application and existing_application.status in ["cancelada", "rechazado"]:
+            try:
+                # Update existing application to 'pendiente'
+                updated_app = self.application_repo.update_application_status(
+                    existing_application, "pendiente", "Re-postulación"
+                )
+                db.session.commit()
+                return {"message": "Postulación re-enviada exitosamente!", "application_id": updated_app.id}
+            except Exception as e:
+                db.session.rollback()
+                raise RuntimeError(f"Error al re-postular a la vacante: {e}")
+        else:
+            try:
+                new_application = self.application_repo.create_application(
+                    student_email=student_email,
+                    vacant_id=vacant.id,
+                    status="pendiente"
+                )
+                db.session.commit()
+                return {"message": "Postulación enviada exitosamente!", "application_id": new_application.id}
+            except Exception as e:
+                db.session.rollback()
+                raise RuntimeError(f"Error al postular a la vacante: {e}")
 
-        try:
-            new_application = self.application_repo.create_application(
-                student_email=student_email,
-                vacant_id=vacant.id,
-                status="pendiente"
-            )
-            db.session.commit()
-            return {"message": "Postulación enviada exitosamente!", "application_id": new_application.id}
-        except Exception as e:
-            db.session.rollback()
-            raise RuntimeError(f"Error al postular a la vacante: {e}")
 
     def check_application_status(self, vacant_id: int, student_email: str):
         user = self.user_repo.get_by_email(student_email)
@@ -132,7 +147,9 @@ class VacantService:
             raise ValueError("Acceso denegado.")
 
         application = self.application_repo.get_application_by_student_and_vacant(student_email, vacant_id)
-        return {"has_applied": application is not None}
+        
+        # Return the actual status or None if no application exists
+        return {"application_status": application.status if application else None}
 
     def create_vacant(self, institution_email: str, data: dict):
         user = self.user_repo.get_by_email(institution_email)
@@ -146,14 +163,14 @@ class VacantService:
                 try:
                     start_date = datetime.strptime(data.get("start_date"), "%Y-%m-%d").date()
                 except ValueError:
-                    raise ValueError("Fecha de inicio mal formateada. Usa YYYY-MM-DD.")
+                    raise ValueError("Fecha de inicio mal formateada. Usa Букмекерлар-MM-DD.")
             
             end_date = None
             if data.get("end_date"):
                 try:
                     end_date = datetime.strptime(data.get("end_date"), "%Y-%m-%d").date()
                 except ValueError:
-                    raise ValueError("Fecha de fin mal formateada. Usa YYYY-MM-DD.")
+                    raise ValueError("Fecha de fin mal formateada. Usa Букмекерлар-MM-DD.")
 
             vacant = self.vacant_repo.create_vacant(
                 institution_email=institution_email,
@@ -208,6 +225,8 @@ class VacantService:
         return result
 
     def update_vacant(self, vacant_id: int, institution_email: str, data: dict):
+        if isinstance(data.get("tags"), list):
+            data["tags"] = ",".join(data["tags"])
         vacant = self.vacant_repo.get_by_id(vacant_id)
         if not vacant:
             raise ValueError("Vacante no encontrada.")
@@ -221,7 +240,7 @@ class VacantService:
                 try:
                     start_date = datetime.strptime(data.get("start_date"), "%Y-%m-%d").date()
                 except ValueError:
-                    raise ValueError("Fecha de inicio mal formateada. Usa YYYY-MM-DD.")
+                    raise ValueError("Fecha de inicio mal formateada. Usa Букмекерлар-MM-DD.")
             else:
                 start_date = vacant.start_date # Mantener el valor existente si no se provee
 
@@ -230,7 +249,7 @@ class VacantService:
                 try:
                     end_date = datetime.strptime(data.get("end_date"), "%Y-%m-%d").date()
                 except ValueError:
-                    raise ValueError("Fecha de fin mal formateada. Usa YYYY-MM-DD.")
+                    raise ValueError("Fecha de fin mal formateada. Usa Букмекерлар-MM-DD.")
             else:
                 end_date = vacant.end_date # Mantener el valor existente si no se provee
 
@@ -246,7 +265,7 @@ class VacantService:
                     "status": data.get("status"),
                     "requirements": data.get("requirements"),
                     "location": data.get("location"),
-                    "tags": data.get("tags"),
+                    "tags": ','.join(data.get("tags")) if isinstance(data.get("tags"), list) else data.get("tags"),
                     "is_draft": data.get("is_draft"),
                     "latitude": data.get("latitude"),
                     "longitude": data.get("longitude")
@@ -261,7 +280,13 @@ class VacantService:
             raise RuntimeError(f"Error al actualizar la vacante: {e}")
 
     def delete_vacant(self, vacant_id: int, institution_email: str):
-        # ...
+        vacant = self.vacant_repo.get_by_id(vacant_id)
+        if not vacant:
+            raise ValueError("Vacante no encontrada.")
+        
+        if vacant.institution_email != institution_email:
+            raise ValueError("No tienes permiso para eliminar esta vacante.")
+
         try:
             applications_to_vacant = self.application_repo.get_all_applications_by_vacant(vacant.id)
             for app in applications_to_vacant:
@@ -342,7 +367,7 @@ class VacantService:
                     "career": student_profile.career,
                     "semester": student_profile.semestre,
                     "skills": student_profile.skills.split(',') if student_profile.skills else [],
-                    "cv_url": f"{current_app.config['BASE_URL']}/uploads/{student_profile.cv_path}" if student_profile.cv_path else None # Generar URL completa
+                    "cv_url": f"{current_app.config['UPLOADED_FILES_BASE_URL']}/uploads/{student_profile.cv_path}" if student_profile.cv_path else None # Generar URL completa
                 }
                 
                 result.append({
@@ -354,7 +379,15 @@ class VacantService:
         return result
 
     def decide_application(self, application_id: int, current_user_email: str, decision: str, feedback: str):
-        # ...
+        # Fetch the application first
+        app = self.application_repo.get_application_by_id(application_id)
+        if not app:
+            raise ValueError("Postulación no encontrada.")
+
+        # Ensure the current user (institution) has permission to decide on this application
+        if app.vacant.institution_email != current_user_email:
+            raise ValueError("No tienes permiso para decidir sobre esta postulación.")
+
         try:
             self.application_repo.update_application_status(app, decision, feedback)
             
@@ -378,7 +411,7 @@ class VacantService:
                         if other_app.vacant and other_app.vacant.institution_email:
                             self.notification_service.create_and_send_notification(
                                 recipient_email=other_app.vacant.institution_email,
-                                sender_email=app.student_email, # El estudiante fue aceptado
+                                sender_email=app.student.name, # El estudiante fue aceptado
                                 type="student_accepted_elsewhere",
                                 message=f"El estudiante {app.student.name} ha sido aceptado en otra vacante. Su postulación a '{other_app.vacant.area}' ha sido retirada.",
                                 link=f"/dashboard/vacants/{other_app.vacant.id}/applications",
@@ -395,3 +428,7 @@ class VacantService:
         # Esta función podría ser más compleja si tienes lógica de geocodificación aquí.
         # Por ahora, solo lista vacantes activas con lat/lon.
         return self.vacant_repo.get_active_vacants_with_coordinates()
+    
+    def get_unique_hours(self):
+        return self.vacant_repo.get_unique_hours()
+

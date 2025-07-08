@@ -1,4 +1,4 @@
-// src/app/student/applications/ApplicationsPage.module.css
+/* src/app/student/applications/ApplicationsPage.module.css */
 
 @import '../../components/styles/_variables.scss';
 
@@ -71,7 +71,8 @@
     background-color: $background-white;
     color: $text-dark;
     cursor: pointer;
-    @include transition(border-color, 0.2s);
+    transition: border-color 0.2s;
+    /* Use transition directly */
 
     &:focus {
         outline: none;
@@ -89,7 +90,8 @@
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
-    @include transition(background-color, 0.3s);
+    transition: background-color 0.3s;
+    /* Use transition directly */
 
     &:hover {
         background-color: $secondary-hover;
@@ -116,7 +118,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    @include transition(transform, 0.3s);
+    transition: transform 0.3s;
+    /* Use transition directly */
     border: 1px solid $border-color-light;
 
     &:hover {
@@ -170,36 +173,41 @@
     font-weight: 600;
     text-transform: capitalize;
     color: $text-light;
-    /* Color de texto predeterminado para los badges */
 }
 
 /* Colores específicos para cada estado */
 .pendiente {
     background-color: #ffc107;
+    /* Amarillo */
     color: $text-dark;
 }
 
-/* Amarillo */
 .revisada {
     background-color: #17a2b8;
+    /* Azul cian */
 }
 
-/* Azul cian */
 .entrevista {
     background-color: #007bff;
+    /* Azul principal */
 }
 
-/* Azul principal */
 .aceptado {
     background-color: #28a745;
+    /* Verde */
 }
 
-/* Verde */
 .rechazado {
     background-color: #dc3545;
+    /* Rojo */
 }
 
-/* Rojo */
+.cancelada {
+    /* NEW: Style for cancelled applications */
+    background-color: #6c757d;
+    /* Gris */
+    color: $text-light;
+}
 
 .appliedAt {
     font-size: 0.85em;
@@ -215,7 +223,8 @@
     text-align: center;
     text-decoration: none;
     font-weight: 600;
-    @include transition(background-color, 0.3s);
+    transition: background-color 0.3s;
+    /* Use transition directly */
     margin-top: 1.5rem;
 
     &:hover {
@@ -223,6 +232,35 @@
         box-shadow: $box-shadow-light;
     }
 }
+
+.cancelButton {
+    /* NEW: Style for the cancel button */
+    display: block;
+    background-color: #dc3545;
+    /* Red for cancellation */
+    color: $text-light;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+    /* Space from other elements */
+
+    &:hover {
+        background-color: #c82333;
+        /* Darker red on hover */
+        box-shadow: $box-shadow-light;
+    }
+
+    &:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+}
+
 
 .pagination {
     @include center-flex(row);
@@ -241,7 +279,8 @@
     cursor: pointer;
     font-size: 1em;
     font-weight: 600;
-    @include transition(background-color, 0.3s);
+    transition: background-color 0.3s;
+    /* Use transition directly */
 
     &:disabled {
         background-color: #cccccc;

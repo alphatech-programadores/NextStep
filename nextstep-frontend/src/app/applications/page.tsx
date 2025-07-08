@@ -6,7 +6,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import styles from './ApplicationsPage.module.scss'; // Módulo de estilos
+import styles from './ApplicationsPage.module.scss';
 import axiosInstance from '@/services/axiosConfig';
 
 interface ApplicationData {
@@ -15,11 +15,11 @@ interface ApplicationData {
     vacant_id: number;
     vacant_title: string;
     company_name: string;
-    application_status: string;
+    application_status: string; // This seems redundant if 'status' is already there
     applied_at: string;
     vacant_location: string;
     vacant_modality: string;
-    vacant_hours: string; // Esto es 'salary_range' o 'hours' de la vacante
+    vacant_hours: string;
 }
 
 export default function ApplicationsPage() {
@@ -37,7 +37,6 @@ export default function ApplicationsPage() {
         setLoadingApplications(true);
         setError(null);
         try {
-
             const params = {
                 status: statusFilter,
                 page: page,
@@ -60,7 +59,6 @@ export default function ApplicationsPage() {
     }, [user, loadingUser, statusFilter]);
 
     useEffect(() => {
-        // Solo intenta cargar si el usuario está cargado y es estudiante
         if (!loadingUser && user && user.role === 'student') {
             fetchApplications(1);
         }
@@ -71,6 +69,24 @@ export default function ApplicationsPage() {
             fetchApplications(newPage);
         }
     };
+
+    const handleCancelApplication = async (applicationId: number) => {
+        if (!confirm("¿Estás seguro de que quieres cancelar esta postulación?")) {
+            return;
+        }
+
+        try {
+            // New API call for cancellation
+            await axiosInstance.patch(`/apply/${applicationId}/cancel`);
+            toast.success("Postulación cancelada correctamente.");
+            // Refresh the applications list after cancellation
+            fetchApplications(currentPage);
+        } catch (err: any) {
+            console.error("Error cancelling application:", err);
+            toast.error(err.response?.data?.error || "Error al cancelar la postulación.");
+        }
+    };
+
 
     if (loadingUser || (user && user.role !== 'student')) {
         return (
@@ -115,6 +131,7 @@ export default function ApplicationsPage() {
                         <option value="entrevista">Entrevista</option>
                         <option value="aceptado">Aceptado</option>
                         <option value="rechazado">Rechazado</option>
+                        <option value="cancelada">Cancelada</option> {/* Add new status */}
                     </select>
                     <button onClick={() => fetchApplications(1)} className={styles.applyFilterButton}>Aplicar Filtro</button>
                 </div>
@@ -140,6 +157,15 @@ export default function ApplicationsPage() {
                                 <Link href={`/vacancies/${app.vacant_id}`} className={styles.viewDetailsButton}>
                                     Ver Vacante
                                 </Link>
+                                {/* Add Cancel button */}
+                                {app.status !== 'aceptado' && app.status !== 'rechazado' && app.status !== 'cancelada' && (
+                                    <button
+                                        onClick={() => handleCancelApplication(app.id)}
+                                        className={styles.cancelButton} // Define this style in your SCSS
+                                    >
+                                        Cancelar Postulación
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>

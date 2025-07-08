@@ -1,0 +1,175 @@
+// src/app/student/saved-vacancies/saved-vacancies.module.scss
+@use '@/components/styles/variables' as var;
+@use '@/components/styles/mixins' as mixin;
+
+.savedVacanciesPage {
+    @include mixin.flex-column;
+    align-items: center;
+    padding: 2rem;
+    background-color: var.$background-color-light;
+    min-height: calc(100vh - var.$navbar-height);
+
+    .title {
+        color: var.$primary-color;
+        margin-bottom: 2.5rem;
+        font-size: 2.5rem;
+        text-align: center;
+
+        @include mixin.breakpoint-down(md) {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .loadingContainer,
+    .errorContainer,
+    .emptyState {
+        text-align: center;
+        padding: 3rem;
+        background-color: var.$light-color;
+        border-radius: var.$border-radius;
+        box-shadow: var.$box-shadow-medium;
+        color: var.$text-secondary;
+        font-size: 1.1rem;
+        margin-top: 2rem;
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .errorContainer {
+        color: var.$danger-color;
+        border: 1px solid var.$danger-color;
+        background-color: lighten(var.$danger-color, 35%);
+    }
+
+    .emptyState p {
+        margin-bottom: 1.5rem;
+    }
+
+    .exploreButton {
+        @include mixin.button-primary;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        text-decoration: none;
+    }
+
+    .vacanciesGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .vacancyCard {
+        background-color: var.$light-color;
+        padding: 1.5rem;
+        border-radius: var.$border-radius;
+        box-shadow: var.$box-shadow-medium;
+        border: 1px solid var.$border-color;
+        @include mixin.flex-column;
+        gap: 0.8rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: var.$box-shadow-large;
+        }
+
+        .cardHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .cardTitle {
+            font-size: 1.3rem;
+            color: var.$primary-color;
+            margin: 0;
+        }
+
+        .removeButton {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease, transform 0.2s ease;
+
+            svg {
+                color: var.$danger-color;
+                width: 24px;
+                height: 24px;
+            }
+
+            &:hover {
+                transform: scale(1.1);
+            }
+        }
+
+        .cardInstitution {
+            font-size: 0.95rem;
+            color: var.$text-color-light;
+            margin-top: -0.5rem;
+            font-weight: 500;
+        }
+
+        // --- CORRECCIÓN AQUÍ: Asegurar visibilidad de la descripción ---
+        .cardDescription {
+            font-size: 0.9rem;
+            color: var.$text-color; // Asegurar un color oscuro para la descripción
+            line-height: 1.5;
+            flex-grow: 1;
+            margin-bottom: 0.8rem; // Añadir un poco más de margen
+        }
+
+        // -----------------------------------------------------------
+
+        .cardTags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+
+            .tag {
+                display: inline-block;
+                // --- CORRECCIÓN AQUÍ: Color de etiqueta aún más claro ---
+                background-color: lighten(var.$primary-color, 60%); // Aumentar a 60% para que sea más claro
+                color: var.$primary-color; // Usar el color primario oscuro para el texto
+                border: 1px solid lighten(var.$primary-color, 40%); // Borde más claro
+                // ----------------------------------------------------
+                padding: 0.3rem 0.7rem;
+                border-radius: var.$border-radius-sm;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+        }
+
+        .cardFooter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var.$border-color-light;
+
+            .cardLocation,
+            .cardModality {
+                font-size: 0.85rem;
+                color: var.$text-color-light;
+                font-weight: 500;
+            }
+
+            .viewDetailsButton {
+                @include mixin.button-primary;
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                text-decoration: none;
+            }
+        }
+    }
+}

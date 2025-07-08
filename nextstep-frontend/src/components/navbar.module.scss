@@ -1,4 +1,5 @@
 @use './styles/variables' as v;
+@use './styles/mixins.scss' as mixin;
 
 .navbar {
     display: flex;
@@ -22,7 +23,7 @@
 .navLinks {
     display: flex;
     align-items: center;
-    gap: v.$spacing-large;
+    gap: v.$spacing-large; // Espacio entre los enlaces principales
 }
 
 .navLink {
@@ -69,7 +70,37 @@
     cursor: pointer;
     font-size: 1rem;
     color: v.$text-secondary;
+    transition: all 0.2s ease; // Transición para hover
+
+    &:hover {
+        border-color: v.$primary-color;
+        color: v.$primary-color;
+        background-color: v.$background-color-light;
+    }
 }
+
+// NUEVOS ESTILOS PARA FOTO DE PERFIL/INICIALES
+.profilePic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid v.$border-color;
+}
+
+.profileInitials {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: v.$primary-color; // Fondo para iniciales
+    color: v.$light-color; // Color de texto para iniciales
+    font-weight: bold;
+    font-size: 1.1rem;
+    @include mixin.center-flex; // Centrar las iniciales
+    flex-shrink: 0; // Evitar que se encoja
+}
+
+// ------------------------------------------
 
 .dropdownMenu {
     position: absolute;
@@ -150,16 +181,16 @@
     position: absolute;
     top: 0px;
     right: 0px;
-    background-color: v.$danger-color; // Color rojo para notificaciones
+    background-color: v.$danger-color;
     color: v.$light-color;
     border-radius: 50%;
     padding: 2px 6px;
     font-size: 0.7rem;
     font-weight: bold;
-    min-width: 20px; // Para números de 2 dígitos
+    min-width: 20px;
     text-align: center;
     line-height: 1;
-    border: 1px solid v.$light-color; // Pequeño borde blanco
+    border: 1px solid v.$light-color;
 }
 
 /* --- LA MAGIA RESPONSIVA EMPIEZA AQUÍ --- */
@@ -181,7 +212,6 @@
     .navLinks .navLink,
     .navLinks .userMenu,
     .navLinks .notificationsLink {
-        // Ocultamos también el de notificaciones
         display: none;
     }
 
@@ -203,7 +233,6 @@
         .navLink,
         .userMenu,
         .notificationsLink {
-            // Mostramos estos enlaces de nuevo en el menú deslizable
             display: flex;
         }
 

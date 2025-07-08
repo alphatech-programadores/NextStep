@@ -6,7 +6,10 @@ const axiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
+
+
 
 // 2. Crea un "interceptor" de peticiones.
 // Esta función se ejecutará ANTES de que cada petición sea enviada.
@@ -17,7 +20,7 @@ axiosInstance.interceptors.request.use(
 
         // Si el token existe, lo añadimos a los encabezados de la petición
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.Authorization = `Bearer ${token}`; // 👈 IMPORTANTE: Bearer + espacio        
         }
 
         return config; // Devolvemos la configuración modificada

@@ -3,6 +3,10 @@
 #System
 import os
 from flask import Flask, jsonify, current_app, send_from_directory
+from flask_jwt_extended import JWTManager
+from config import Config
+from flask_cors import CORS
+from extensions import db, jwt, mail, migrate, jwt_redis_blacklist
 from config import Config
 from flask_cors import CORS
 from extensions import db, jwt, mail, migrate
@@ -33,6 +37,10 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads') 
     upload_folder_path = app.config['UPLOAD_FOLDER']
 
+    UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), 'uploads'))
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
     # Asegurarse de que los directorios de subida existen
     os.makedirs(os.path.join(upload_folder_path, 'cvs'), exist_ok=True)
     os.makedirs(os.path.join(upload_folder_path, 'profile_pics'), exist_ok=True)
@@ -40,10 +48,17 @@ def create_app():
 
 
 
+
+    jwt = JWTManager(app)
+
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
     migrate.init_app(app, db)
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        return jwt_payload["jti"] in jwt_redis_blacklist
 
     with app.app_context():
         db.create_all() # Esto creará las tablas si no existen

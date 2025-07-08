@@ -1,12 +1,14 @@
-// src/app/institution/vacancies/[id]/applications/page.tsx
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { getVacancyApplicants, decideOnApplication, VacancyApplication } from '../../../../../services/institucionApi';
+import {
+    getVacancyApplicants,
+    decideOnApplication,
+    VacancyApplication
+} from '../../../../../services/institucionApi';
 import styles from './applications.module.scss';
 
 export default function ViewApplicantsPage() {
@@ -36,22 +38,20 @@ export default function ViewApplicantsPage() {
     const handleDecision = async (applicationId: number, decision: 'aceptado' | 'rechazado') => {
         const originalApplicants = [...applicants];
 
-        // Actualización optimista de la UI
-        setApplicants(prev => prev.map(app =>
-            app.application_id === applicationId ? { ...app, status: decision } : app
-        ));
-
         try {
-            await decideOnApplication(applicationId, decision);
-            toast.success(`Postulante ${decision === 'aceptado' ? 'aceptado' : 'rechazado'} con éxito.`);
-            // Opcional: recargar los datos para asegurar consistencia
-            // await fetchApplicants(); 
-        } catch (error) {
+            const response = await decideOnApplication(applicationId, decision);
+            toast.success(response.message || 'Decisión procesada con éxito.');
+            // Ahora actualizamos UI después de éxito
+            setApplicants(prev => prev.map(app =>
+                app.application_id === applicationId ? { ...app, status: decision } : app
+            ));
+        } catch (error: any) {
+            console.error(error);
             toast.error('No se pudo procesar la decisión.');
-            // Revertir si hay un error
-            setApplicants(originalApplicants);
+            setApplicants(originalApplicants); // Rollback
         }
     };
+
 
     if (isLoading) {
         return <ProtectedRoute allowedRoles={['institution']}><div>Cargando postulantes...</div></ProtectedRoute>;
@@ -62,7 +62,6 @@ export default function ViewApplicantsPage() {
             <div className={styles.container}>
                 <header className={styles.header}>
                     <h1 className={styles.title}>Postulantes a la Vacante</h1>
-                    {/* Aquí podrías añadir el título de la vacante si lo pasas o lo cargas */}
                 </header>
 
                 {error && <p className={styles.error}>{error}</p>}

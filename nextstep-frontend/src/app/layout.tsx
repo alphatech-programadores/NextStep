@@ -5,6 +5,8 @@ import { ReactNode } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar'; // ¡Importa tu Navbar!
+import "leaflet/dist/leaflet.css";
+
 
 export const metadata = {
   title: 'NextStep',

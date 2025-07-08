@@ -27,7 +27,7 @@ export default function EditVacancyPage() {
                     setFormData(data);
                 } catch (error) {
                     toast.error('No se pudieron cargar los datos de la vacante.');
-                    router.push('/institution/dashboard'); // Redirige si hay error
+                    router.push('/institution/'); // Redirige si hay error
                 } finally {
                     setIsLoading(false);
                 }
@@ -51,7 +51,7 @@ export default function EditVacancyPage() {
         try {
             await updateVacancy(id, formData);
             toast.success('¡Vacante actualizada exitosamente!');
-            router.push('/institution/dashboard');
+            router.push('/institution/');
         } catch (error: any) {
             toast.error(error.response?.data?.error || 'No se pudo actualizar la vacante.');
         } finally {
@@ -78,27 +78,27 @@ export default function EditVacancyPage() {
                         {/* El formulario es idéntico al de creación, pero los valores vienen del estado */}
                         <div className={styles.inputGroup}>
                             <label htmlFor="area">Área o Título del Puesto</label>
-                            <input type="text" id="area" name="area" value={formData.area} onChange={handleChange} required />
+                            <input type="text" id="area" name="area" value={formData.area || ''} onChange={handleChange} required />
                         </div>
 
                         <div className={styles.inputGroup}>
                             <label htmlFor="description">Descripción del Puesto</label>
-                            <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={5} required />
+                            <textarea id="description" name="description" value={formData.description || ''} onChange={handleChange} rows={5} required />
                         </div>
 
                         <div className={styles.inputGroup}>
                             <label htmlFor="requirements">Requisitos</label>
-                            <textarea id="requirements" name="requirements" value={formData.requirements} onChange={handleChange} rows={5} required />
+                            <textarea id="requirements" name="requirements" value={formData.requirements || ''} onChange={handleChange} rows={5} required />
                         </div>
 
                         <div className={styles.grid}>
                             <div className={styles.inputGroup}>
                                 <label htmlFor="hours">Horas / Salario</label>
-                                <input type="text" id="hours" name="hours" value={formData.hours} onChange={handleChange} />
+                                <input type="text" id="hours" name="hours" value={formData.hours || ''} onChange={handleChange} />
                             </div>
                             <div className={styles.inputGroup}>
                                 <label htmlFor="modality">Modalidad</label>
-                                <select id="modality" name="modality" value={formData.modality} onChange={handleChange}>
+                                <select id="modality" name="modality" value={formData.modality || ''} onChange={handleChange}>
                                     <option value="Presencial">Presencial</option>
                                     <option value="Híbrido">Híbrido</option>
                                     <option value="Remoto">Remoto</option>
@@ -108,12 +108,12 @@ export default function EditVacancyPage() {
 
                         <div className={styles.inputGroup}>
                             <label htmlFor="location">Ubicación</label>
-                            <input type="text" id="location" name="location" value={formData.location} onChange={handleChange} required />
+                            <input type="text" id="location" name="location" value={formData.location || ''} onChange={handleChange} required />
                         </div>
 
                         <div className={styles.inputGroup}>
                             <label htmlFor="tags">Etiquetas (separadas por coma)</label>
-                            <input type="text" id="tags" name="tags" value={formData.tags} onChange={handleChange} />
+                            <input type="text" id="tags" name="tags" value={formData.tags || ''} onChange={handleChange} />
                         </div>
 
                         <div className={styles.buttonContainer}>

@@ -129,7 +129,9 @@ def resend_confirmation_email_route():
     except Exception as e:
         return jsonify({"error": f"Ocurrió un error inesperado al reenviar correo: {e}"}), 500
     
-@auth_bp.route("/logout", methods=["GET"])
-def logout():    
-    result = auth_service.logout_user
-    return jsonify([result]), 200
+@auth_bp.route("/logout", methods=["POST"])
+@jwt_required()
+def logout():
+    result = auth_service.logout_user()
+    return jsonify({"message": "Token has been revoked"}), 200
+

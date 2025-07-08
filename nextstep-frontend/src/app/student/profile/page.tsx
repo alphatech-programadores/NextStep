@@ -1,7 +1,7 @@
 // src/app/student/profile/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '@/services/axiosConfig';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
@@ -17,7 +17,7 @@ interface StudentProfile {
     semestre: number | null;
     average: number | null;
     phone: string | null;
-    address: string | null; // ÚNICA CADENA PARA LA DIRECCIÓN
+    address: string | null;
     availability: string | null;
     skills: string;
     portfolio_url: string | null;
@@ -27,7 +27,9 @@ interface StudentProfile {
 }
 
 export default function StudentProfilePage() {
-    const { user, logout } = useAuth();
+    // --- CAMBIO AQUÍ: Desestructurar revalidateUser de useAuth ---
+    const { user, logout, revalidateUser } = useAuth();
+    // -----------------------------------------------------------
     const [profile, setProfile] = useState<StudentProfile | null>(null);
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,8 +41,7 @@ export default function StudentProfilePage() {
     const [career, setCareer] = useState('');
     const [semestre, setSemestre] = useState<number | ''>('');
     const [average, setAverage] = useState<number | ''>('');
-    // Campos de dirección ciudad, estado, cp, pais ELIMINADOS
-    const [addressLine, setAddressLine] = useState(''); // Solo conservamos la línea de dirección principal
+    const [addressLine, setAddressLine] = useState('');
 
     const [availability, setAvailability] = useState('');
     const [skills, setSkills] = useState('');
@@ -66,19 +67,17 @@ export default function StudentProfilePage() {
             setName(user?.name || '');
             setEmail(user?.email || '');
 
-            // Cargar campos del StudentProfile
             setCareer(data.career || '');
             setSemestre(data.semestre !== null ? data.semestre : '');
             setAverage(data.average !== null ? data.average : '');
             setPhone(data.phone || '');
 
-            setAddressLine(data.address || ''); // Cargar la única línea de dirección
+            setAddressLine(data.address || '');
 
             setAvailability(data.availability || '');
             setSkills(data.skills ? data.skills.split(', ').join(', ') : '');
             setPortfolioUrl(data.portfolio_url || '');
 
-            // Configurar previsualización de la foto de perfil actual
             if (data.profile_picture_url) {
                 setProfilePicPreview(data.profile_picture_url);
             }
@@ -126,7 +125,7 @@ export default function StudentProfilePage() {
         formData.append('average', average !== '' ? String(average) : '');
         formData.append('phone', phone);
 
-        formData.append('address', addressLine); // Solo enviamos la línea de dirección principal
+        formData.append('address', addressLine);
 
         formData.append('availability', availability);
         formData.append('skills', skills);
@@ -153,6 +152,9 @@ export default function StudentProfilePage() {
             toast.success(response.data.message || "Perfil actualizado exitosamente. ✅");
             fetchProfile();
             setCvFile(null);
+            // --- CAMBIO CLAVE AQUÍ: Llamar a revalidateUser ---
+            await revalidateUser(); // Notificar al AuthContext que recargue la información del usuario
+            // ----------------------------------------------------
 
         } catch (err: any) {
             console.error("Error updating profile:", err);
@@ -291,7 +293,7 @@ export default function StudentProfilePage() {
                         </div>
                     </section>
 
-                    {/* Sección de Dirección (Ahora solo con la línea principal de dirección) */}
+                    {/* Sección de Dirección */}
                     <section className={styles.formSection}>
                         <h2>Dirección</h2>
                         <div className={styles.inputGroup}>

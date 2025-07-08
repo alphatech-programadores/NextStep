@@ -1,19 +1,23 @@
 // src/components/Navbar/Navbar.tsx
 
-'use client'; // Necesario para usar hooks y la interacción del cliente
+'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react'; // Importar useEffect y useCallback
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import styles from './navbar.module.scss';
 import { useOnClickOutside } from '@/hooks/useOnClickOutside';
-import axiosInstance from '@/services/axiosConfig'; // Importa axiosInstance
+import axiosInstance from '@/services/axiosConfig';
+import { logout as logoutApi } from '@/services/authService';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function Navbar() {
+    const router = useRouter();
     const { user, loadingUser, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0); // Inicializar en 0
+    const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -23,34 +27,27 @@ export default function Navbar() {
 
     useOnClickOutside(dropdownRef as React.RefObject<HTMLElement>, () => setIsDropdownOpen(false));
 
-    // NUEVA FUNCIÓN PARA OBTENER EL CONTEO DE NOTIFICACIONES NO LEÍDAS
     const fetchUnreadNotificationsCount = useCallback(async () => {
-        if (!user || user.role !== 'student') { // Solo estudiantes tienen notificaciones
+        if (!user || user.role !== 'student') {
             setUnreadNotificationsCount(0);
             return;
         }
         try {
-            const response = await axiosInstance.get('/notifications/unread_count'); // Llama al endpoint de backend
+            const response = await axiosInstance.get('/notifications/unread_count');
             setUnreadNotificationsCount(response.data.unread_count);
         } catch (error) {
             console.error("Error fetching unread notifications count:", error);
-            // Manejar error, quizás resetear el contador si el token es inválido
-            // Si el error es 401, el interceptor de axiosInstance y AuthContext ya deberían manejar el logout
         }
     }, [user]);
 
     useEffect(() => {
-        // Cargar el conteo inicial cuando el usuario se carga o cambia
         if (user && user.role === 'student') {
             fetchUnreadNotificationsCount();
 
-            // Configurar polling para actualizar el conteo periódicamente (ej. cada 30 segundos)
-            const intervalId = setInterval(fetchUnreadNotificationsCount, 30000); // 30 segundos
-
-            // Limpiar el intervalo cuando el componente se desmonte o el usuario cambie
+            const intervalId = setInterval(fetchUnreadNotificationsCount, 30000);
             return () => clearInterval(intervalId);
         } else {
-            setUnreadNotificationsCount(0); // Resetear si no hay usuario o no es estudiante
+            setUnreadNotificationsCount(0);
         }
     }, [user, fetchUnreadNotificationsCount]);
 
@@ -83,40 +80,125 @@ export default function Navbar() {
             <div className={`${styles.navLinks} ${isMenuOpen ? styles.menuOpen : ''}`}>
                 {user ? (
                     <>
-                        <Link href="/dashboard" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
-                        <Link href="/vacancies" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Explorar Prácticas</Link>
-
-                        {/* Ícono de Notificaciones para Estudiantes (con conteo real) */}
-                        {user.role === 'student' && (
-                            <Link href="/notifications" className={styles.notificationsLink} onClick={() => setIsMenuOpen(false)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                {unreadNotificationsCount > 0 && (
-                                    <span className={styles.notificationsBadge}>{unreadNotificationsCount}</span>
-                                )}
+                        {/* DASHBOARD según el rol */}
+                        {user.role === 'institution' ? (
+                            <Link href="/institution" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                Dashboard
+                            </Link>
+                        ) : (
+                            <Link href="/dashboard" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                Dashboard
                             </Link>
                         )}
 
+                        {/* Opciones Institución */}
+                        {user.role === 'institution' && (
+                            <>
+                                <Link href="/institution/vacancies" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                    Gestionar Vacantes
+                                </Link>
+                                <Link href="/institution/vacancies/new" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                    Crear Vacante
+                                </Link>
+                            </>
+                        )}
+
+                        {/* Opciones Estudiante */}
+                        {user.role === 'student' && (
+                            <>
+                                <Link href="/vacancies" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                    Explorar Prácticas
+                                </Link>
+                                <Link href="/vacants/map" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                    Mapa de Vacantes
+                                </Link>
+                                <Link href="/student/saved-vacancies" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                    Mis Guardados
+                                </Link>
+                                <Link href="/notifications" className={styles.notificationsLink} onClick={() => setIsMenuOpen(false)}>
+                                    Notificaciones
+                                    {unreadNotificationsCount > 0 && (
+                                        <span className={styles.notificationsBadge}>{unreadNotificationsCount}</span>
+                                    )}
+                                </Link>
+                            </>
+                        )}
+
+                        {/* Menú desplegable de usuario */}
                         <div className={styles.userMenu} ref={dropdownRef}>
-                            <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className={styles.userMenuButton}>
+                            <button
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className={styles.userMenuButton}
+                            >
+                                {user.profile_picture_url ? (
+                                    <img
+                                        src={user.profile_picture_url}
+                                        alt="Foto de perfil"
+                                        className={styles.profilePic}
+                                    />
+                                ) : (
+                                    <span className={styles.profileInitials}>
+                                        {user.name.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
                                 <span>Hola, {user.name}</span>
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M4 6L8 10L12 6"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
                             </button>
 
                             {isDropdownOpen && (
                                 <div className={styles.dropdownMenu}>
                                     {user.role === 'student' && (
-                                        <Link href="/student/profile" className={styles.dropdownLink} onClick={() => setIsDropdownOpen(false)}>Mi Perfil</Link>
+                                        <>
+                                            <Link
+                                                href="/student/profile"
+                                                className={styles.dropdownLink}
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
+                                                Mi Perfil
+                                            </Link>
+                                            <Link
+                                                href="/applications"
+                                                className={styles.dropdownLink}
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
+                                                Mis Postulaciones
+                                            </Link>
+                                        </>
                                     )}
-                                    {user.role === 'student' && (
-                                        <Link href="/applications" className={styles.dropdownLink} onClick={() => setIsDropdownOpen(false)}>Mis Postulaciones</Link>
-                                    )}
+
                                     {user.role === 'institution' && (
-                                        <Link href="/institution/vacancies" className={styles.dropdownLink} onClick={() => setIsDropdownOpen(false)}>Gestionar Vacantes</Link>
+                                        <Link
+                                            href="/institution/profile"
+                                            className={styles.dropdownLink}
+                                            onClick={() => setIsDropdownOpen(false)}
+                                        >
+                                            Mi Perfil de Institución
+                                        </Link>
                                     )}
 
                                     <div className={styles.dropdownDivider} />
 
-                                    <button onClick={() => { logout(); setIsDropdownOpen(false); }} className={styles.dropdownLink}>
+                                    <button
+                                        onClick={async () => {
+                                            await logout();
+                                            setIsDropdownOpen(false);
+                                        }}
+                                        className={styles.dropdownLink}
+                                    >
                                         Cerrar Sesión
                                     </button>
                                 </div>
@@ -124,14 +206,24 @@ export default function Navbar() {
                         </div>
                     </>
                 ) : (
-                    // Navbar para usuario NO AUTENTICADO
                     <>
-                        <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Inicio</Link>
-                        <Link href="/auth/login" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Iniciar Sesión</Link>
-                        <Link href="/auth/register" className={`${styles.navLink} ${styles.registerButton}`} onClick={() => setIsMenuOpen(false)}>Registrarse</Link>
+                        <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                            Inicio
+                        </Link>
+                        <Link href="/auth/login" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                            Iniciar Sesión
+                        </Link>
+                        <Link
+                            href="/auth/register"
+                            className={`${styles.navLink} ${styles.registerButton}`}
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Registrarse
+                        </Link>
                     </>
                 )}
             </div>
+
         </nav>
     );
 }

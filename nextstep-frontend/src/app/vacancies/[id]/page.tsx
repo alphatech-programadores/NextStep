@@ -1,7 +1,7 @@
 // src/app/vacancies/[id]/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
@@ -9,21 +9,21 @@ import styles from './VacancyDetailsPage.module.scss';
 import Link from 'next/link';
 import axiosInstance from '@/services/axiosConfig';
 
-interface VacancyDetails { // Ajustar nombres de propiedades
+interface VacancyDetails {
     id: number;
-    title: string; // 'area' del modelo Vacant
+    title: string;
     description: string;
     requirements: string;
-    responsibilities: string; // Usaremos 'requirements' si tu modelo no tiene este campo separado
+    responsibilities: string;
     location: string;
     modality: string;
-    type: string; // También 'area' del modelo Vacant
-    salary_range: string; // 'hours' del modelo Vacant
-    posted_date: string; // 'start_date'
-    application_deadline: string; // 'end_date'
+    type: string;
+    salary_range: string;
+    posted_date: string;
+    application_deadline: string;
     company_name: string;
     institution_email: string;
-    tags: string[]; // Nuevo
+    tags: string[];
 }
 
 export default function VacancyDetailsPage() {
@@ -34,50 +34,52 @@ export default function VacancyDetailsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isApplying, setIsApplying] = useState(false);
-    // const [coverLetter, setCoverLetter] = useState(''); // No se usa si Application no tiene cover_letter
-    const [hasApplied, setHasApplied] = useState(false);
+    // Renamed hasApplied to applicationStatus to store the actual status
+    const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
 
-    useEffect(() => {
+    const fetchVacancyAndApplicationStatus = useCallback(async () => {
         if (!id) return;
 
-        const fetchVacancy = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                // Llama al endpoint de detalles de vacante
-                const response = await axiosInstance.get(`/vacants/${id}`);
-                setVacancy(response.data);
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axiosInstance.get(`/vacants/${id}`);
+            setVacancy(response.data);
 
-                if (user && user.role === 'student') {
-                    const token = localStorage.getItem('access_token');
-                    if (token) {
-                        try {
-                            // Llama al endpoint de check_status
-                            const checkResponse = await axiosInstance.get(`/vacants/check_status/${id}`, {
-                                headers: { Authorization: `Bearer ${token}` }
-                            });
-                            setHasApplied(checkResponse.data.has_applied);
-                        } catch (checkError) {
-                            console.error("Error checking application status:", checkError);
-                        }
+            if (user && user.role === 'student') {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    try {
+                        const checkResponse = await axiosInstance.get(`/vacants/check_status/${id}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        // Set the actual application status
+                        setApplicationStatus(checkResponse.data.application_status);
+                    } catch (checkError) {
+                        console.error("Error checking application status:", checkError);
+                        setApplicationStatus(null); // Reset if there's an error
                     }
                 }
-
-            } catch (err: any) {
-                console.error("Error fetching vacancy details:", err);
-                if (err.response && err.response.status === 404) {
-                    setError("La vacante no fue encontrada o está inactiva.");
-                } else {
-                    setError("No se pudieron cargar los detalles de la vacante. Inténtalo de nuevo.");
-                }
-                toast.error("Error al cargar detalles de vacante.");
-            } finally {
-                setLoading(false);
+            } else {
+                setApplicationStatus(null); // Reset if not a student or not logged in
             }
-        };
 
-        fetchVacancy();
-    }, [id, user]);
+        } catch (err: any) {
+            console.error("Error fetching vacancy details:", err);
+            if (err.response && err.response.status === 404) {
+                setError("La vacante no fue encontrada o está inactiva.");
+            } else {
+                setError("No se pudieron cargar los detalles de la vacante. Inténtalo de nuevo.");
+            }
+            toast.error("Error al cargar detalles de vacante.");
+        } finally {
+            setLoading(false);
+        }
+    }, [id, user]); // Added user to dependencies
+
+    useEffect(() => {
+        fetchVacancyAndApplicationStatus();
+    }, [fetchVacancyAndApplicationStatus]);
 
     const handleApply = async () => {
         if (!user) {
@@ -101,14 +103,14 @@ export default function VacancyDetailsPage() {
 
             const response = await axiosInstance.post(
                 `/vacants/${vacancy?.id}/apply`,
-                {}, // Envía un objeto vacío si tu modelo Application no tiene cover_letter
+                {},
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
             );
             toast.success(response.data.message || "Postulación enviada exitosamente!");
-            setHasApplied(true);
-            // setCoverLetter(''); // No se limpia si no se usa
+            // After successful application (or re-application), re-fetch status
+            await fetchVacancyAndApplicationStatus(); // Refresh the status
         } catch (err: any) {
             console.error("Error applying to vacancy:", err);
             const errorMessage = err.response?.data?.error || err.response?.data?.message || "Ocurrió un error al enviar tu postulación.";
@@ -132,16 +134,23 @@ export default function VacancyDetailsPage() {
 
     const isStudent = user && user.role === 'student';
 
+    // Determine if the "Apply" button should be shown
+    // Show apply button if no application, or if application is cancelled/rejected
+    const showApplyButton = isStudent && (!applicationStatus || ['cancelada', 'rechazado'].includes(applicationStatus));
+    // Show "Already Applied" message if application is pending, reviewed, or in interview
+    const showAppliedMessage = isStudent && ['pendiente', 'revisada', 'entrevista', 'aceptado'].includes(applicationStatus || '');
+
+
     return (
         <div className={styles.container}>
             <div className={styles.vacancyDetailsCard}>
-                <h1 className={styles.title}>{vacancy.title}</h1> {/* Muestra el 'area' como título */}
+                <h1 className={styles.title}>{vacancy.title}</h1>
                 <p className={styles.companyName}>Publicado por: {vacancy.company_name}</p>
                 <div className={styles.metaInfo}>
                     <span>📍 {vacancy.location}</span>
                     <span>💼 {vacancy.modality}</span>
-                    <span>🗓️ {vacancy.type}</span> {/* Muestra 'area' como tipo */}
-                    <span>💰 {vacancy.salary_range}</span> {/* Muestra 'hours' como rango salarial/horas */}
+                    <span>🗓️ {vacancy.type}</span>
+                    <span>💰 {vacancy.salary_range}</span>
                 </div>
                 <p className={styles.postedDate}>Publicado el: {vacancy.posted_date}</p>
                 {vacancy.application_deadline && (
@@ -162,20 +171,11 @@ export default function VacancyDetailsPage() {
                 <p className={styles.content}>{vacancy.requirements}</p>
 
                 <h2 className={styles.sectionTitle}>Responsabilidades</h2>
-                {/* Usamos responsibilities que ahora viene del backend (o requirements si no existe) */}
                 <p className={styles.content}>{vacancy.responsibilities}</p>
 
-                {isStudent && !hasApplied && (
+                {showApplyButton && (
                     <div className={styles.applySection}>
                         <h2 className={styles.sectionTitle}>Postúlate a esta Vacante</h2>
-                        {/* Remueve la carta de presentación si tu modelo Application no la soporta */}
-                        {/* <textarea
-                            className={styles.coverLetterTextarea}
-                            placeholder="Escribe aquí tu carta de presentación (opcional)..."
-                            value={coverLetter}
-                            onChange={(e) => setCoverLetter(e.target.value)}
-                            rows={5}
-                        ></textarea> */}
                         <button
                             onClick={handleApply}
                             className={styles.applyButton}
@@ -186,9 +186,15 @@ export default function VacancyDetailsPage() {
                     </div>
                 )}
 
-                {isStudent && hasApplied && (
+                {showAppliedMessage && (
                     <div className={styles.appliedMessage}>
-                        <p>✅ ¡Ya te has postulado a esta vacante!</p>
+                        <p>
+                            ✅ ¡Ya te has postulado a esta vacante! Estado actual:
+                            <span className={`${styles.statusBadge} ${styles[applicationStatus?.toLowerCase() || '']}`}>
+                                {/* Updated line for safer string manipulation */}
+                                {applicationStatus ? (applicationStatus.charAt(0).toUpperCase() + applicationStatus.slice(1)) : ''}
+                            </span>
+                        </p>
                         <Link href="/applications" className={styles.viewApplicationsLink}>
                             Ver el estado de mis postulaciones
                         </Link>

@@ -13,3 +13,8 @@ export async function register(name: string, email: string, password: string, ro
     const response = await axiosInstance.post(`${API_URL}/auth/register`, { name, email, password, role });
     return response.data;
 }
+
+export async function logout() {
+    const response = await axiosInstance.post('/auth/logout'); // ✅ método POST
+    return response.data;
+}

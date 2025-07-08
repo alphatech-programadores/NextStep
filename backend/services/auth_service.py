@@ -22,6 +22,8 @@ from flask import current_app
 from flask_jwt_extended import create_access_token, decode_token 
 from datetime import timedelta, datetime
 from flask_mail import Message
+from flask_jwt_extended import get_jwt
+from extensions import jwt_redis_blacklist
 
 import random # NUEVO: Para generar códigos aleatorios
 import string # NUEVO: Para caracteres de códigos aleatorios
@@ -269,7 +271,9 @@ class AuthService:
             raise RuntimeError(f"Error al eliminar cuenta: {e}")
         
     def logout_user(self):
-        return {"message": "Sesión cerrada."}
+        jti = get_jwt()["jti"]
+        jwt_redis_blacklist.add(jti)
+        return {"message": "Sesión cerrada correctamente"}
 
     def get_current_user_info(self, current_user_email: str):
         user = self.user_repo.get_by_email(current_user_email)
@@ -326,3 +330,43 @@ class AuthService:
             return {"message": "Si el correo está registrado y no confirmado, se ha enviado un nuevo enlace de confirmación."}
         except Exception as e:
             raise RuntimeError(f"Error al reenviar correo de confirmación: {e}")
+        
+    def reset_password(self, token: str, new_password: str):
+        if not new_password:
+            raise ValueError("Contraseña nueva requerida.")
+
+        try:
+            decoded = decode_token(token)
+            if not decoded.get("reset", False):
+                raise ValueError("Token inválido para restablecimiento.")
+
+            email = decoded["sub"]
+            user = self.user_repo.get_by_email(email)
+
+            if not user:
+                raise ValueError("Usuario no encontrado.")
+
+            user.set_password(new_password)
+            if hasattr(user, 'last_password_reset'):
+                user.last_password_reset = datetime.utcnow()
+
+            # --- NUEVO: Confirmar usuario automáticamente al restablecer contraseña ---
+            if not user.is_confirmed: # Solo si no está ya confirmado (opcional, pero buena práctica)
+                user.is_confirmed = True
+                user.confirmed_on = datetime.utcnow()
+                # También limpiar cualquier código de confirmación pendiente
+                user.confirmation_code = None
+                user.confirmation_code_expires_at = None
+            # ------------------------------------------------------------------------
+            
+            db.session.commit()
+            return {"message": "Contraseña actualizada exitosamente."}
+
+        except Exception as e:
+            db.session.rollback()
+            if "Signature has expired" in str(e):
+                raise ValueError("Token expirado. Por favor, solicita un nuevo enlace para restablecer tu contraseña.")
+            elif "Invalid signature" in str(e) or "Not enough segments" in str(e):
+                raise ValueError("Token inválido o malformado.")
+            else:
+                raise RuntimeError(f"Error al restablecer contraseña: {e}")

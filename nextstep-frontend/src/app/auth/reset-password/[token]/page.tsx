@@ -33,7 +33,7 @@ export default function ResetPasswordPage() {
     const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!initialCheckComplete) return; // Esperar a que el check inicial termine
+        if (!initialCheckComplete) return;
 
         if (!token) {
             toast.error("Error: Token no encontrado en la URL.");
@@ -45,7 +45,7 @@ export default function ResetPasswordPage() {
             return;
         }
 
-        if (newPassword.length < 6) { // Ejemplo de validación mínima de longitud
+        if (newPassword.length < 6) {
             toast.error("La contraseña debe tener al menos 6 caracteres.");
             return;
         }
@@ -55,27 +55,26 @@ export default function ResetPasswordPage() {
             return;
         }
 
-        setLoading(true); // Activar estado de carga
+        setLoading(true);
 
         try {
-            const response = await axiosInstance.post(`/reset-password/${token}`, {
-                password: newPassword, // Envía la nueva contraseña
+            // --- CORRECCIÓN CLAVE AQUÍ: Añadir '/auth' al path ---
+            const response = await axiosInstance.post(`/auth/reset-password/${token}`, {
+                new_password: newPassword, // Asegúrate de que el campo sea 'new_password' como espera el backend
             });
 
             toast.success(response.data.message || "Contraseña restablecida correctamente. ✅ Redirigiendo al login...");
-            // Redirigir al usuario al login después de un breve retraso
             setTimeout(() => router.push("/auth/login"), 3000);
 
         } catch (error: any) {
             console.error("Error al restablecer la contraseña:", error);
-            // Intenta obtener el mensaje de error del backend o usa un fallback
             const errorMessage = error.response?.data?.error
                 ? error.response.data.error
                 : "Error al restablecer la contraseña. El enlace podría ser inválido o haber expirado.";
 
             toast.error(errorMessage);
         } finally {
-            setLoading(false); // Desactivar estado de carga
+            setLoading(false);
         }
     };
 

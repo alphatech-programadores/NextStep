@@ -138,7 +138,7 @@ export default function ConfirmEmailPage() {
                                 onChange={(e) => setManualCode(e.target.value)}
                                 required
                                 placeholder="EJ: ABC123"
-                                maxLength={6} SS
+                                maxLength={6}
                             />
                             <button type="submit" className={styles.submitButton} disabled={isConfirmingManually}>
                                 {isConfirmingManually ? 'Confirmando...' : 'Confirmar Cuenta'}

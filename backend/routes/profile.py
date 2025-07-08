@@ -1,5 +1,9 @@
+import profile
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from models import user
+from models.student_profile import StudentProfile
+from models.user import User
 from services.profile_service import ProfileService # Importa tu nuevo servicio
 from flask import current_app
 from extensions import db
@@ -72,7 +76,7 @@ def upload_profile_picture_route():
             # Aquí podrías llamar a un método específico del repo de StudentProfile para actualizar solo la URL
             user.student_profile.profile_picture_url = pic_path
             db.session.commit()
-            return jsonify({"message": "Imagen de perfil subida correctamente", "url": f"{current_app.config['BASE_URL']}/uploads/{pic_path}"}), 200
+            return jsonify({"message": "Imagen de perfil subida correctamente", "url": f"{current_app.config['UPLOADED_FILES_BASE_URL']}/uploads/{pic_path}"}), 200
         else:
             return jsonify({"error": "No se pudo asociar la imagen al perfil."}), 400
 
@@ -113,3 +117,29 @@ def delete_my_account_route():
         import traceback
         traceback.print_exc()
         return jsonify({"error": f"Ocurrió un error inesperado al eliminar la cuenta: {e}"}), 500
+    
+@profile_bp.route("/students/<path:email>/", methods=["GET"])
+@jwt_required(optional=True)
+def get_student_profile(email):
+    # En este punto, `email` ya es un string decodificado
+    # Ejemplo: "ramueljb@gmail.com"
+    profile = StudentProfile.query.join(User).filter(User.email == email).first()
+    user = User.query.filter_by(email=email).first()
+
+    if not profile or not user:
+        return jsonify({"error": "Perfil no encontrado"}), 404
+
+    return jsonify({
+        "email": user.email,
+        "name": user.name,
+        "career": profile.career,
+        "semestre": profile.semestre,
+        "average": profile.average,
+        "phone": profile.phone,
+        "address": profile.address,
+        "availability": profile.availability,
+        "skills": profile.skills,
+        "portfolio_url": profile.portfolio_url,
+        "cv_path": profile.cv_path,
+        "profile_picture_url": profile.profile_picture_url,
+    })

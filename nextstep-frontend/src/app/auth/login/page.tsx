@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import FormInput from '@/components/Input'; // Asumiendo que Input.tsx es tu FormInput
 import toast from 'react-hot-toast';
 
+
 // ¡Importa tu módulo de estilos!
 import styles from './login.module.scss'; // Asegúrate de que esta ruta sea correcta
 import axiosInstance from '@/services/axiosConfig';
@@ -24,11 +25,10 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const response = await axiosInstance.post("http://localhost:5000/api/auth/login", { email, password });
+            const response = await axiosInstance.post("/auth/login", { email, password });
             const { access_token, user: userData } = response.data;
 
-            login(access_token, userData);
-
+            login(access_token);
             toast.success("Inicio de sesión exitoso ✅");
 
             // --- Aquí decides a dónde redirigir ---

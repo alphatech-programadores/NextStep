@@ -1,143 +1,53 @@
-// src/app/vacants/map/VacantsMap.module.scss
-@use '../../../components/styles/_variables.scss' as var;
-@use '../../../components/styles/mixins.scss' as mixin;
+// src/components/VacanciesMap/VacanciesMap.scss
+.vacancies-map-container {
+    width: 100%;
+    height: 600px; // Ajusta la altura según tus necesidades
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 
-.mapPage {
-    @include mixin.flex-column;
-    align-items: center;
-    padding: 2rem;
-    background-color: var.$background-color-light;
-    min-height: calc(100vh - var.$navbar-height);
-
-    .title {
-        color: var.$primary-color;
-        margin-bottom: 2.5rem;
-        font-size: 2.5rem;
-        text-align: center;
-
-        @include mixin.breakpoint-down(md) {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    .mapContainer {
-        position: relative;
+    .leaflet-map {
         width: 100%;
-        max-width: 1000px;
-        height: 600px;
-        border-radius: var.$border-radius-lg;
-        box-shadow: var.$box-shadow-large;
-        overflow: hidden; // Para que los bordes redondeados se vean bien
-
-        @include mixin.breakpoint-down(md) {
-            height: 400px;
-        }
-
-        @include mixin.breakpoint-down(sm) {
-            height: 300px;
-            border-radius: var.$border-radius;
-        }
-
-        // Asegura que el contenedor de Leaflet tome el 100%
-        .map {
-            width: 100%;
-            height: 100%;
-            // Las clases de Leaflet son 'leaflet-container' etc.,
-            // la clase 'map' se aplica al MapContainer de react-leaflet
-        }
-
-        .sidebar {
-            background-color: rgba(var.$primary-color, 0.7);
-            color: var.$light-color;
-            padding: 0.8rem 1rem;
-            font-size: 0.9rem;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            border-radius: var.$border-radius-sm;
-            z-index: 1;
-        }
-
-        .overlayMessage {
-            @include mixin.center-flex;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(var.$light-color, 0.8);
-            color: var.$text-secondary;
-            font-size: 1.1rem;
-            font-weight: 500;
-            z-index: 500; // Un z-index alto para asegurar que se muestre encima del mapa
-            text-align: center;
-            padding: 1rem;
-            border-radius: var.$border-radius-lg;
-
-            &.errorMessage {
-                background-color: rgba(var.$danger-color, 0.1);
-                color: var.$danger-color;
-                border: 1px dashed var.$danger-color;
-            }
-        }
+        height: 100%;
     }
 
-    /* --- Estilos para el Popup de Leaflet (clases internas de Leaflet) --- */
-    // Las clases de popup de Leaflet son prefixadas con 'leaflet-popup-'
-    :global(.leaflet-popup-content-wrapper) {
-        border-radius: var.$border-radius-sm;
-        padding: 0 !important; // Quitar el padding por defecto
-        box-shadow: var.$box-shadow-medium;
+    .map-loading,
+    .map-error {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        font-size: 1.2em;
+        color: #555;
     }
 
-    :global(.leaflet-popup-content) {
-        padding: 0.5rem; // Nuestro padding interno
-        margin: 0; // Quitar margen por defecto
-        color: var.$text-color; // Color de texto
-        font-family: var.$font-family-sans-serif;
-    }
-
-    :global(.leaflet-popup-tip) {
-        background-color: var.$light-color;
-    }
-
-    // Estilos de los elementos dentro de nuestro popupContent
-    .popupContent {
-        .popupTitle {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var.$primary-color;
+    .vacant-popup {
+        h3 {
             margin-top: 0;
-            margin-bottom: 0.5rem;
+            color: #333;
+            font-size: 1.1em;
         }
 
-        .popupDescription {
-            font-size: 0.85rem;
-            line-height: 1.4;
-            color: var.$text-secondary;
-            margin-bottom: 0.5rem;
+        p {
+            margin: 4px 0;
+            font-size: 0.9em;
+            color: #666;
         }
 
-        .popupLocation {
-            font-size: 0.8rem;
-            color: var.$text-color-light;
-            margin-bottom: 0.8rem;
-            font-style: italic;
-        }
-
-        .popupLink {
-            @include mixin.button-base;
-            background-color: var.$accent-color;
-            color: var.$light-color;
-            border: none;
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
+        .view-details-button {
             display: inline-block;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
             text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
 
             &:hover {
-                background-color: darken(var.$accent-color, 10%);
+                background-color: #0056b3;
             }
         }
     }
