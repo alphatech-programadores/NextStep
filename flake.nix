@@ -60,7 +60,7 @@
 
            fromImage = pkgs.dockerTools.pullImage {
              imageName = "nixos/nix";
-             # CORRECCIÓN FINAL: Usa 'sha256' y quita el prefijo
+             # Ajustado al error actual, que pide 'sha256'
              sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
              finalImageTag = "23.11";
            };
