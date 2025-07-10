@@ -54,24 +54,27 @@
         # };
 
         dockerImage = pkgs.dockerTools.buildImage {
-          name = "nextstep-backend";
-          tag = "latest";
-          # CORREGIDO: Usar 'from' y pasar directamente el resultado de pkgs.dockerTools.pullImage
-          from = pkgs.dockerTools.pullImage {
-            imageName = "nixos/nix";
-            imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-            finalImageTag = "23.11";
-          };
-          contents = [
-            nextstepBackend
-            pythonEnv
-          ];
-          config = {
-            Cmd = [ "${pythonEnv}/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
-            ExposedPorts = [ "5000" ];
-            WorkingDir = "/app";
-          };
-        };
+           name = "nextstep-backend";
+           tag = "latest";
+           
+           # CORRECCIÓN: Cambia 'from' por 'fromImage'
+           fromImage = pkgs.dockerTools.pullImage {
+             imageName = "nixos/nix";
+             imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+             finalImageTag = "23.11";
+           };
+           
+           contents = [
+             nextstepBackend
+             pythonEnv
+           ];
+           
+           config = {
+             Cmd = [ "${pythonEnv}/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
+             ExposedPorts = { "5000/tcp" = {}; }; # Sintaxis más común y robusta
+             WorkingDir = "/app";
+           };
+         };
 
       in {
         packages = {
