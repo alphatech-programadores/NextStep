@@ -46,17 +46,22 @@
         };
 
         # Definir la baseImage por separado
-        baseImage = pkgs.dockerTools.pullImage {
-          imageName = "nixos/nix";
-          imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-          finalImageTag = "23.11";
-        };
+        # No es necesario definirla si se usa directamente en 'from'
+        # baseImage = pkgs.dockerTools.pullImage {
+        #   imageName = "nixos/nix";
+        #   imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+        #   finalImageTag = "23.11";
+        # };
 
         dockerImage = pkgs.dockerTools.buildImage {
           name = "nextstep-backend";
           tag = "latest";
-          # CAMBIO CLAVE AQUÍ: Usar 'baseImage' en lugar de 'from' y pasar la derivación
-          baseImage = baseImage;
+          # CORREGIDO: Usar 'from' y pasar directamente el resultado de pkgs.dockerTools.pullImage
+          from = pkgs.dockerTools.pullImage {
+            imageName = "nixos/nix";
+            imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+            finalImageTag = "23.11";
+          };
           contents = [
             nextstepBackend
             pythonEnv
