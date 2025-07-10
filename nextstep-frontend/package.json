@@ -3,12 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  	"dev": "next dev",
-  	"build": "next build --no-lint",
-  	"start": "next start",
-  	"lint": "next lint"
+    "dev": "next dev",
+    "build": "next build --no-lint",
+    "start": "next start",
+    "lint": "next lint"
   },
-  
   "dependencies": {
     "@types/leaflet": "^1.9.19",
     "@types/react-leaflet": "^2.8.3",
