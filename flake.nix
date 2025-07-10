@@ -69,6 +69,7 @@
       in {
         packages = {
           nextstep-backend-docker = dockerImage;
+          default = dockerImage;
         };
 
         devShells = {
