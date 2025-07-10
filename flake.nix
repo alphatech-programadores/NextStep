@@ -46,23 +46,25 @@
         };
 
         dockerImage = pkgs.dockerTools.buildImage {
-          name = "nextstep-backend";
-          tag = "latest";
+            name = "nextstep-backend";
+            tag = "latest";
 
-          copyToRoot = pkgs.buildEnv {
-            name = "app-env";
-            paths = [
-              nextstepBackend
-              pythonEnv
-            ];
-          };
+            copyToRoot = pkgs.buildEnv {
+              name = "app-env";
+              paths = [
+                nextstepBackend
+                pythonEnv
+              ];
+            };
 
-          config = {
-            Cmd = [ "/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
-            ExposedPorts = { "5000/tcp" = {}; };
-            WorkingDir = "/app";
+            config = {
+              # ----- LÍNEA MODIFICADA -----
+              Cmd = [ "/bin/gunicorn" "wsgi:app" "--bind" "0.0.0.0:5000" "--workers" "2" ]; # Cambiado de "app:create_app" a "wsgi:app"
+              
+              ExposedPorts = { "5000/tcp" = {}; };
+              WorkingDir = "/app"; # Asegúrate de que tu código está en /app dentro del contenedor
+            };
           };
-        };
 
       in {
         packages = {
