@@ -2,7 +2,7 @@
   description = "Backend Flask para NextStep";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11"; # Puedes usar una versión más reciente si lo deseas
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -65,20 +65,22 @@
         };
 
       in {
-        # CAMBIO CLAVE AQUÍ: Define el paquete 'nextstep-backend-docker' directamente
-        # Esto lo hace accesible como .#nextstep-backend-docker
-        packages.x86_64-linux.nextstep-backend-docker = dockerImage; # Para sistemas x86_64-linux
+        # CAMBIO CLAVE AQUÍ: Retorna directamente los atributos 'packages' y 'devShells'
+        # para el sistema actual.
+        packages = {
+          nextstep-backend-docker = dockerImage; # Accesible como .#nextstep-backend-docker
+          default = dockerImage; # Accesible como .#default
+        };
 
-        # También puedes mantener 'default' si quieres que sea el paquete por defecto
-        packages.x86_64-linux.default = dockerImage;
-
-        devShells.default = pkgs.mkShell {
-          packages = [ pythonEnv ];
-          shellHook = ''
-            export FLASK_APP=backend/app.py
-            export FLASK_ENV=development
-            echo "Entorno de desarrollo Flask activado."
-          '';
+        devShells = {
+          default = pkgs.mkShell {
+            packages = [ pythonEnv ];
+            shellHook = ''
+              export FLASK_APP=backend/app.py
+              export FLASK_ENV=development
+              echo "Entorno de desarrollo Flask activado."
+            '';
+          };
         };
       }
     );
