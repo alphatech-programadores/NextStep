@@ -11,8 +11,7 @@ from models.institution_profile import InstitutionProfile
 # Repositorios
 from repositories.application_repository import ApplicationRepository
 from repositories.user_repository import UserRepository # Asegúrate de que esto esté importado
-# from repositories.vacant_repository import VacantRepository # No es necesario para este error, pero podrías necesitarlo
-# from repositories.institution_profile_repository import InstitutionProfileRepository # No es necesario para este error, pero podrías necesitarlo
+
 
 class ApplicationService:
     def __init__(self):
@@ -100,7 +99,7 @@ class ApplicationService:
                 raise ValueError("No tienes permiso para cancelar esta postulación.")
 
             # Prevent cancellation if already accepted/rejected (or any other final status)
-            if app.status in ["aceptado", "rechazado", "cancelada"]: # Add "cancelada" to prevent re-cancelling
+            if app.status in ["aceptado", "rechazado", "cancelada"]:
                 raise ValueError(f"No se puede cancelar una postulación con estado '{app.status}'.")
 
             # Update the application status to 'cancelada'

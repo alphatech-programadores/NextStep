@@ -115,6 +115,9 @@ export default function Navbar() {
                                 <Link href="/student/saved-vacancies" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
                                     Mis Guardados
                                 </Link>
+                                <Link href="/student/recommendations" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                                    Vacantes recomendadas
+                                </Link>
                                 <Link href="/notifications" className={styles.notificationsLink} onClick={() => setIsMenuOpen(false)}>
                                     Notificaciones
                                     {unreadNotificationsCount > 0 && (

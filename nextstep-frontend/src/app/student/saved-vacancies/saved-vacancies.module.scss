@@ -28,7 +28,7 @@
         padding: 3rem;
         background-color: var.$light-color;
         border-radius: var.$border-radius;
-        box-shadow: var.$box-shadow-medium;
+        box-shadow: var.$box-shadow-md;
         color: var.$text-secondary;
         font-size: 1.1rem;
         margin-top: 2rem;
@@ -65,7 +65,7 @@
         background-color: var.$light-color;
         padding: 1.5rem;
         border-radius: var.$border-radius;
-        box-shadow: var.$box-shadow-medium;
+        box-shadow: var.$box-shadow-md;
         border: 1px solid var.$border-color;
         @include mixin.flex-column;
         gap: 0.8rem;
@@ -73,7 +73,7 @@
 
         &:hover {
             transform: translateY(-5px);
-            box-shadow: var.$box-shadow-large;
+            box-shadow: var.$box-shadow-md;
         }
 
         .cardHeader {

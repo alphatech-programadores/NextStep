@@ -17,7 +17,7 @@
     @include center-flex(column);
     min-height: 70vh;
     font-size: 1.6em; // Más grande
-    color: $text-medium;
+    color: $text-md;
     text-align: center;
 }
 
@@ -53,7 +53,7 @@
     flex-wrap: wrap;
     gap: 2rem; // Más espacio entre elementos
     font-size: 1.05em;
-    color: $text-medium;
+    color: $text-md;
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid $border-color-light; // Separador sutil
@@ -75,7 +75,7 @@
 .postedDate,
 .deadline {
     font-size: 0.95em;
-    color: $text-medium;
+    color: $text-md;
     margin-bottom: 0.6rem;
 }
 
@@ -128,14 +128,14 @@
 .applySection {
     margin-top: 4rem;
     padding-top: 2.5rem;
-    border-top: 1px dashed $border-color-medium; // Borde más visible
+    border-top: 1px dashed $border-color-md; // Borde más visible
     text-align: center;
 }
 
 .coverLetterTextarea {
     width: 100%;
     padding: 1.2rem; // Más padding
-    border: 1px solid $border-color-medium; // Borde más oscuro
+    border: 1px solid $border-color-md; // Borde más oscuro
     border-radius: 10px; // Más redondeado
     font-size: 1.05em;
     min-height: 150px; // Más alto
@@ -208,7 +208,7 @@
     background-color: $background-light;
     border-radius: 12px;
     text-align: center;
-    color: $text-medium;
+    color: $text-md;
     font-size: 1.1em;
     border: 1px solid $border-color-light;
 }

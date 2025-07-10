@@ -33,7 +33,7 @@
         background-color: var.$light-color;
         padding: 2.5rem;
         border-radius: var.$border-radius-lg;
-        box-shadow: var.$box-shadow-medium;
+        box-shadow: var.$box-shadow-md;
         width: 100%;
         max-width: 900px;
         display: grid;
@@ -132,7 +132,7 @@
                     border-radius: 50%;
                     object-fit: cover;
                     border: 3px solid var.$primary-color;
-                    box-shadow: var.$box-shadow-medium;
+                    box-shadow: var.$box-shadow-md;
                 }
 
                 .profileImagePlaceholder {
@@ -231,7 +231,7 @@
         padding: 1.5rem;
         background-color: var.$light-color;
         border-radius: var.$border-radius-lg;
-        box-shadow: var.$box-shadow-medium;
+        box-shadow: var.$box-shadow-md;
         border: 1px solid var.$border-color;
 
         .deleteButton {

@@ -20,7 +20,7 @@
     background-color: $background-white;
     padding: 40px;
     border-radius: 8px;
-    box-shadow: $box-shadow-medium;
+    box-shadow: $box-shadow-md;
     width: 100%;
     max-width: 450px;
     /* Un poco más ancho si tiene más campos */
@@ -86,7 +86,7 @@
 .loginLink {
     font-size: 0.9em;
     margin-top: 20px;
-    color: $text-medium;
+    color: $text-md;
 }
 
 .loginLink a {

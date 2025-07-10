@@ -4,8 +4,8 @@
 .skillTagList {
     display: flex;
     flex-wrap: wrap; // Permite que las etiquetas pasen a la siguiente línea si no caben
-    gap: v.$spacing-small; // Espacio entre etiquetas
-    margin-top: v.$spacing-small;
+    gap: v.$spacing-sm; // Espacio entre etiquetas
+    margin-top: v.$spacing-sm;
 }
 
 // Estilo para cada etiqueta individual

@@ -1,6 +1,6 @@
 /* src/components/styles/_mixins.scss */
 @use 'variables' as var;
-@use 'sass:color'; // NUEVO: Importar el módulo color
+@use 'sass:color';
 
 @mixin center-flex {
     display: flex;
@@ -11,6 +11,13 @@
 @mixin flex-column {
     display: flex;
     flex-direction: column;
+}
+
+// NUEVO MIXIN: flex-center-between
+@mixin flex-center-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 @mixin button-base {
@@ -33,8 +40,9 @@
     border: 1px solid var.$primary-color;
 
     &:hover:not(:disabled) {
-        background-color: color.adjust(var.$danger-color, $lightness: -10%);
-        border-color: color.adjust(var.$danger-color, $lightness: -10%);
+        // CORREGIDO: Usar color.adjust en lugar de color.darken
+        background-color: color.adjust(var.$primary-color, $lightness: -10%);
+        border-color: color.adjust(var.$primary-color, $lightness: -10%);
     }
 }
 
@@ -45,12 +53,25 @@
     border: 1px solid var.$danger-color;
 
     &:hover:not(:disabled) {
-        background-color: darken(var.$danger-color, 10%);
-        border-color: darken(var.$danger-color, 10%);
+        // CORREGIDO: Usar color.adjust en lugar de color.darken
+        background-color: color.adjust(var.$danger-color, $lightness: -10%);
+        border-color: color.adjust(var.$danger-color, $lightness: -10%);
     }
 }
 
-// Mixin para breakpoints (ejemplo)
+// MIXIN: page-layout para un diseño de página consistente
+@mixin page-layout {
+    max-width: var.$max-width-content;
+    margin: 0 auto;
+    padding: var.$spacing-lg var.$spacing-md;
+
+    @include breakpoint-down(md) {
+        padding: var.$spacing-md var.$spacing-sm;
+    }
+}
+
+
+// Mixin para breakpoints
 @mixin breakpoint-up($breakpoint) {
     @media (min-width: $breakpoint) {
         @content;
@@ -76,6 +97,3 @@ $breakpoints: (
         @content;
     }
 }
-
-// Uso: @include breakpoint(md) { ... }
-// O para min-width: @media (min-width: map-get($breakpoints, md)) { ... }

@@ -25,6 +25,7 @@ export default function ViewApplicantsPage() {
             const data = await getVacancyApplicants(vacancyId);
             setApplicants(data);
         } catch (err) {
+            console.error("Error al cargar postulantes:", err); // Log original error
             setError('No se pudieron cargar los postulantes.');
         } finally {
             setIsLoading(false);
@@ -36,19 +37,36 @@ export default function ViewApplicantsPage() {
     }, [vacancyId]);
 
     const handleDecision = async (applicationId: number, decision: 'aceptado' | 'rechazado') => {
-        const originalApplicants = [...applicants];
+        const originalApplicants = [...applicants]; // Save current state for rollback
 
         try {
+            // Attempt to make the decision API call
             const response = await decideOnApplication(applicationId, decision);
+
+            // Log the successful response from the backend
+            console.log("Respuesta exitosa de la decisión:", response);
+
+            // Show success toast using the message from the backend response
             toast.success(response.message || 'Decisión procesada con éxito.');
-            // Ahora actualizamos UI después de éxito
+
+            // Update UI state to reflect the change immediately
             setApplicants(prev => prev.map(app =>
                 app.application_id === applicationId ? { ...app, status: decision } : app
             ));
+
         } catch (error: any) {
-            console.error(error);
-            toast.error('No se pudo procesar la decisión.');
-            setApplicants(originalApplicants); // Rollback
+            // Log the full error object for detailed debugging
+            console.error("Error completo al procesar la decisión:", error);
+            if (error.response) {
+                // Log the response data if available (from backend)
+                console.error("Datos de error del backend:", error.response.data);
+                // Show toast with backend error message if available, otherwise a generic one
+                toast.error(error.response.data.error || 'No se pudo procesar la decisión.');
+            } else {
+                // Show generic error for network issues or unexpected errors
+                toast.error('No se pudo procesar la decisión. Error de red o inesperado.');
+            }
+            setApplicants(originalApplicants); // Rollback to original state on error
         }
     };
 

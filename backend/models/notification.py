@@ -1,6 +1,7 @@
 # models/notification.py
 from extensions import db
 from datetime import datetime
+# REMOVED: from services.notification_service import NotificationService # This causes the circular import
 
 class Notification(db.Model):
     __tablename__ = 'notifications'
@@ -25,7 +26,10 @@ class Notification(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # Relación inversa con el usuario receptor
-    recipient = db.relationship('User', back_populates='notifications')
+    # NOTE: Ensure that in User model, you have notifications = db.relationship('Notification', back_populates='recipient')
+    # Or adjust this to 'user' if User model has 'notifications = db.relationship('Notification', back_populates='user')'
+    # Based on previous conversation, it should be 'user'
+    user = db.relationship('User', back_populates='notifications') # Changed from 'recipient' to 'user' to match User model
 
     def to_dict(self):
         return {
