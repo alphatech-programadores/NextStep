@@ -2,31 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getMyApplications } from '@/services/studentApi'; // Importamos nuestra función de API
-import styles from './Card.module.scss'; // Crearemos este archivo de estilos en un momento
+// 1. Importar el tipo 'Application' junto con la función de la API
+import { getMyApplications, Application } from '@/services/studentApi';
+import styles from './Card.module.scss';
 
-// Define la interfaz para una sola aplicación dentro del componente
-interface Application {
-    status: string;
-    id: number;
-    vacant_title: string;
-    company_name: string;
-}
+// 2. Eliminar la definición duplicada de la interfaz 'Application' que estaba aquí.
 
 export default function RecentApplicationsCard() {
-    // 3 estados: uno para los datos, uno para el estado de carga y otro para errores
+    // Ahora 'useState' usa el tipo 'Application' importado, garantizando consistencia.
     const [applications, setApplications] = useState<Application[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Función para cargar los datos
         const fetchApplications = async () => {
             try {
-                // Traer solo las 3 más recientes para el dashboard
                 const data = await getMyApplications({ page: 1, per_page: 3 });
+                // Ahora los tipos coinciden perfectamente, eliminando el error.
                 setApplications(data.applications);
             } catch (err) {
+                // Es buena práctica registrar el error real en la consola.
+                console.error("Failed to fetch applications:", err);
                 setError("No se pudieron cargar las postulaciones.");
             } finally {
                 setIsLoading(false);
@@ -34,9 +30,9 @@ export default function RecentApplicationsCard() {
         };
 
         fetchApplications();
-    }, []); // El array vacío [] asegura que esto se ejecute solo una vez, cuando el componente se monta
+    }, []); // El array vacío [] asegura que esto se ejecute solo una vez.
 
-    // Renderizado condicional basado en el estado
+    // El resto del componente para renderizar la UI sigue igual...
     if (isLoading) {
         return <div className={styles.card}>Cargando postulaciones...</div>;
     }
