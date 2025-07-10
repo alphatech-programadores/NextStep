@@ -2,7 +2,7 @@
   description = "Backend Flask para NextStep";
 
   inputs = {
-     nixpkgs.url = "https://nixos.org/channels/nixos-23.11/nixexprs.tar.xz";
+    nixpkgs.url = "https://nixos.org/channels/nixos-23.11/nixexprs.tar.xz";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -45,43 +45,25 @@
           '';
         };
 
-        # Definir la baseImage por separado
-        # No es necesario definirla si se usa directamente en 'from'
-        # baseImage = pkgs.dockerTools.pullImage {
-        #   imageName = "nixos/nix";
-        #   imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-        #   finalImageTag = "23.11";
-        # };
+        dockerImage = pkgs.dockerTools.buildImage {
+          name = "nextstep-backend";
+          tag = "latest";
 
+          copyToRoot = pkgs.buildEnv {
+            name = "app-env";
+            paths = [
+              nextstepBackend
+              pythonEnv
+            ];
+          };
 
-dockerImage = pkgs.dockerTools.buildImage {
-           name = "nextstep-backend";
-           tag = "latest";
+          config = {
+            Cmd = [ "/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
+            ExposedPorts = { "5000/tcp" = {}; };
+            WorkingDir = "/app";
+          };
+        };
 
-           fromImage = pkgs.dockerTools.pullImage {
-             imageName = "nixos/nix";
-             # El cambio final y definitivo, para coincidir con el error
-             sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-             finalImageTag = "23.11";
-           };
-
-           copyToRoot = pkgs.buildEnv {
-             name = "app-env";
-             paths = [
-               nextstepBackend
-               pythonEnv
-             ];
-           };
-
-           config = {
-             Cmd = [ "/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
-             ExposedPorts = { "5000/tcp" = {}; };
-             WorkingDir = "/app";
-           };
-         };
-
-
-         
       in {
         packages = {
           nextstep-backend-docker = dockerImage;
