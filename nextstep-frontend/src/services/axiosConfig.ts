@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 1. Crea una instancia de Axios con la URL base de tu API
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5000/api', // La base de todas tus rutas de la API
+    baseURL: process.env.NEXT_PUBLIC_API_URL, // La base de todas tus rutas de la API
     headers: {
         'Content-Type': 'application/json',
     },
