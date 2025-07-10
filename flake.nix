@@ -55,34 +55,31 @@
 
 
         dockerImage = pkgs.dockerTools.buildImage {
-          name = "nextstep-backend";
-          tag = "latest";
+           name = "nextstep-backend";
+           tag = "latest";
 
-          fromImage = pkgs.dockerTools.pullImage {
-            imageName = "nixos/nix";
-            # ANTES (Incorrecto para esta versión)
-            # imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-            
-            # AHORA (Correcto)
-            imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-            finalImageTag = "23.11";
-          };
+           fromImage = pkgs.dockerTools.pullImage {
+             imageName = "nixos/nix";
+             # CORRECCIÓN FINAL: Usa 'sha256' y quita el prefijo
+             sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+             finalImageTag = "23.11";
+           };
 
-          # ... el resto de la configuración sigue igual ...
-          copyToRoot = pkgs.buildEnv {
-            name = "app-env";
-            paths = [
-              nextstepBackend
-              pythonEnv
-            ];
-          };
+           copyToRoot = pkgs.buildEnv {
+             name = "app-env";
+             paths = [
+               nextstepBackend
+               pythonEnv
+             ];
+           };
 
-          config = {
-            Cmd = [ "/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
-            ExposedPorts = { "5000/tcp" = {}; };
-            WorkingDir = "/app";
-          };
-        };
+           config = {
+             Cmd = [ "/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
+             ExposedPorts = { "5000/tcp" = {}; };
+             WorkingDir = "/app";
+           };
+         };
+
 
          
       in {
