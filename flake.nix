@@ -2,7 +2,7 @@
   description = "Backend Flask para NextStep";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/8c38702f3717103738006322a45068a0a1abd938";
+     nixpkgs.url = "https://nixos.org/channels/nixos-23.11/nixexprs.tar.xz";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -60,11 +60,15 @@
 
           fromImage = pkgs.dockerTools.pullImage {
             imageName = "nixos/nix";
-            # Esta versión de nixpkgs usa 'imageDigest'
-            imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+            # ANTES (Incorrecto para esta versión)
+            # imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+            
+            # AHORA (Correcto)
+            sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
             finalImageTag = "23.11";
           };
 
+          # ... el resto de la configuración sigue igual ...
           copyToRoot = pkgs.buildEnv {
             name = "app-env";
             paths = [
