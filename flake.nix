@@ -59,12 +59,11 @@
            
            fromImage = pkgs.dockerTools.pullImage {
              imageName = "nixos/nix";
-             # CORRECCIÓN 1: Cambiado 'imageDigest' por 'sha256' y quitado el prefijo
-             sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+             # CORRECCIÓN: Volver a 'imageDigest' y mantener el prefijo 'sha256:'
+             imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
              finalImageTag = "23.11";
            };
 
-           # CORRECIÓN 2: Reemplazado 'contents' por 'copyToRoot' con 'buildEnv'
            copyToRoot = pkgs.buildEnv {
              name = "app-env";
              paths = [
@@ -74,7 +73,6 @@
            };
            
            config = {
-             # Ajuste: La ruta a gunicorn ahora estará en /bin dentro de la imagen
              Cmd = [ "/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
              ExposedPorts = { "5000/tcp" = {}; };
              WorkingDir = "/app";
