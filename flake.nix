@@ -54,13 +54,13 @@
         # };
 
 
-        dockerImage = pkgs.dockerTools.buildImage {
+dockerImage = pkgs.dockerTools.buildImage {
            name = "nextstep-backend";
            tag = "latest";
 
            fromImage = pkgs.dockerTools.pullImage {
              imageName = "nixos/nix";
-             # Ajustado al error actual, que pide 'sha256'
+             # El cambio final y definitivo, para coincidir con el error
              sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
              finalImageTag = "23.11";
            };
