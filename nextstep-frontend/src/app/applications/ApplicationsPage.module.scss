@@ -19,12 +19,12 @@
     @include center-flex(column);
     min-height: 50vh;
     font-size: 1.3em;
-    color: $text-medium;
+    color: $text-md;
     text-align: center;
     padding: 2rem;
     background-color: $background-white;
     border-radius: 18px;
-    box-shadow: $box-shadow-medium;
+    box-shadow: $box-shadow-md;
     max-width: 800px;
     margin: 3rem auto;
 }
@@ -65,7 +65,7 @@
 
 .filterSelect {
     padding: 0.8rem 1.2rem;
-    border: 1px solid $border-color-medium;
+    border: 1px solid $border-color-md;
     border-radius: 8px;
     font-size: 1em;
     background-color: $background-white;
@@ -100,7 +100,7 @@
 }
 
 .noApplications {
-    color: $text-medium;
+    color: $text-md;
     font-style: italic;
 }
 
@@ -114,7 +114,7 @@
     background-color: $background-white;
     padding: 2.2rem;
     border-radius: 16px;
-    box-shadow: $box-shadow-medium;
+    box-shadow: $box-shadow-md;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -145,7 +145,7 @@
 
 .metaInfo {
     font-size: 0.95em;
-    color: $text-medium;
+    color: $text-md;
     margin-bottom: 0.8rem;
 }
 
@@ -211,7 +211,7 @@
 
 .appliedAt {
     font-size: 0.85em;
-    color: $text-medium;
+    color: $text-md;
 }
 
 .viewDetailsButton {

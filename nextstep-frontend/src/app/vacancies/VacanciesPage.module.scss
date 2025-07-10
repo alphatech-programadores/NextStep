@@ -1,6 +1,8 @@
 // src/app/vacancies/VacanciesPage.module.scss
+
 @use '../../components/styles/_variables' as var;
 @use '../../components/styles/mixins' as mixin;
+
 
 .vacanciesPage {
     @include mixin.flex-column;
@@ -9,11 +11,13 @@
     background-color: var.$background-color-light;
     min-height: calc(100vh - var.$navbar-height);
 
+
     .title {
         color: var.$primary-color;
         margin-bottom: 2.5rem;
         font-size: 2.5rem;
         text-align: center;
+
 
         @include mixin.breakpoint-down(md) {
             font-size: 2rem;
@@ -21,25 +25,26 @@
         }
     }
 
+
     .searchForm {
         display: flex;
-        flex-wrap: wrap;
-        gap: 1.2rem;
+        flex-direction: column;
+        gap: 1.2rem; // Espacio entre el input, las filas de filtros y el botón
         margin-bottom: 2rem;
-        padding: 1rem;
-        background-color: var.$light-color;
+        padding: 1.5rem;
+        background-color: var.$light-color; // Fondo claro para el contenedor del formulario
         border-radius: var.$border-radius;
-        box-shadow: var.$box-shadow-light;
+        box-shadow: var.$box-shadow-md; // Sombra más pronunciada para resaltar el formulario
         width: 100%;
-        max-width: 900px;
-        justify-content: center;
+        max-width: 960px;
         align-items: center;
 
-        .searchInput,
-        .filterSelect {
-            flex: 3;
-            min-width: 280px;
-            padding: 0.8rem 1rem;
+
+        .searchInput {
+            width: 100%;
+            max-width: 800px; // Alinea con el max-width de filterRowsContainer
+            min-width: unset;
+            padding: 0.8rem 1.2rem; // Ajuste ligero del padding
             border: 1px solid var.$border-color;
             border-radius: var.$border-radius-sm;
             font-size: 1rem;
@@ -49,15 +54,36 @@
             outline: none;
             height: 44px;
 
+
             &:focus {
-                border-color: var.$accent-color;
-                box-shadow: 0 0 0 3px rgba(var.$accent-color, 0.2);
+                border-color: var.$primary-color; // Borde primario al enfocar
+                box-shadow: 0 0 0 3px rgba(var.$primary-color, 0.2); // Sombra más notoria al enfocar
             }
         }
+
+
+        .filterRowsContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            width: 100%;
+            max-width: 800px; // Mantener alineación
+        }
+
+
+        .filterRow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            width: 100%;
+        }
+
 
         .filterSelect {
             flex: 1;
-            min-width: 160px;
+            min-width: 200px;
+            height: 44px;
             padding: 0.8rem 1rem;
             border: 1px solid var.$border-color;
             border-radius: var.$border-radius-sm;
@@ -66,37 +92,106 @@
             background-color: var.$light-color;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             outline: none;
-            height: 44px;
+            appearance: none; // Remover estilo por defecto del sistema
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); // Icono de flecha personalizado
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 18px;
+
+
+            &:focus {
+                border-color: var.$primary-color; // Borde primario al enfocar
+                box-shadow: 0 0 0 3px rgba(var.$primary-color, 0.2); // Sombra más notoria al enfocar
+            }
+
 
             option {
                 color: var.$text-color;
-            }
-
-            &:focus {
-                border-color: var.$accent-color;
-                box-shadow: 0 0 0 3px rgba(var.$accent-color, 0.2);
+                background-color: var.$light-color; // Asegurar fondo consistente en opciones
             }
         }
 
+
         .searchButton {
-            @include mixin.button-primary;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
-            height: 44px;
+            @include mixin.button-primary; // Reutiliza tu mixin primario
+            padding: 0.8rem 2rem; // Ajuste de padding
+            font-size: 1.1rem; // Un poco más grande
+            height: 48px; // Un poco más alto
+            width: 200px;
+            max-width: 100%;
+            margin-top: 0.5rem;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+
+            &:hover {
+                transform: translateY(-2px); // Efecto sutil al pasar el ratón
+                box-shadow: var.$box-shadow-md; // Sombra al pasar el ratón
+            }
+
+
+            &:active {
+                transform: translateY(0); // Efecto al hacer click
+                box-shadow: none;
+            }
+        }
+
+
+        // Media Queries for overall form responsiveness (keep as is)
+        @include mixin.breakpoint-down(md) {
+            .filterRow {
+                justify-content: center;
+            }
+        }
+
+
+        @include mixin.breakpoint-down(sm) {
+            .filterRow {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .filterSelect {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .searchButton {
+                width: 100%;
+            }
+        }
+
+
+        // Common styles for inputs and selects (no change needed here)
+        .searchInput,
+        .filterSelect {
+            // These properties were common, moved them out for cleaner code
+        }
+
+        // Media Queries for overall form responsiveness (keep as is)
+        @include mixin.breakpoint-down(md) {
+            .filterRow {
+                justify-content: center;
+            }
         }
 
         @include mixin.breakpoint-down(sm) {
+            .filterRow {
+                flex-direction: column;
+                align-items: center;
+            }
 
-            .searchInput,
-            .filterSelect,
-            .searchButton {
-                flex: none;
+            .filterSelect {
                 width: 100%;
                 min-width: unset;
+            }
+
+            .searchButton {
+                width: 100%;
             }
         }
     }
 
+    // ... (rest of your SCSS remains the same)
     .loadingMessage,
     .errorMessage,
     .noResults {
@@ -126,11 +221,11 @@
     }
 
     .vacancyCard {
-        position: relative; // ¡Asegúrate de tener esto!
+        position: relative;
         background-color: var.$light-color;
         padding: 1.5rem;
         border-radius: var.$border-radius;
-        box-shadow: var.$box-shadow-medium;
+        box-shadow: var.$box-shadow-md;
         border: 1px solid var.$border-color;
         @include mixin.flex-column;
         gap: 0.8rem;
@@ -138,7 +233,7 @@
 
         &:hover {
             transform: translateY(-5px);
-            box-shadow: var.$box-shadow-large;
+            box-shadow: var.$box-shadow-md;
         }
 
         .cardHeader {
@@ -164,7 +259,7 @@
 
         .cardDescription {
             font-size: 0.9rem;
-            color: var.$text-secondary; // Color para la descripción
+            color: var.$text-secondary;
             line-height: 1.5;
             flex-grow: 1;
         }
@@ -238,7 +333,6 @@
             }
         }
 
-        // NUEVO: Estilo para el indicador de postulado
         .appliedIndicator {
             position: absolute;
             bottom: 0.5rem;
@@ -251,6 +345,5 @@
             font-weight: bold;
             z-index: 10;
         }
-
     }
 }

@@ -17,7 +17,7 @@
     background-color: $background-white; // Coherente con features background
     padding: 40px;
     border-radius: 8px;
-    box-shadow: $box-shadow-medium; // Usando variable para sombra
+    box-shadow: $box-shadow-md; // Usando variable para sombra
     width: 100%;
     max-width: 400px;
     text-align: center;
@@ -86,7 +86,7 @@
 .registerLink {
     font-size: 0.9em;
     margin-top: 20px;
-    color: $text-medium; // Consistente con footer text
+    color: $text-md; // Consistente con footer text
 }
 
 .forgotPassword a,

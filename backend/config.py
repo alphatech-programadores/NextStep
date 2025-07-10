@@ -4,6 +4,8 @@ class Config:
     BASE_URL = os.getenv("BASE_URL", "http://localhost:3000")
     UPLOADED_FILES_BASE_URL = "http://localhost:5000"
     SECRET_KEY = os.getenv("SECRET_KEY", "supersecret")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000") # <--- AÑADIDO ESTO
+
     # Si la carpeta 'instance' está en el mismo nivel que app.py y config.py está en la misma carpeta:
     # Si config.py está en la raíz de backend y 'instance' también:
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'instance', 'nextstep.db')

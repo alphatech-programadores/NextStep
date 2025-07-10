@@ -10,17 +10,17 @@
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: v.$spacing-large;
-    margin-top: v.$spacing-medium;
+    gap: v.$spacing-lg;
+    margin-top: v.$spacing-md;
 }
 
 .statItem {
     text-align: center;
-    padding: v.$spacing-small;
+    padding: v.$spacing-sm;
 }
 
 .statIcon {
-    margin-bottom: v.$spacing-small;
+    margin-bottom: v.$spacing-sm;
     color: rgba(255, 255, 255, 0.8);
 }
 

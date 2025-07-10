@@ -8,12 +8,10 @@ from config import Config
 from flask_cors import CORS
 from extensions import db, jwt, mail, migrate, jwt_redis_blacklist
 from config import Config
-from flask_cors import CORS
 from extensions import db, jwt, mail, migrate
 from datetime import timedelta
 from dotenv import load_dotenv
 load_dotenv()
-# import recommender
 
 # Routes
 from routes.institution_profile_routes import inst_profile_bp
@@ -22,9 +20,8 @@ from routes.vacants import vacants_bp
 from routes.application import app_bp
 from routes.profile import profile_bp
 from routes.notifications import notification_bp
-from routes.saved_vacancies_routes import saved_vacancies_bp 
-# Por implementar
-# from routes.recommendation import recommend_bp 
+from routes.saved_vacancies_routes import saved_vacancies_bp
+#from routes.recommendation import recommend_bp # <--- Asegúrate de que esta línea esté descomentada
 
 
 def create_app():
@@ -34,7 +31,10 @@ def create_app():
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     app.config.from_object(Config)
 
-    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads') 
+    # Inicializa CORS aquí, antes de registrar blueprints para asegurar que se aplique globalmente
+    CORS(app, supports_credentials=True, resources = {r"/api/*": { "origins": "*" } } )
+
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
     upload_folder_path = app.config['UPLOAD_FOLDER']
 
     UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), 'uploads'))
@@ -45,8 +45,6 @@ def create_app():
     os.makedirs(os.path.join(upload_folder_path, 'cvs'), exist_ok=True)
     os.makedirs(os.path.join(upload_folder_path, 'profile_pics'), exist_ok=True)
     os.makedirs(os.path.join(upload_folder_path, 'logos'), exist_ok=True)
-
-
 
 
     jwt = JWTManager(app)
@@ -67,11 +65,12 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(app_bp, url_prefix="/api/apply")
     app.register_blueprint(profile_bp, url_prefix="/api/profile")
-    app.register_blueprint(inst_profile_bp) 
+    app.register_blueprint(inst_profile_bp)
     app.register_blueprint(notification_bp, url_prefix="/api/notifications")
     app.register_blueprint(saved_vacancies_bp)
-    # Por implementar
-    # app.register_blueprint(recommender, url_prefix="/api/recommendations")
+    # Registra el blueprint de recomendaciones con la barra final en el prefijo
+    #app.register_blueprint(recommend_bp)
+
     @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
         response = send_from_directory(upload_folder_path, filename)
@@ -81,7 +80,6 @@ def create_app():
     def home():
         return jsonify({"msg": "NextStep API funcionando 👌"})
 
-    CORS(app, supports_credentials=True, resources = {r"/api/*": { "origins": "*" } } )
 
     return app
 

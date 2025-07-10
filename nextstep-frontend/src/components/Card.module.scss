@@ -5,11 +5,11 @@
 .card {
     background-color: #fff;
     border-radius: v.$border-radius;
-    padding: v.$spacing-large;
+    padding: v.$spacing-lg;
     box-shadow: v.$box-shadow;
     display: flex;
     flex-direction: column;
-    gap: v.$spacing-medium;
+    gap: v.$spacing-md;
 }
 
 .cardTitle {
@@ -38,7 +38,7 @@
 }
 
 .applicationItem {
-    padding: v.$spacing-small 0;
+    padding: v.$spacing-sm 0;
     border-bottom: 1px solid #eee;
 
     &:last-child {

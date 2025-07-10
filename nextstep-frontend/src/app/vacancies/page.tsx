@@ -180,12 +180,14 @@ export default function VacanciesPage() {
         return <ProtectedRoute><div className={styles.loadingMessage}>Cargando usuario...</div></ProtectedRoute>;
     }
 
+
     return (
         <ProtectedRoute>
             <div className={styles.vacanciesPage}>
                 <h1 className={styles.title}>Explorar Oportunidades de Prácticas</h1>
 
                 <form onSubmit={handleSearch} className={styles.searchForm}>
+                    {/* Search Input - Full Width */}
                     <FormInput
                         type="text"
                         placeholder="Buscar por palabra clave (descripción, requisitos, área...)"
@@ -194,36 +196,49 @@ export default function VacanciesPage() {
                         className={styles.searchInput}
                         name="searchTerm"
                     />
-                    <select name="area" value={areaFilter} onChange={handleFilterChange} className={styles.filterSelect}>
-                        <option value="">Todas las Áreas</option>
-                        {uniqueAreas.map((area) => (
-                            <option key={area} value={area}>{area}</option>
-                        ))}
-                    </select>
-                    <select name="modality" value={modalityFilter} onChange={handleFilterChange} className={styles.filterSelect}>
-                        <option value="">Todas las Modalidades</option>
-                        {uniqueModalities.map((mod) => (
-                            <option key={mod} value={mod}>{mod}</option>
-                        ))}
-                    </select>
-                    <select name="hours" value={hoursFilter} onChange={handleFilterChange} className={styles.filterSelect}>
-                        <option value="">Todas las Horas</option>
-                        {uniqueHours.map((hours) => (
-                            <option key={hours} value={hours}>{hours}</option>
-                        ))}
-                    </select>
-                    <select name="location" value={locationFilter} onChange={handleFilterChange} className={styles.filterSelect}>
-                        <option value="">Todas las Ubicaciones</option>
-                        {uniqueLocations.map((loc) => (
-                            <option key={loc} value={loc}>{loc}</option>
-                        ))}
-                    </select>
-                    <select name="tag" value={tagFilter} onChange={handleFilterChange} className={styles.filterSelect}>
-                        <option value="">Todas las Etiquetas</option>
-                        {uniqueTags.map((tag) => (
-                            <option key={tag} value={tag}>{tag}</option>
-                        ))}
-                    </select>
+
+                    {/* Filter Rows Container */}
+                    <div className={styles.filterRowsContainer}>
+                        {/* First row of filters */}
+                        <div className={styles.filterRow}>
+                            <select name="area" value={areaFilter} onChange={handleFilterChange} className={styles.filterSelect}>
+                                <option value="">Todas las Áreas</option>
+                                {uniqueAreas.map((area) => (
+                                    <option key={area} value={area}>{area}</option>
+                                ))}
+                            </select>
+                            <select name="modality" value={modalityFilter} onChange={handleFilterChange} className={styles.filterSelect}>
+                                <option value="">Todas las Modalidades</option>
+                                {uniqueModalities.map((mod) => (
+                                    <option key={mod} value={mod}>{mod}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Second row of filters */}
+                        <div className={styles.filterRow}>
+                            <select name="hours" value={hoursFilter} onChange={handleFilterChange} className={styles.filterSelect}>
+                                <option value="">Todas las Horas</option>
+                                {uniqueHours.map((hours) => (
+                                    <option key={hours} value={hours}>{hours}</option>
+                                ))}
+                            </select>
+                            <select name="location" value={locationFilter} onChange={handleFilterChange} className={styles.filterSelect}>
+                                <option value="">Todas las Ubicaciones</option>
+                                {uniqueLocations.map((loc) => (
+                                    <option key={loc} value={loc}>{loc}</option>
+                                ))}
+                            </select>
+                            <select name="tag" value={tagFilter} onChange={handleFilterChange} className={styles.filterSelect}>
+                                <option value="">Todas las Etiquetas</option>
+                                {uniqueTags.map((tag) => (
+                                    <option key={tag} value={tag}>{tag}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div> {/* End of filterRowsContainer */}
+
+                    {/* Search Button */}
                     <button type="submit" className={styles.searchButton}>Buscar</button>
                 </form>
 

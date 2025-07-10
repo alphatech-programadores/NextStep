@@ -1,38 +1,34 @@
-// src/app/auth/login/page.tsx (o donde esté tu LoginPage.tsx)
-
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import FormInput from '@/components/Input'; // Asumiendo que Input.tsx es tu FormInput
+import FormInput from '@/components/Input';
 import toast from 'react-hot-toast';
-
-
-// ¡Importa tu módulo de estilos!
-import styles from './login.module.scss'; // Asegúrate de que esta ruta sea correcta
-import axiosInstance from '@/services/axiosConfig';
+import styles from './login.module.scss';
+import { login as authServiceLogin } from '@/services/authService';
 
 export default function LoginPage() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login: contextLogin } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false); // Estado para manejar el loading del botón
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            const response = await axiosInstance.post("/auth/login", { email, password });
-            const { access_token, user: userData } = response.data;
+            const responseData = await authServiceLogin(email, password);
+            // CORREGIDO: Destructurar user_role directamente, no 'user: userData'
+            const { access_token, user_role } = responseData;
 
-            login(access_token);
+            contextLogin(access_token);
             toast.success("Inicio de sesión exitoso ✅");
 
             // --- Aquí decides a dónde redirigir ---
-            if (userData.role === "institution") {
+            if (user_role === "institution") {
                 router.push("/institution");
             } else {
                 router.push("/dashboard");
@@ -49,20 +45,20 @@ export default function LoginPage() {
             setLoading(false);
         }
     };
+
     return (
-        <div className={styles.container}> {/* Contenedor principal para centrar el formulario */}
-            <div className={styles.card}> {/* Una "tarjeta" o panel para el formulario */}
-                <h1 className={styles.title}>Iniciar Sesión</h1> {/* Título con estilo */}
-                <form onSubmit={handleLogin} className={styles.form}> {/* Formulario con estilo */}
-                    <div className={styles.inputGroup}> {/* Agrupamos cada input con su label si FormInput no lo hace */}
+        <div className={styles.container}>
+            <div className={styles.card}>
+                <h1 className={styles.title}>Iniciar Sesión</h1>
+                <form onSubmit={handleLogin} className={styles.form}>
+                    <div className={styles.inputGroup}>
                         <FormInput
-                            label="Correo electrónico" // Texto más amigable
+                            label="Correo electrónico"
                             name="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder=''
-                        // Podrías añadir un className prop a FormInput si lo soporta para más personalización
                         />
                     </div>
                     <div className={styles.inputGroup}>
@@ -78,13 +74,12 @@ export default function LoginPage() {
 
                     <button
                         type="submit"
-                        className={styles.submitButton} // Botón con estilo
-                        disabled={loading} // Deshabilitar el botón mientras carga
+                        className={styles.submitButton}
+                        disabled={loading}
                     >
                         {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                     </button>
 
-                    {/* Espacio para enlaces de recuperación de contraseña o registro */}
                     <p className={styles.forgotPassword}>
                         ¿Olvidaste tu contraseña? <a href="/auth/forgot-password">Recupérala aquí</a>
                     </p>
