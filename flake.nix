@@ -2,7 +2,7 @@
   description = "Backend Flask para NextStep";
 
   inputs = {
- nixpkgs.url = "github:NixOS/nixpkgs/f0322329e48f1c42b109e5331f79f116503b1e32"; #más reciente si lo deseas
+    nixpkgs.url = "github:NixOS/nixpkgs/737521d9d33a90190d7c2a4da844f95f4be867f0";
     flake-utils.url = "github:numtide/flake-utils";
 
   };
@@ -55,23 +55,23 @@
         # };
 
         dockerImage = pkgs.dockerTools.buildImage {
-           name = "nextstep-backend";
-           tag = "latest";
-           
-           fromImage = pkgs.dockerTools.pullImage {
-             imageName = "nixos/nix";
-             # CORRECCIÓN PARA EL ERROR ACTUAL: Usa imageDigest
-             imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-             finalImageTag = "23.11";
-           };
+          name = "nextstep-backend";
+          tag = "latest";
 
-           copyToRoot = pkgs.buildEnv {
-             name = "app-env";
-             paths = [
-               nextstepBackend
-               pythonEnv
-             ];
-           };
+          fromImage = pkgs.dockerTools.pullImage {
+            imageName = "nixos/nix";
+            # AJUSTE: La versión 23.11 usa 'imageDigest'
+            imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+            finalImageTag = "23.11";
+          };
+
+          copyToRoot = pkgs.buildEnv {
+            name = "app-env";
+            paths = [
+              nextstepBackend
+              pythonEnv
+            ];
+          };
            
            config = {
              Cmd = [ "/bin/gunicorn" "app:create_app" "--bind" "0.0.0.0:5000" "--workers" "2" ];
