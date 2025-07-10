@@ -2,8 +2,9 @@
   description = "Backend Flask para NextStep";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11"; # Puedes usar una versión más reciente si lo deseas
+ nixpkgs.url = "github:NixOS/nixpkgs/f0322329e48f1c42b109e5331f79f116503b1e32"; #más reciente si lo deseas
     flake-utils.url = "github:numtide/flake-utils";
+
   };
 
   outputs = { self, nixpkgs, flake-utils }:
@@ -59,8 +60,8 @@
            
            fromImage = pkgs.dockerTools.pullImage {
              imageName = "nixos/nix";
-             # CORRECCIÓN: Volver a 'sha256' y quitar el prefijo
-             sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+             # CORRECCIÓN PARA EL ERROR ACTUAL: Usa imageDigest
+             imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
              finalImageTag = "23.11";
            };
 
@@ -78,6 +79,7 @@
              WorkingDir = "/app";
            };
          };
+
          
       in {
         packages = {
