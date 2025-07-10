@@ -45,14 +45,18 @@
           '';
         };
 
+        # Definir la baseImage por separado
+        baseImage = pkgs.dockerTools.pullImage {
+          imageName = "nixos/nix";
+          imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+          finalImageTag = "23.11";
+        };
+
         dockerImage = pkgs.dockerTools.buildImage {
           name = "nextstep-backend";
           tag = "latest";
-          from = pkgs.dockerTools.pullImage {
-            imageName = "nixos/nix";
-            imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
-            finalImageTag = "23.11";
-          };
+          # CAMBIO CLAVE AQUÍ: Usar 'baseImage' en lugar de 'from' y pasar la derivación
+          baseImage = baseImage;
           contents = [
             nextstepBackend
             pythonEnv
@@ -65,11 +69,9 @@
         };
 
       in {
-        # CAMBIO CLAVE AQUÍ: Retorna directamente los atributos 'packages' y 'devShells'
-        # para el sistema actual.
         packages = {
-          nextstep-backend-docker = dockerImage; # Accesible como .#nextstep-backend-docker
-          default = dockerImage; # Accesible como .#default
+          nextstep-backend-docker = dockerImage;
+          default = dockerImage;
         };
 
         devShells = {
