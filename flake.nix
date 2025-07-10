@@ -59,8 +59,8 @@
            
            fromImage = pkgs.dockerTools.pullImage {
              imageName = "nixos/nix";
-             # CORRECCIÓN: Volver a 'imageDigest' y mantener el prefijo 'sha256:'
-             imageDigest = "sha256:388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
+             # CORRECCIÓN: Volver a 'sha256' y quitar el prefijo
+             sha256 = "388839071c356e80b27563503b44b82d4778401314902b7405e6080353c7c25c";
              finalImageTag = "23.11";
            };
 
@@ -78,7 +78,7 @@
              WorkingDir = "/app";
            };
          };
-
+         
       in {
         packages = {
           nextstep-backend-docker = dockerImage;
