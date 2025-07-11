@@ -39,32 +39,42 @@
 
           buildInputs = [ pythonEnv ];
 
+          # --- FASE DE INSTALACIÓN CORREGIDA ---
+          # Esta versión es más robusta para asegurar que todos los archivos se copien.
           installPhase = ''
             mkdir -p $out/app
-            cp -r $src/* $out/app/
+            cp -r ./* $out/app/
           '';
         };
 
         dockerImage = pkgs.dockerTools.buildImage {
-            name = "nextstep-backend";
-            tag = "latest";
+          name = "nextstep-backend";
+          tag = "latest";
 
-            copyToRoot = pkgs.buildEnv {
-              name = "app-env";
-              paths = [
-                nextstepBackend
-                pythonEnv
-              ];
-            };
-
-            config = {
-              # ----- LÍNEA MODIFICADA -----
-              Cmd = [ "/bin/gunicorn" "wsgi:app" "--bind" "0.0.0.0:5000" "--workers" "2" ]; # Cambiado de "app:create_app" a "wsgi:app"
-              
-              ExposedPorts = { "5000/tcp" = {}; };
-              WorkingDir = "/app"; # Asegúrate de que tu código está en /app dentro del contenedor
-            };
+          # Añadimos busybox para tener herramientas de shell (/bin/sh) para depurar
+          copyToRoot = pkgs.buildEnv {
+            name = "app-env";
+            paths = [
+              nextstepBackend
+              pythonEnv
+              pkgs.busybox 
+            ];
           };
+
+          config = {
+            # Comando final y corregido
+            Cmd = [
+              "/bin/gunicorn"
+              "--chdir" "/app"
+              "wsgi:app"
+              "--bind" "0.0.0.0:5000"
+              "--workers" "2"
+            ];
+            
+            ExposedPorts = { "5000/tcp" = {}; };
+            WorkingDir = "/app";
+          };
+        };
 
       in {
         packages = {
@@ -85,4 +95,3 @@
       }
     );
 }
-
